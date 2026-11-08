@@ -1,0 +1,44 @@
+<!-- @dsCard group="Basics" height=460 subtitle="An agent-written task file, rendered and sanitised, in the system type" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MarkdownText — preview</title>
+<style>
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+  p, h1, h2, h3, ul, ol, dl, dd { margin: 0; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-6); max-width: 720px; }
+  .state { color: var(--ink-secondary); margin-bottom: var(--space-2); }
+  .muted { color: var(--ink-secondary); }
+  .mono { font-family: var(--font-mono); }
+  a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .mark { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; }
+  .mark i { width: 10px; height: 10px; border-radius: var(--radius-full); flex: none; }
+  .mark .ok { background: var(--pen); } .mark .degraded { background: var(--pen-partial); }
+  .mark .failing { background: var(--pen-missed); } .mark .unknown { box-shadow: inset 0 0 0 2px var(--control-border); }
+  .caution { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--caution-ink); }
+  .error { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--error-ink); }
+  .caution svg, .error svg { flex: none; width: 16px; height: 16px; margin-top: 3px; }
+  .facts { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+  .facts > div { display: grid; gap: 2px; }
+  .facts dt { color: var(--ink-secondary); }
+  @media (min-width: 640px) { .facts { grid-template-columns: minmax(9rem, max-content) 1fr; gap: var(--space-2) var(--space-6); } .facts > div { display: contents; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--space-6); display: grid; gap: var(--space-4); }
+  @media (max-width: 639px) { .panel { padding: var(--space-4); } }
+  .md { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--space-6); max-width: 65ch; font-size: 18px; line-height: 26px; }
+  .md > * + * { margin-top: var(--space-3); }
+  .md h3 { font-size: 22px; line-height: 28px; font-weight: 600; }
+  .md ol, .md ul { padding-left: var(--space-6); }
+  .md code { font-family: var(--font-mono); font-size: 16px; }
+</style>
+</head>
+<body>
+<div class="stack">
+  <div><p class="caption state mono">tasks/documentation-summary.md</p>
+  <div class="md"><h3>Documentation summary</h3><p>Every morning, read the journal entries added to the home-server repo since the last run and post a <strong>five-line summary</strong> to <code>#server</code>.</p><ol><li>List the new files under <code>journal/</code>.</li><li>Summarise each in one line.</li><li>Post the summary. If there is nothing new, post nothing.</li></ol><p>See <a href="#">the runbook</a>.</p></div></div>
+</div>
+<script></script>
+</body>
+</html>

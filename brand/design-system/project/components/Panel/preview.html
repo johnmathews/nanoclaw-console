@@ -1,59 +1,45 @@
-<!-- @dsCard group="Basics" height=420 subtitle="The raised surface for dialogs, popovers and cards" -->
+<!-- @dsCard group="Basics" height=420 subtitle="The raised surface: the overview’s status cards and a task file" -->
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Panel — preview</title>
 <style>
-  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); }
-  .row { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
-  .cell { display: flex; flex-direction: column; gap: var(--space-1); flex: 1 1 280px; min-width: 0; max-width: 420px; }
-  .state { margin: 0; color: var(--ink-secondary); }
-
-  .panel { box-sizing: border-box; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--space-6); }
-  .panel.compact { padding: var(--space-4); }
-  .panel h2 { margin: 0 0 var(--space-1); }
-  .panel p { margin: 0; }
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+  p, h1, h2, h3, ul, ol, dl, dd { margin: 0; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-6); max-width: 720px; }
+  .state { color: var(--ink-secondary); margin-bottom: var(--space-2); }
   .muted { color: var(--ink-secondary); }
-  .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
-  .actions.tight { justify-content: flex-start; margin-top: var(--space-2); }
-  .rule { border: 0; border-top: 1px solid var(--line); margin: var(--space-3) 0; }
-  .line { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
-
-  .btn { display: inline-flex; align-items: center; height: 44px; padding: 0 var(--space-4); border: 1px solid transparent; border-radius: var(--radius-md); font: 600 16px/24px var(--font-sans); cursor: pointer; text-wrap: nowrap; }
-  .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .primary { background: var(--ink); color: var(--on-ink); }
-  .secondary { background: transparent; color: var(--ink); border-color: var(--control-border); }
-  .quiet { background: transparent; color: var(--ink); }
+  .mono { font-family: var(--font-mono); }
+  a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .mark { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; }
+  .mark i { width: 10px; height: 10px; border-radius: var(--radius-full); flex: none; }
+  .mark .ok { background: var(--pen); } .mark .degraded { background: var(--pen-partial); }
+  .mark .failing { background: var(--pen-missed); } .mark .unknown { box-shadow: inset 0 0 0 2px var(--control-border); }
+  .caution { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--caution-ink); }
+  .error { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--error-ink); }
+  .caution svg, .error svg { flex: none; width: 16px; height: 16px; margin-top: 3px; }
+  .facts { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+  .facts > div { display: grid; gap: 2px; }
+  .facts dt { color: var(--ink-secondary); }
+  @media (min-width: 640px) { .facts { grid-template-columns: minmax(9rem, max-content) 1fr; gap: var(--space-2) var(--space-6); } .facts > div { display: contents; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--space-6); display: grid; gap: var(--space-4); }
+  @media (max-width: 639px) { .panel { padding: var(--space-4); } }
 </style>
 </head>
 <body>
-<div class="row">
-  <div class="cell">
-    <p class="caption state">Card, padding space-6</p>
-    <section class="panel" aria-labelledby="import-title">
-      <h2 class="title-2" id="import-title">Data from before accounts</h2>
-      <p class="body muted">This browser holds a log saved before accounts existed. If it's yours, add it to your account. Adds 12 weekly plans and 140 marked days. Existing plans and marks stay as they are.</p>
-      <div class="actions">
-        <button class="btn quiet" type="button">Later</button>
-        <button class="btn secondary" type="button">Not mine</button>
-        <button class="btn primary" type="button">Add to my account</button>
-      </div>
-    </section>
-  </div>
-  <div class="cell">
-    <p class="caption state">Popover body, padding space-4, 44px buttons</p>
-    <div class="panel compact" role="group" aria-label="Settings">
-      <p class="label">Account</p>
-      <div class="line"><span class="caption"><span class="muted">Signed in as</span> anna</span><button class="btn secondary" type="button">Sign out</button></div>
-      <hr class="rule">
-      <p class="label">Data</p>
-      <div class="actions tight">
-        <button class="btn secondary" type="button">Export</button>
-        <button class="btn secondary" type="button">Import…</button>
-      </div>
-    </div>
-  </div>
+<div class="stack">
+  <section class="panel" aria-labelledby="p1"><h2 id="p1" class="title-2">Claude</h2>
+    <p class="body"><span class="mark"><i class="ok" aria-hidden="true"></i>OK</span><span class="muted"> · </span>Claude is answering NanoClaw’s agents.</p>
+    <dl class="facts caption"><div><dt>Last success</dt><dd>today at 15:28 CET (two minutes ago)</dd></div><div><dt>Refused tokens</dt><dd>None in the last hour, none in 24 hours</dd></div></dl>
+  </section>
+  <section class="panel" aria-labelledby="p2"><h2 id="p2" class="title-2">Weekly quota</h2>
+    <p class="caption muted">Weekly quota of the host's ~/.claude login (not NanoClaw's token)</p>
+    <p class="title-2">39% used</p>
+    <p class="caption">Resets Tuesday at 21:00 CET (in two days)</p>
+  </section>
 </div>
 <script></script>
 </body>

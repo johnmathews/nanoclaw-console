@@ -12,7 +12,7 @@ export default mergeConfig(
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,vue}'],
-        exclude: ['src/main.ts', 'src/**/__tests__/**'],
+        exclude: ['src/main.ts', 'src/**/__tests__/**', 'src/fixtures/**'],
         reporter: ['text', 'html'],
         // Floors at the level the suite holds; `make test` fails if coverage drops below them.
         thresholds: { lines: 95, functions: 95, statements: 95, branches: 95 },

@@ -11,7 +11,7 @@ Four project roles each mean exactly one thing:
 | `pen-missed` | Failing: a failing check's status mark | The console's own errors (`error-ink`) |
 | `caution-ink` | A caution, always in words | Errors |
 
-**The three pens** come from Tracker's green, yellow and red markers, with their values unchanged. `pen` reaches 4.5:1 as text on `canvas` and `panel`, and `pen` and `pen-missed` reach 3:1 as a mark on `canvas`, `panel` and `tile`, in both themes. `pen-partial` is 1.5–1.9:1 on the light grounds, so it is only ever a filled mark beside words, never text. Which shape the mark takes (a dot, a filled box) is decided with the first screen that shows a status, by a mockup.
+**The three pens** come from Tracker's green, yellow and red markers, with their values unchanged. `pen` reaches 4.5:1 as text on `canvas` and `panel`, and `pen` and `pen-missed` reach 3:1 as a mark on `canvas`, `panel` and `tile`, in both themes. `pen-partial` is 1.5–1.9:1 on the light grounds, so it is only ever a filled mark beside words, never text. The mark is a 10px dot (`radius-full`), with unknown as a hollow `control-border` ring (StatusMark card). That is option A of the mockup `mockups/261108-status-mark`, built while John's pick is open (decision B26).
 
 ## Type
 

@@ -1,33 +1,44 @@
-<!-- @dsCard group="Feedback" height=300 subtitle="Error, caution, success and info: each an icon and words" -->
+<!-- @dsCard group="Feedback" height=360 subtitle="Error, caution, success and info: each an icon and words" -->
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>InlineMessage — preview</title>
 <style>
-  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); }
-  .stack { display: flex; flex-direction: column; gap: var(--space-4); max-width: 520px; }
-  .cell { display: flex; flex-direction: column; gap: var(--space-1); }
-  .state { margin: 0; color: var(--ink-secondary); }
-
-  .msg { display: flex; gap: var(--space-2); align-items: flex-start; margin: 0; }
-  .msg svg { flex: none; width: 16px; height: 16px; margin-top: 2px; }
-  .msg.error { color: var(--error-ink); }
-  .msg.caution { color: var(--caution-ink); }
-  .msg.success { color: var(--ink); }
-  .msg.info { color: var(--ink-secondary); }
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+  p, h1, h2, h3, ul, ol, dl, dd { margin: 0; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-6); max-width: 720px; }
+  .state { color: var(--ink-secondary); margin-bottom: var(--space-2); }
+  .muted { color: var(--ink-secondary); }
+  .mono { font-family: var(--font-mono); }
+  a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .mark { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; }
+  .mark i { width: 10px; height: 10px; border-radius: var(--radius-full); flex: none; }
+  .mark .ok { background: var(--pen); } .mark .degraded { background: var(--pen-partial); }
+  .mark .failing { background: var(--pen-missed); } .mark .unknown { box-shadow: inset 0 0 0 2px var(--control-border); }
+  .caution { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--caution-ink); }
+  .error { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--error-ink); }
+  .caution svg, .error svg { flex: none; width: 16px; height: 16px; margin-top: 3px; }
+  .facts { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+  .facts > div { display: grid; gap: 2px; }
+  .facts dt { color: var(--ink-secondary); }
+  @media (min-width: 640px) { .facts { grid-template-columns: minmax(9rem, max-content) 1fr; gap: var(--space-2) var(--space-6); } .facts > div { display: contents; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--space-6); display: grid; gap: var(--space-4); }
+  @media (max-width: 639px) { .panel { padding: var(--space-4); } }
 </style>
 </head>
 <body>
 <div class="stack">
-  <div class="cell"><p class="caption state">Error</p>
-    <p class="caption msg error" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>Can’t reach the server. Check the connection and try again.</span></p></div>
-  <div class="cell"><p class="caption state">Caution: over the daily pick</p>
-    <p class="caption msg caution" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>Four exercises today, one extra.</span></p></div>
-  <div class="cell"><p class="caption state">Success</p>
-    <p class="caption msg success" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Added to your account. This browser’s earlier log is now part of it, on every device.</span></p></div>
-  <div class="cell"><p class="caption state">Info</p>
-    <p class="caption msg info" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Nothing new: everything in that file is already here.</span></p></div>
+  <div><p class="caption state">Error: a read the console could not make</p>
+    <p class="caption error" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>Couldn’t read tasks/documentation-summary.md. The prompt below says where it should be.</span></p></div>
+  <div><p class="caption state">Caution: a paused task that runs at once on resume</p>
+    <p class="caption caution" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>Paused — will run once immediately if resumed</span></p></div>
+  <div><p class="caption state">Info</p>
+    <p class="caption" role="status" style="display:flex;gap:var(--space-2);color:var(--ink-secondary)"><span style="width:16px;height:16px;margin-top:3px;flex:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span><span>This task also runs a script. The console doesn’t show scripts.</span></p></div>
+  <div><p class="caption state">Success (release 2)</p>
+    <p class="caption" role="status" style="display:flex;gap:var(--space-2)"><span style="width:16px;height:16px;margin-top:3px;flex:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><span>Paused. It will not run until it is resumed.</span></p></div>
 </div>
 <script></script>
 </body>

@@ -1,66 +1,43 @@
-<!-- @dsCard group="Feedback" height=700 subtitle="Sync status and an unconfirmed email across the page: neutral in tile, a lost change in the error tone" -->
+<!-- @dsCard group="Feedback" height=300 subtitle="How the page stands with the API: neutral when unreachable, error when refused" -->
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Banner — preview</title>
 <style>
-  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); }
-  .stack { display: flex; flex-direction: column; gap: var(--space-4); max-width: 720px; }
-  .cell { display: flex; flex-direction: column; gap: var(--space-1); }
-  .state { margin: 0; color: var(--ink-secondary); }
-
-  .banner { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); box-sizing: border-box; padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--tile); color: var(--ink); }
-  .banner .body-row { display: flex; align-items: flex-start; gap: var(--space-3); flex: 1 1 220px; min-width: 0; padding: var(--space-1) 0; }
-  .banner .body-row > svg { flex: none; width: 20px; height: 20px; margin-top: 2px; }
-  .banner p { margin: 0; }
-  .banner .lead { font-weight: 600; }
-  .banner.error { background: var(--panel); border-color: var(--error-ink); }
-  .banner.error .body-row > svg, .banner.error .lead { color: var(--error-ink); }
-  .actions { display: flex; gap: var(--space-2); margin-left: auto; }
-
-  .btn { display: inline-flex; align-items: center; height: 36px; padding: 0 var(--space-3); border: 1px solid transparent; border-radius: var(--radius-md); background: transparent; color: var(--ink); font: 600 14px/20px var(--font-sans); cursor: pointer; text-wrap: nowrap; }
-  .btn.secondary { border-color: var(--control-border); }
-  .btn:hover { background: var(--canvas); }
-  .btn:focus-visible, .btn.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .btn[aria-busy="true"] { cursor: progress; }
-  @media (max-width: 639px) { .btn { height: 44px; } }
-  @media (prefers-reduced-motion: no-preference) {
-    .btn { transition: background-color 120ms ease-out; }
-  }
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+  p, h1, h2, h3, ul, ol, dl, dd { margin: 0; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-6); max-width: 720px; }
+  .state { color: var(--ink-secondary); margin-bottom: var(--space-2); }
+  .muted { color: var(--ink-secondary); }
+  .mono { font-family: var(--font-mono); }
+  a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .mark { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; }
+  .mark i { width: 10px; height: 10px; border-radius: var(--radius-full); flex: none; }
+  .mark .ok { background: var(--pen); } .mark .degraded { background: var(--pen-partial); }
+  .mark .failing { background: var(--pen-missed); } .mark .unknown { box-shadow: inset 0 0 0 2px var(--control-border); }
+  .caution { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--caution-ink); }
+  .error { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--error-ink); }
+  .caution svg, .error svg { flex: none; width: 16px; height: 16px; margin-top: 3px; }
+  .facts { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+  .facts > div { display: grid; gap: 2px; }
+  .facts dt { color: var(--ink-secondary); }
+  @media (min-width: 640px) { .facts { grid-template-columns: minmax(9rem, max-content) 1fr; gap: var(--space-2) var(--space-6); } .facts > div { display: contents; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--space-6); display: grid; gap: var(--space-4); }
+  @media (max-width: 639px) { .panel { padding: var(--space-4); } }
+  .banner { display: flex; gap: var(--space-3); align-items: flex-start; border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); border: 1px solid var(--line); background: var(--tile); }
+  .banner.err { background: var(--panel); border-color: var(--error-ink); }
+  .banner svg { flex: none; width: 20px; height: 20px; margin-top: 3px; }
+  .banner.err svg, .banner.err b { color: var(--error-ink); }
 </style>
 </head>
 <body>
-<div class="stack" aria-live="polite">
-  <div class="cell"><p class="caption state">Offline, changes waiting</p>
-    <div class="banner">
-      <div class="body-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></svg><p class="body"><span class="lead">Not synced.</span> Your changes are saved on this device and will sync when you're back online.</p></div>
-      <div class="actions"><button class="btn secondary" type="button">Retry</button></div>
-    </div></div>
-  <div class="cell"><p class="caption state">Offline, nothing waiting; focus on Retry</p>
-    <div class="banner">
-      <div class="body-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></svg><p class="body"><span class="lead">Offline.</span> Showing the data saved on this device.</p></div>
-      <div class="actions"><button class="btn secondary is-focus" type="button">Retry</button></div>
-    </div></div>
-  <div class="cell"><p class="caption state">Offline before the first load; retrying</p>
-    <div class="banner">
-      <div class="body-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></svg><p class="body"><span class="lead">Can’t reach the server.</span> This device has no saved copy of your data yet.</p></div>
-      <div class="actions"><button class="btn secondary" type="button" aria-busy="true">Retrying…</button></div>
-    </div></div>
-  <div class="cell"><p class="caption state">Email not confirmed</p>
-    <div class="banner">
-      <div class="body-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg><p class="body"><span class="lead">Confirm your email.</span> The link is in the email sent to sam@example.com.</p></div>
-      <div class="actions"><button class="btn secondary" type="button">Send it again</button></div>
-    </div></div>
-  <div class="cell"><p class="caption state">Email not confirmed, a new link sent; the action goes</p>
-    <div class="banner">
-      <div class="body-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg><p class="body"><span class="lead">Confirm your email.</span> A new link is on its way to sam@example.com.</p></div>
-    </div></div>
-  <div class="cell"><p class="caption state">Conflict: a change was replaced</p>
-    <div class="banner error">
-      <div class="body-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><p class="body"><span class="lead">Your change wasn’t kept.</span> A plan was changed on another device, so this device now shows that version.</p></div>
-      <div class="actions"><button class="btn" type="button">Dismiss</button></div>
-    </div></div>
+<div class="stack">
+  <div><p class="caption state">Neutral: the API could not be reached; the last answer stays</p><div class="banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></svg><p class="body"><b>Couldn’t reach the console’s API, so this page shows what it had at 15:30 CET.</b> It retries every 30 seconds.</p></div></div>
+  <div><p class="caption state">Neutral: the broker could not answer (a task’s page)</p><div class="banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></svg><p class="body"><b>Couldn’t reach the broker, so this task can’t be shown.</b> It retries every 30 seconds.</p></div></div>
+  <div><p class="caption state">Error: refused</p><div class="banner err"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><p class="body"><b>The console refused this browser (HTTP 403).</b> Your Cloudflare Access sign-in may have ended: reload the page to sign in again.</p></div></div>
 </div>
 <script></script>
 </body>

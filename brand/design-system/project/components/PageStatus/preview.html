@@ -1,0 +1,46 @@
+<!-- @dsCard group="Feedback" height=520 subtitle="How fresh the page is, and what it could not read" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PageStatus — preview</title>
+<style>
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+  p, h1, h2, h3, ul, ol, dl, dd { margin: 0; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-6); max-width: 720px; }
+  .state { color: var(--ink-secondary); margin-bottom: var(--space-2); }
+  .muted { color: var(--ink-secondary); }
+  .mono { font-family: var(--font-mono); }
+  a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .mark { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; }
+  .mark i { width: 10px; height: 10px; border-radius: var(--radius-full); flex: none; }
+  .mark .ok { background: var(--pen); } .mark .degraded { background: var(--pen-partial); }
+  .mark .failing { background: var(--pen-missed); } .mark .unknown { box-shadow: inset 0 0 0 2px var(--control-border); }
+  .caution { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--caution-ink); }
+  .error { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--error-ink); }
+  .caution svg, .error svg { flex: none; width: 16px; height: 16px; margin-top: 3px; }
+  .facts { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+  .facts > div { display: grid; gap: 2px; }
+  .facts dt { color: var(--ink-secondary); }
+  @media (min-width: 640px) { .facts { grid-template-columns: minmax(9rem, max-content) 1fr; gap: var(--space-2) var(--space-6); } .facts > div { display: contents; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--space-6); display: grid; gap: var(--space-4); }
+  @media (max-width: 639px) { .panel { padding: var(--space-4); } }
+  .banner { display: flex; gap: var(--space-3); align-items: flex-start; border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); border: 1px solid var(--line); background: var(--tile); }
+  .banner.err { background: var(--panel); border-color: var(--error-ink); }
+  .banner svg { flex: none; width: 20px; height: 20px; margin-top: 3px; }
+  .banner.err svg, .banner.err b { color: var(--error-ink); }
+  .error ul { padding-left: var(--space-5, 20px); margin-top: var(--space-1); }
+</style>
+</head>
+<body>
+<div class="stack">
+  <div><p class="caption state">Fresh, every read answered</p><p class="caption muted">Updated just now, at 15:30 CET. Refreshes every 30 seconds.</p></div>
+  <div><p class="caption state">Some reads failed</p><div class="caption error" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><div><p>Some reads failed, so parts of this page are empty.</p><ul><li>Couldn’t read the quota: the broker took too long to answer. <code class="mono">timeout</code></li><li>Couldn’t read Claude’s traffic in Loki: Loki did not answer. <code class="mono">unavailable</code></li></ul></div></div></div>
+  <div><p class="caption state">A refresh failed; the last answer stays</p><div class="banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></svg><p class="body"><b>Couldn’t reach the console’s API, so this page shows what it had at 15:30 CET.</b> It retries every 30 seconds.</p></div></div>
+  <div><p class="caption state">Refused (403)</p><div class="banner err"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><p class="body"><b>The console refused this browser (HTTP 403).</b> Your Cloudflare Access sign-in may have ended: reload the page to sign in again.</p></div></div>
+</div>
+<script></script>
+</body>
+</html>

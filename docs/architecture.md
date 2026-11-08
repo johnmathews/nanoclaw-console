@@ -5,7 +5,7 @@
 > What the NanoClaw console is made of: the two images this repo builds, which of them holds
 > NanoClaw's authority, how the broker guards it (verb list, redaction, cache), and how the
 > console's backend checks the Access JWT, derives Claude health and answers the web app (§4,
-> whose JSON shapes are the web app's contract).
+> whose JSON shapes are the web app's contract), and how the web app draws it (§5).
 
 ## 1. Overview
 
@@ -638,13 +638,97 @@ non-goals of the plan, F21).
 
 The overview's `warnings` are the same items.
 
-## 5. Repository layout
+## 5. The web app
+
+`web/` is a Vue 3 single-page app on the design system (`brand/design-system/`, D9). It reads only
+the console's own API (§4.7), on the page's origin, so the Access cookie rides along.
+
+### 5.1 Shell and routes
+
+| Path          | Page                                   | Reads              |
+| ------------- | -------------------------------------- | ------------------ |
+| `/`           | Overview (`views/OverviewPage.vue`)    | `/api/overview`    |
+| `/tasks`      | Scheduled tasks (`views/TasksPage.vue`) | `/api/tasks`       |
+| `/tasks/:id`  | One task (`views/TaskPage.vue`)        | `/api/tasks/{id}`  |
+| anything else | Page not found                         | nothing            |
+
+- **Real paths, not hashes** (`vue-router`, HTML5 history): the API serves `index.html` for any path
+  it does not own (§4.7).
+- **The shell** (`App.vue`) is a skip link, the Header card (product name and the page
+  navigation) and the page. The navigation is the list in `src/lib/nav.ts`; a route's
+  `meta.nav` names the entry it belongs to, so a task's page keeps Tasks underlined. W9 adds
+  Groups, Permissions and Problems as three entries there and three routes in `src/router.ts`.
+- **Every page** has one `h1` (`display`), an answer line in `body-large`, then PageStatus, then
+  its content. The tab title is `<page> · NanoClaw console`.
+- **Release 2** (W15) adds pause, resume and run to the task page's header, which already lays the
+  title out with room at its right, and restart to W9's group page. Release 1 has no buttons.
+
+### 5.2 Refresh and freshness
+
+- `useApi(path)` (`src/composables/useApi.ts`) loads at once, then every 30 s while the page is
+  open, and again at once when the path changes (another task). The backend and the broker cache,
+  so open tabs cost NanoClaw little (F12).
+- **A failed refresh keeps the last answer** and says so in a Banner ("Couldn’t reach the
+  console’s API, so this page shows what it had at 15:30 CET. It retries every 30 seconds."). A
+  401 or 403 says the Access sign-in may have ended and asks for a reload. There is no Retry
+  button: the page retries itself.
+- **The freshness line** comes from the answer's `generated_at`. **Every failed read** in
+  `sources` is named in words with its code, so an empty card never looks like "none".
+- An answer for a path the page has already left is dropped.
+
+### 5.3 Times and words
+
+- Every time is shown in **Europe/Amsterdam with the zone named** (`src/lib/time.ts`), whatever
+  the browser's zone: "today at 09:03 CET", "26 May at 09:03 CEST", with a relative phrase where
+  it helps ("in two hours", "five months ago"). The exact time with seconds is in each `<time>`'s
+  `datetime` and tooltip.
+- **A task's name** (`src/lib/tasks.ts`) is its task file without `.md`, else the start of its
+  prompt cut at a word, else its id. Its status is in words; a paused task that would run at once
+  on resume reads exactly "Paused — will run once immediately if resumed" (F9).
+- **Claude's status** is a StatusMark (a dot and the word: OK, Degraded, Failing, Unknown; B2,
+  B26), never colour alone. The quota is labelled with the API's `quota.label` verbatim (D6).
+
+### 5.4 Task files
+
+A task file ("what it will do") is written by an agent inside its container, so it is untrusted.
+`src/lib/markdown.ts` renders it with `marked`, then sanitises it with DOMPurify before it reaches
+`v-html`: only text tags (headings, paragraphs, lists, emphasis, code, quotes, rules, tables and
+links), links to `http`, `https` and `mailto` only with `rel="noopener noreferrer"`, and no images,
+forms, frames, styles or scripts. Headings move down two levels, under the page's own. The prompt
+and the run log are plain text.
+
+### 5.5 Layout
+
+- One column on a phone with 16 px gutters; nothing scrolls sideways at 390 px. The overview's
+  four cards sit two across from 1024 px.
+- **The task list** is a table from 1024 px and a card per task below it (TaskList card). Both are
+  in the page and only one is displayed; rows have the id `task-row-<series id>` and cards
+  `task-card-<series id>`.
+- **Stable ids** mark everything a test or a person might point at: `#claude-status` (with
+  `data-status`), `#claude-reasons`, `#claude-last-success`, `#claude-auth-failures`,
+  `#claude-probe`, `#nanoclaw-card`, `#nanoclaw-not-answering`, `#quota-label`, `#quota-used`,
+  `#count-*`, `#warnings`, `#page-banner`, `#page-freshness`, `#page-sources`, `#tasks-table`,
+  `#tasks-cards`, `#task-overdue`, `#task-file-content`, `#task-prompt`, `#task-run-log`, and the
+  header's `#nav-<page>`.
+
+### 5.6 Tests
+
+- **Vitest** (`src/**/__tests__/`): the libraries, the refresh composable with fake timers, each
+  card, and each page mounted with its route and `fetch` stubbed. Coverage floors are 95 %.
+- **Playwright** (`e2e/`): axe at WCAG 2.2 AA plus best practice on every page in light and dark
+  at 1440 px and 390 px, no sideways scroll, and what each page shows, against the production
+  build with `/api` mocked.
+- Both use the mock answers in `src/fixtures/api.ts`, shaped exactly as §4.7 and including the
+  paused documentation-summary task with `overdue_on_resume: true` and a task file with a planted
+  script, image and `javascript:` link.
+
+## 6. Repository layout
 
 | Path                     | What                                                               |
 | ------------------------ | ------------------------------------------------------------------ |
 | `api/`                   | uv project `nanoclaw-console-api`: the FastAPI app                 |
 | `broker/`                | uv project `nanoclaw-console-broker`: the broker, stdlib only      |
-| `web/`                   | Vue 3, Vite, Tailwind v4, reka-ui, Pinia                           |
+| `web/`                   | Vue 3, Vite, Tailwind v4, vue-router, reka-ui, Pinia (§5)         |
 | `brand/design-system/`   | The design system's source and its gate settings (`checks.json`)   |
 | `scripts/`               | The design system's gate and token generator (stdlib Python)       |
 | `Dockerfile`             | The console image: builds `web/`, then installs `api/` beside it   |

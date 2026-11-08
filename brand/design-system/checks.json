@@ -12,12 +12,21 @@
     "Dialog",
     "ConfirmDialog",
     "InlineMessage",
-    "Banner"
+    "Banner",
+    "StatusMark",
+    "Header",
+    "FactList",
+    "TaskList",
+    "WarningList",
+    "PageStatus",
+    "MarkdownText"
   ],
   "extra_contrast_pairs": [
     ["caution-ink", "canvas", 4.5],
     ["caution-ink", "panel", 4.5],
     ["control-border", "tile", 3.0],
+    ["control-border", "canvas", 3.0],
+    ["control-border", "panel", 3.0],
     ["on-ink", "ink", 4.5],
     ["error-ink", "tile", 4.5],
     ["pen", "canvas", 4.5],
@@ -31,5 +40,5 @@
     ["pen", "tile", 3.0]
   ],
   "forbidden_words": ["crushed", "beast", "streak", "awesome", "amazing"],
-  "group_order": ["Basics", "Forms", "Overlays", "Feedback"]
+  "group_order": ["Basics", "Forms", "Overlays", "Feedback", "Status"]
 }

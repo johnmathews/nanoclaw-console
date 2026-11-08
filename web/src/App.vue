@@ -1,34 +1,21 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { APP_NAME } from '@/lib/app'
-import { useOverviewStore } from '@/stores/overview'
-
-const overview = useOverviewStore()
-onMounted(() => void overview.load())
+import AppHeader from '@/components/AppHeader.vue'
 </script>
 
+<!--
+  The shell every page shares: a skip link, the Header card (product name and the page
+  navigation), then the page. Pages own their h1, their answer line and their PageStatus.
+-->
 <template>
-  <main class="mx-auto max-w-5xl px-4 py-8 sm:px-12 sm:py-12">
-    <h1 class="display">{{ APP_NAME }}</h1>
-    <p class="body-large mt-2 text-ink-secondary">
-      NanoClaw’s health, groups, scheduled tasks and permissions, in one place.
-    </p>
-
-    <section class="mt-8 rounded-lg border border-line bg-panel p-6" aria-labelledby="status-title">
-      <h2 id="status-title" class="title-2">Status</h2>
-      <p
-        v-if="overview.state === 'loading'"
-        data-testid="api-status"
-        class="mt-2 text-ink-secondary"
-      >
-        Asking the console’s API…
-      </p>
-      <p v-else-if="overview.state === 'ready'" data-testid="api-status" class="mt-2">
-        The console’s API answered. The views arrive in the next releases.
-      </p>
-      <p v-else data-testid="api-status" role="alert" class="mt-2 text-error-ink">
-        Couldn’t reach the console’s API. Reload the page to try again.
-      </p>
-    </section>
+  <a
+    id="skip-link"
+    href="#main"
+    class="body sr-only z-10 rounded-md bg-panel px-4 py-2 focus:not-sr-only focus:absolute focus:top-2 focus:left-2"
+  >
+    Skip to the page
+  </a>
+  <AppHeader />
+  <main id="main" tabindex="-1" class="mx-auto max-w-7xl px-4 pt-8 pb-16 sm:px-8 sm:pt-12">
+    <RouterView />
   </main>
 </template>

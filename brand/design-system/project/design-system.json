@@ -174,9 +174,9 @@
   ],
   "lastChange": {
     "by": "John Mathews",
-    "at": "2026-11-08T13:00:00Z",
+    "at": "2026-11-08T17:00:00Z",
     "via": "Claude Code",
-    "note": "Copied from the Tracker design system (D9): the same tokens with console usage notes, the generic cards, the Icons; Tracker's wordmark and product cards left behind."
+    "note": "W8: the console's first screens. New cards StatusMark, Header, FactList, TaskList, WarningList, PageStatus and MarkdownText; Panel, InlineMessage, Banner and TextLink rewritten in the console's words; the status mark is a dot (mockup 261108-status-mark, option A, pick pending)."
   },
   "layout": "files",
   "libraries": [],

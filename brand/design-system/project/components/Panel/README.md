@@ -1,12 +1,12 @@
-The one raised surface: a `panel` box with a hairline border, the large radius and the overlay shadow, which Dialog, Popover and cards are built on.
+The one raised surface: a `panel` box with a hairline border, the large radius and the overlay shadow, which the overview's cards, a task card and a task file are built on.
 
 ## Use
 
 - `panel` fill, 1px `line` border, `radius-lg`, `shadow-overlay` (soft in light, none in dark, where the `panel` colour does the lifting).
-- Padding `space-6` for a card or a dialog; `space-4` for a popover body. Content inside is spaced with `space-2` to `space-4`.
-- For something that sits above or apart from the page: the import prompt ("Data from before accounts"), the sign-in, sign-up, reset-your-password and email-confirmed cards, a dialog, the settings popover.
-- Not for grouping ordinary page content: the grids sit straight on `canvas`, separated by `line` rules and space. Never nest a Panel in a Panel, never give it a coloured edge or a tinted fill.
-- A title inside uses `title-2`; supporting text uses `body` or `caption` in `ink-secondary`; actions follow Button order: secondary or cancel first, primary last, at the right.
+- Padding `space-6`, `space-4` below 640px. Content inside is spaced `space-4`.
+- In the console: the overview's four status cards (Claude, NanoClaw, Weekly quota, Counts), each a `section` titled by its `title-2` heading; a task's card on a phone (TaskList); the box around a task file (MarkdownText). A release-2 dialog (W15) will sit on it too.
+- Not for ordinary page content: the answer line, the warnings and a task's sections sit straight on `canvas`, separated by space and `line` rules. Never nest a Panel in a Panel, never give it a coloured edge or a tinted fill.
+- Cards side by side in a grid align to the top; a short card does not stretch to its neighbour's height.
 
 ## States
 
@@ -15,5 +15,4 @@ The one raised surface: a `panel` box with a hairline border, the large radius a
 
 ## You provide
 
-- The content (the default slot), and a heading for it: give a card `aria-labelledby` pointing at its title, or an `aria-label` when there is no visible title.
-- `padding` (`default` for `space-6`, `compact` for `space-4`). The element is up to the consumer: `section` for a card, the Dialog or Popover root for those.
+- The content and its heading: a card is a `section` with `aria-labelledby` pointing at its `title-2`. A stable `id` for the card (`claude-card`, `quota-card`…).
