@@ -10,13 +10,11 @@ It is deployed by Ansible from
 [proxmox-setup](https://github.com/johnmathews/home-server) to the agent LXC, behind Cloudflare
 Access at `nanoclaw.itsa-pizza.com`. It never changes the NanoClaw fork.
 
-**Status:** release 1 is live at `nanoclaw.itsa-pizza.com` (deployed 2026-11-08): the broker
-(read verbs, redaction, cache), the API (Access check, every view) and the five views (overview,
-scheduled tasks, groups and channels, permissions, problems). Release 2 is built and passes
-`make ci`, not yet deployed: pause, resume and run for a task and restart for a group, each behind
-a confirmation dialog, a CSRF guard and an append-only audit log, and an audit page. Its deployment
-needs a newer broker pin and an audit volume in proxmox-setup's `agent_lxc` role, then a live check
-with John's go-ahead.
+**Status:** releases 1 and 2 are live at `nanoclaw.itsa-pizza.com` (2026-11-08): the broker
+(read verbs, four id-only writes, redaction, cache), the API (Access check, every view, the action
+guard and audit log) and the six pages (overview, scheduled tasks, groups and channels,
+permissions, problems, audit). Pause, resume and restart were checked live; "Run now" was not, as
+it spends tokens.
 
 ## 1. How it fits together
 
@@ -28,8 +26,8 @@ Two images, both built here:
 - **`nanoclaw-console`**: FastAPI serving the JSON API and the Vue app. It reaches NanoClaw only
   through the broker.
 
-[docs/architecture.md](docs/architecture.md) has the detail and [docs/decisions.md](docs/decisions.md)
-the reasons.
+[docs/architecture.md](docs/architecture.md) has the detail, [docs/security.md](docs/security.md)
+what each layer protects and what is accepted, and [docs/decisions.md](docs/decisions.md) the reasons.
 
 ## 2. Run it locally
 
