@@ -95,7 +95,8 @@ def redact_reply(data: object) -> object:
     if isinstance(data, list):
         return [redact_reply(item) for item in data]
     if isinstance(data, str):
-        return strip_userinfo(data)
+        # A task's prompt or run log is free text like a task file, so it gets the same rules.
+        return redact_document(data)
     return data
 
 

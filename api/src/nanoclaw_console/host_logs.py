@@ -2,7 +2,11 @@
 
 NanoClaw's host log lines look like `[15:07:55.404] ERROR Container exited code=137 group="b"`,
 with a stack trace joined on after a newline. A group is the level plus the message with every
-`key=value` pair removed. Each group keeps one sanitised sample line.
+`key=value` pair removed and the same masking as the sample. Each group keeps one sanitised
+sample line.
+
+Every pattern here runs in linear time, on a line already cut to `MAX_INPUT`: these run inside the
+async handler, so one long log line must not stall every request (B39).
 """
 
 import re
@@ -16,22 +20,25 @@ QUERY = '{job="nanoclaw", level=~"WARN|ERROR|FATAL"}'
 DEFAULT_LIMIT = 2000
 MAX_MESSAGE = 300
 MAX_SAMPLE = 500
+# A line is cut to this before any pattern runs, so their cost is bounded whatever Loki sends.
+MAX_INPUT = 4096
 MASK = "•••"
 
 _ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
 _PREFIX = re.compile(r"^\[[^\]]*\]\s+(?P<level>[A-Z]+)\b\s*")
 _KV = re.compile(r'(?<![\w.-])[A-Za-z_][\w.-]*=(?:"(?:[^"\\]|\\.)*"|\S*)')
 _SPACE = re.compile(r"\s+")
+# A scheme starts at the beginning of its run of scheme characters: without the lookbehind the
+# pattern retries from every letter of a long word and is quadratic (the broker's B16).
 _URL = re.compile(
-    r"(?P<scheme>[A-Za-z][A-Za-z0-9+.-]*)://(?:[^\s/?#@]*@)?(?P<host>[^\s/?#\"'<>]+)"
+    r"(?<![A-Za-z0-9+.-])(?P<scheme>[A-Za-z][A-Za-z0-9+.-]*)://(?:[^\s/?#@]*@)?(?P<host>[^\s/?#\"'<>]+)"
     r"[^\s\"'<>]*"
 )
 _BEARER = re.compile(r"\b(Bearer|bearer|BEARER|Basic|basic)\s+\S+")
-_SECRET_KV = re.compile(
-    r"(?<![\w.-])(?P<key>[\w.-]*?(?:token|secret|password|passwd|key|auth|cookie)[\w.-]*)="
-    r'(?P<value>"(?:[^"\\]|\\.)*"|\S*)',
-    re.IGNORECASE,
-)
+# Any key=value; the replacement decides whether the key looks secret. A key pattern with the
+# secret words inside it (`[\w.-]*?(?:token|…)[\w.-]*`) backtracks quadratically on a long word.
+_ANY_KV = re.compile(r'(?<![\w.-])(?P<key>[\w.-]+)=(?P<value>"(?:[^"\\]|\\.)*"|\S*)')
+_SECRET_KEY = re.compile(r"token|secret|password|passwd|key|auth|cookie", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -53,29 +60,38 @@ class HostLogs:
 
 
 def _first_line(line: str) -> str:
-    return _ANSI.sub("", line).split("\n", 1)[0]
-
-
-def message_of(line: str) -> str:
-    """The message: no timestamp, no level, no key=value pairs, whitespace collapsed."""
-    text = _PREFIX.sub("", _first_line(line), count=1)
-    text = _SPACE.sub(" ", _KV.sub(" ", text)).strip()
-    return text[:MAX_MESSAGE].rstrip()
+    return _ANSI.sub("", line[:MAX_INPUT]).split("\n", 1)[0]
 
 
 def _mask_kv(match: re.Match[str]) -> str:
+    if _SECRET_KEY.search(match.group("key")) is None:
+        return match.group(0)
     value = match.group("value")
     masked = f'"{MASK}"' if value.startswith('"') else MASK
     return f"{match.group('key')}={masked}"
 
 
-def sanitize_sample(line: str) -> str:
-    """One log line fit to show: first line only, URLs to scheme://host, secrets masked."""
-    text = _first_line(line)
+def _mask(text: str) -> str:
+    """URLs cut to scheme://host[:port], Bearer and Basic values and secret-looking keys masked."""
     text = _URL.sub(lambda m: f"{m.group('scheme')}://{m.group('host')}", text)
     text = _BEARER.sub(lambda m: f"{m.group(1)} {MASK}", text)
-    text = _SECRET_KV.sub(_mask_kv, text)
-    return text[:MAX_SAMPLE]
+    return _ANY_KV.sub(_mask_kv, text)
+
+
+def message_of(line: str) -> str:
+    """The message: no timestamp, no level, masked as the sample is, no key=value pairs.
+
+    Masking first means a URL's userinfo or path, or a Bearer value, never reaches the message,
+    and lines that differ only there group together.
+    """
+    text = _mask(_PREFIX.sub("", _first_line(line), count=1))
+    text = _SPACE.sub(" ", _KV.sub(" ", text)).strip()
+    return text[:MAX_MESSAGE].rstrip()
+
+
+def sanitize_sample(line: str) -> str:
+    """One log line fit to show: first line only, URLs to scheme://host, secrets masked."""
+    return _mask(_first_line(line))[:MAX_SAMPLE]
 
 
 def _level(label: str | None) -> str:

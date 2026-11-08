@@ -8,6 +8,7 @@ Anything else is refused. Log lines and exception messages name the reason only,
 its claims or the email.
 """
 
+import asyncio
 import json
 import logging
 import re
@@ -23,8 +24,10 @@ logger = logging.getLogger(__name__)
 
 ALGORITHM = "RS256"
 JWKS_TTL_SECONDS = 3600.0
-# An unknown kid triggers a refetch at most this often, counted from the last fetch attempt.
+# Any fetch (expiry or an unknown kid) happens at most this often, counted from the last attempt.
 JWKS_MIN_REFETCH_SECONDS = 60.0
+# A failed refresh keeps the last good keys this long after they were fetched (B40).
+JWKS_STALE_GRACE_SECONDS = 24 * 3600.0
 JWKS_TIMEOUT_SECONDS = 10.0
 JWKS_MAX_BYTES = 256 * 1024
 LEEWAY_SECONDS = 60
@@ -64,6 +67,8 @@ class AccessVerifier:
         self._keys: dict[str, jwt.PyJWK] = {}
         self._fetched_at: float | None = None
         self._last_attempt = float("-inf")
+        self._fetch_lock = asyncio.Lock()
+        self._fetches = 0  # completed fetch attempts, so a waiter can tell one finished
         self._logged_config_errors: set[str] = set()
 
     async def verify(self, token: str | None) -> str:
@@ -132,21 +137,45 @@ class AccessVerifier:
         return email
 
     async def _key_for(self, kid: str) -> jwt.PyJWK:
-        """The key for `kid`: from the 1 h cache, else a fetch. An unknown `kid` (key rotation)
-        refetches, at most once per JWKS_MIN_REFETCH_SECONDS since the last fetch attempt, so
-        forged kids cannot make every request call out to Cloudflare."""
-        if self._fetched_at is None or self._clock() - self._fetched_at >= JWKS_TTL_SECONDS:
-            await self._fetch()
-        if kid not in self._keys and self._clock() - self._last_attempt >= JWKS_MIN_REFETCH_SECONDS:
-            await self._fetch()
+        """The key for `kid`: from the 1 h cache, else a fetch. An expired cache or an unknown
+        `kid` (key rotation) fetches at most once per JWKS_MIN_REFETCH_SECONDS since the last
+        attempt, and one fetch at a time, so neither forged kids nor a Cloudflare blip make every
+        request call out."""
+        expired = self._fetched_at is None or self._clock() - self._fetched_at >= JWKS_TTL_SECONDS
+        if expired and self._may_fetch():
+            await self._refresh()
+        if kid not in self._keys and self._may_fetch():
+            await self._refresh()
         if kid not in self._keys:
             raise AccessDenied("unknown key id")
         return self._keys[kid]
 
-    async def _fetch(self) -> None:
-        self._last_attempt = self._clock()
-        self._keys = await self._fetch_keys()
-        self._fetched_at = self._clock()
+    def _may_fetch(self) -> bool:
+        """A fetch is due by the throttle, or one is in flight (wait for its keys)."""
+        in_flight = self._fetch_lock.locked()
+        return in_flight or self._clock() - self._last_attempt >= JWKS_MIN_REFETCH_SECONDS
+
+    async def _refresh(self) -> None:
+        """Fetch the keys. A failure keeps the last good keys while they are under
+        JWKS_STALE_GRACE_SECONDS old; past that, or with none, the keys go and it raises."""
+        seen = self._fetches
+        async with self._fetch_lock:
+            if self._fetches != seen:
+                return  # another request fetched while this one waited: use its keys
+            self._last_attempt = self._clock()
+            try:
+                keys = await self._fetch_keys()
+            except AccessDenied as exc:
+                self._fetches += 1
+                age = None if self._fetched_at is None else self._clock() - self._fetched_at
+                if self._keys and age is not None and age < JWKS_STALE_GRACE_SECONDS:
+                    logger.warning("%s; keeping the keys fetched %d s ago", exc, age)
+                    return
+                self._keys = {}
+                raise
+            self._fetches += 1
+            self._keys = keys
+            self._fetched_at = self._clock()
 
     async def _fetch_keys(self) -> dict[str, jwt.PyJWK]:
         """The team's signing keys; only RSA keys usable with RS256 and carrying a `kid`."""

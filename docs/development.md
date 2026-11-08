@@ -36,6 +36,8 @@
 | `design-check`  | The design system's gate (`--complete`) and the freshness of `tokens.css`     |
 | `ci`            | `lint`, `typecheck`, `test`, `e2e`, `design-check`, in that order, stopping at the first failure |
 | `build`         | Both images for `linux/amd64`, tagged `nanoclaw-console:local` and `nanoclaw-console-broker:local` |
+| `build-app`     | The console image only (`nanoclaw-console:local`)                             |
+| `build-broker`  | The broker image only (`nanoclaw-console-broker:local`)                       |
 | `compose-smoke` | Builds the app image, starts it hardened as deployed (read-only root, no capabilities, uid 10001) and checks `/healthz`, the page and a 404 |
 
 ## 3. Local CI first
@@ -105,14 +107,15 @@ component); `checks.json` sets the gate. Rules:
   ids), with fake secrets planted (every one contains `PLANTED-SECRET`). `ncl_commands.json` is
   every registered ncl command. Recapture both after a NanoClaw update that changes the CLI; never
   copy a raw `groups config get` reply off the host, because it carries live bearer tokens.
-- `web/src/**/__tests__/`: Vitest component and store tests, with `fetch` stubbed.
+- `web/src/**/__tests__/`: Vitest component, page and library tests, with `fetch` stubbed.
 - `web/e2e/`: Playwright. `support.ts` opens the app in a theme with `/api` mocked through
   `page.route`, runs axe at WCAG 2.2 AA plus best practice, and checks for sideways scroll. The
   suite runs at 1440 px and 390 px, in light and dark.
 - **The secret-absence test** (`web/src/__tests__/secrets.spec.ts`, and the last test in
   `web/e2e/w9.spec.ts`): the web fixtures plant `Bearer PLANTED-SECRET-…` in keys the contract
   does not have, and no page may carry it ([architecture.md](architecture.md) §5.7). A new page
-  goes into both lists of pages there.
+  goes into all three page lists: `secrets.spec.ts`, `e2e/w9.spec.ts` (`ALL_PAGES`) and
+  `e2e/a11y.spec.ts`, whose axe check walks every page.
 
 ## 7. Configuration
 

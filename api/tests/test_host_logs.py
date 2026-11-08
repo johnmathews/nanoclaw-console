@@ -1,5 +1,6 @@
 """NanoClaw's host errors and warnings (docs/architecture.md §4.5)."""
 
+import time
 from datetime import timedelta
 
 import pytest
@@ -66,6 +67,55 @@ def test_sample_is_sanitised(line: str, absent: list[str], present: list[str]) -
 
 def test_sample_is_capped() -> None:
     assert len(sanitize_sample("[1] ERROR " + "x" * 2000)) == 500
+
+
+@pytest.mark.parametrize(
+    ("line", "absent", "message"),
+    [
+        (
+            "[1] ERROR MCP connect https://user:pw@ha.local:8123/api/webhook/mcp_abc123/ro failed",
+            ["user", "pw", "mcp_abc123", "/api/webhook"],
+            "MCP connect https://ha.local:8123 failed",
+        ),
+        (
+            "[1] ERROR auth header Authorization: Bearer sk-ant-123456 rejected",
+            ["sk-ant-123456"],
+            "auth header Authorization: Bearer ••• rejected",
+        ),
+    ],
+)
+def test_message_is_masked_like_the_sample(line: str, absent: list[str], message: str) -> None:
+    got = message_of(line)
+    assert got == message
+    for text in absent:
+        assert text not in got
+
+
+def test_lines_differing_only_in_a_url_path_group_together() -> None:
+    a = message_of("[1] ERROR fetch https://api.example.com/v1/a?x=1 failed")
+    b = message_of("[1] ERROR fetch https://api.example.com/v2/b failed")
+    assert a == b == "fetch https://api.example.com failed"
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "a" * 262_144,
+        "abc.def-" * 32_768,
+        'a="\\' * 65_536,
+        "a=" * 131_072,
+        "tokenx" * 43_690,
+        "a+b.c-" * 43_690 + ":/",
+    ],
+    ids=["letters", "words", "quotes", "kv-chain", "secret-word", "scheme-chars"],
+)
+def test_a_long_line_is_cheap(body: str) -> None:
+    """Loki allows 256 KiB lines; sanitising one must not stall the event loop (B39)."""
+    line = "[1] ERROR " + body
+    start = time.perf_counter()
+    message_of(line)
+    sanitize_sample(line)
+    assert time.perf_counter() - start < 0.5
 
 
 class TestReadHostLogs:

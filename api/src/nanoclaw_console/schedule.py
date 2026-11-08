@@ -34,11 +34,13 @@ def parse_time(value: object) -> datetime | None:
     text = value.strip().replace("Z", "+00:00")
     try:
         parsed = datetime.fromisoformat(text)
-    except ValueError:
+        if parsed.tzinfo is None:  # SQLite's CURRENT_TIMESTAMP form is UTC
+            parsed = parsed.replace(tzinfo=UTC)
+        # A time near year 1 or 9999 with an offset overflows on conversion (OverflowError):
+        # unreadable, not a reason to fail the whole view (B24).
+        return parsed.astimezone(UTC)
+    except (ValueError, OverflowError):
         return None
-    if parsed.tzinfo is None:  # SQLite's CURRENT_TIMESTAMP form is UTC
-        parsed = parsed.replace(tzinfo=UTC)
-    return parsed.astimezone(UTC)
 
 
 def iso(value: datetime | None) -> str | None:

@@ -182,6 +182,18 @@ def test_userinfo_is_stripped_from_any_string() -> None:
     assert out == {"name": "see https://•••@chat.example/room", "list": ["http://•••@h"]}
 
 
+def test_bearer_values_are_masked_in_any_string() -> None:
+    data = {
+        "prompt": "curl -H 'Authorization: Bearer sk-PLANTED-SECRET-1' https://api.example/x",
+        "recent_log": ["sent Basic dXNlcjpQTEFOVEVE", "plain"],
+    }
+    out = redact_reply(data)
+    assert out == {
+        "prompt": f"curl -H 'Authorization: Bearer {MASK}' https://api.example/x",
+        "recent_log": [f"sent Basic {MASK}", "plain"],
+    }
+
+
 def test_scalars_pass_through() -> None:
     assert redact_reply([1, 2.5, True, None, "plain"]) == [1, 2.5, True, None, "plain"]
 

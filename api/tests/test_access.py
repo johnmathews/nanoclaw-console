@@ -7,6 +7,7 @@ import json
 import logging
 import time
 
+import anyio
 import httpx2
 import jwt
 import pytest
@@ -231,6 +232,81 @@ async def test_first_request_with_unknown_kid_fetches_once(certs: FakeCerts) -> 
     with pytest.raises(AccessDenied):
         await make(certs).verify(K2.token())
     assert len(certs.calls) == 1
+
+
+async def test_failed_refresh_keeps_the_last_good_keys(
+    certs: FakeCerts, caplog: pytest.LogCaptureFixture
+) -> None:
+    clock = Clock(1000.0)
+    verifier = make(certs, clock)
+    await verifier.verify(K1.token())
+    certs.error = httpx2.ConnectError("blip")
+    clock.now = 1000.0 + 3601  # expired: the refresh fails, the old keys still verify
+    with caplog.at_level(logging.WARNING, logger="nanoclaw_console.access"):
+        assert await verifier.verify(K1.token()) == EMAIL
+    assert len(certs.calls) == 2
+    assert "keeping the keys" in caplog.text
+
+
+async def test_failed_refresh_is_throttled(certs: FakeCerts) -> None:
+    clock = Clock(1000.0)
+    verifier = make(certs, clock)
+    await verifier.verify(K1.token())
+    certs.error = httpx2.ConnectError("blip")
+    for t in (4601.0, 4602.0, 4630.0, 4660.0):
+        clock.now = t
+        assert await verifier.verify(K1.token()) == EMAIL
+    assert len(certs.calls) == 2  # one retry within the minute, not one per request
+    clock.now = 4661.0
+    await verifier.verify(K1.token())
+    assert len(certs.calls) == 3
+    certs.error = None
+    clock.now = 4722.0
+    await verifier.verify(K1.token())
+    clock.now = 4723.0
+    await verifier.verify(K1.token())
+    assert len(certs.calls) == 4  # recovered: cached again
+
+
+async def test_keys_past_the_grace_period_are_dropped(certs: FakeCerts) -> None:
+    clock = Clock(1000.0)
+    verifier = make(certs, clock)
+    await verifier.verify(K1.token())
+    certs.error = httpx2.ConnectError("blip")
+    clock.now = 1000.0 + 24 * 3600 + 1
+    with pytest.raises(AccessDenied, match="ConnectError"):
+        await verifier.verify(K1.token())
+    clock.now += 1  # throttled, and nothing is left to verify with
+    with pytest.raises(AccessDenied, match="unknown key id"):
+        await verifier.verify(K1.token())
+
+
+async def test_concurrent_requests_share_one_fetch() -> None:
+    calls: list[str] = []
+    body = {"keys": [K1.jwk()]}
+
+    async def slow(request: httpx2.Request) -> httpx2.Response:
+        calls.append(str(request.url))
+        await anyio.sleep(0.05)
+        return httpx2.Response(200, json=body)
+
+    verifier = AccessVerifier(
+        team_domain=TEAM,
+        audience=AUD,
+        allowed_emails=frozenset({EMAIL}),
+        transport=httpx2.MockTransport(slow),
+        clock=Clock(),
+    )
+    results: list[str] = []
+
+    async def one() -> None:
+        results.append(await verifier.verify(K1.token()))
+
+    async with anyio.create_task_group() as tg:
+        for _ in range(5):
+            tg.start_soon(one)
+    assert results == [EMAIL] * 5
+    assert len(calls) == 1
 
 
 async def test_jwks_mixing_key_types_uses_only_the_rsa_key() -> None:

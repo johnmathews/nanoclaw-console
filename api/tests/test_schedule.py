@@ -144,6 +144,8 @@ def test_task_file_name(prompt: str | None, name: str | None) -> None:
         ("", None),
         (None, None),
         (17, None),
+        ("0001-01-01T00:00:00+01:00", None),  # overflows converting to UTC
+        ("9999-12-31T23:59:59-01:00", None),
     ],
 )
 def test_times_are_normalised(value: object, expected: str | None) -> None:

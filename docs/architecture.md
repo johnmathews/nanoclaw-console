@@ -60,6 +60,7 @@ the host (§3.8).
 | `probe.py`      | `claude-probe`: one empty-body call to Anthropic through OneCLI                       |
 | `server.py`     | The Unix socket the console talks to: one JSON line in, one JSON line out            |
 | `events.py`     | JSON-line event log on stdout                                                        |
+| `errors.py`     | `BrokerError`, the typed error and its `code` the console sees (§3.3)                |
 | `__main__.py`   | Command line and SIGTERM handling                                                    |
 
 ### 3.2 NanoClaw's frame protocol
@@ -154,8 +155,9 @@ The rules apply to every verb's reply, wherever the key appears:
   `scheme://host[:port]`. Userinfo and the query string are the obvious leaks, but paths carry
   secrets too (Home Assistant's MCP webhook is `/api/webhook/mcp_<secret>/…`), so the path and
   fragment go as well. A value that does not parse as a URL with a host becomes `"•••"`.
-- **Userinfo anywhere:** any string containing `scheme://user[:pass]@` has the userinfo replaced
-  by `•••`.
+- **Userinfo and `Bearer` values anywhere:** any string containing `scheme://user[:pass]@` has
+  the userinfo replaced by `•••`, and a value after `Bearer` or `Basic` becomes `•••` (a task's
+  `prompt` and `recent_log` are free text, like a task file, so they get a task file's rules).
 - **`script`** is removed and `has_script: true|false` is set in its place; an existing
   `has_script` (`tasks-list`'s 0 or 1) becomes a boolean.
 - **`payload`** (approvals) is removed.
@@ -294,8 +296,10 @@ claim and the email allowlist (D3, F6):
 
 - **Keys.** `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs`, fetched without following
   redirects, capped at 256 KiB, cached 1 h. Only RSA keys for RS256 with a `kid` are kept. An
-  unknown `kid` (Cloudflare rotated its keys) refetches, at most once a minute, so forged `kid`s
-  cannot make every request call out.
+  unknown `kid` (Cloudflare rotated its keys) refetches. Every fetch, on expiry or for a `kid`,
+  happens at most once a minute and one at a time, so neither forged `kid`s nor a Cloudflare blip
+  make every request call out. A failed refresh keeps the last good keys for up to 24 h after
+  they were fetched, logging a warning; past that, or with no keys yet, it refuses (B40).
 - **The token.** At most 16 KiB; header `alg` must be `RS256` (so `none` and `HS256` are refused
   before any key is used) and carry a `kid`; signature checked with that key; `aud` must contain
   `ACCESS_AUD`; `iss` must be `https://<ACCESS_TEAM_DOMAIN>`; `exp`, `iat`, `iss` and `aud` are
@@ -369,9 +373,12 @@ by the agent host's Alloy), newest 2000 lines (`truncated` says if there were mo
 
 - Only an entry's first line is used (a stack trace arrives joined to its entry); ANSI escapes are
   removed.
-- **The message** is the text after `[hh:mm:ss.mmm] LEVEL`, with every `key=value` and
-  `key="value"` pair removed, so `Inserted next recurrence originalId="a" seriesId="b"` and the
-  same line with other ids group together. `FATAL` counts as an error.
+- **The message** is the text after `[hh:mm:ss.mmm] LEVEL`, masked as the sample is (below),
+  then with every `key=value` and `key="value"` pair removed, so `Inserted next recurrence
+  originalId="a" seriesId="b"` and the same line with other ids group together, and so do lines
+  that differ only in a URL's path. `FATAL` counts as an error.
+- **Bounded cost.** A line is cut to 4 KiB before any pattern runs, and every pattern is linear,
+  because they run inside the request (B39).
 - Each group has its level, message, count, first and last time, and one **sample** line: the
   newest, with URLs cut to `scheme://host[:port]`, `Bearer`/`Basic` values masked and values of keys
   that look secret (`token`, `secret`, `password`, `key`, `auth`, `cookie`) masked, cut to 500
@@ -788,8 +795,12 @@ and the run log are plain text.
 | ------------------------ | ------------------------------------------------------------------ |
 | `api/`                   | uv project `nanoclaw-console-api`: the FastAPI app                 |
 | `broker/`                | uv project `nanoclaw-console-broker`: the broker, stdlib only      |
-| `web/`                   | Vue 3, Vite, Tailwind v4, vue-router, reka-ui, Pinia (§5)         |
+| `web/`                   | Vue 3, Vite, Tailwind v4, vue-router, reka-ui, Pinia (registered, no store yet) (§5) |
 | `brand/design-system/`   | The design system's source and its gate settings (`checks.json`)   |
-| `scripts/`               | The design system's gate and token generator (stdlib Python)       |
+| `scripts/`               | The design system's gate and gallery (`check_design_system.py`, `design_preview.py`, stdlib Python), the `tokens.css` freshness check (`check-tokens.sh`), and `compose-smoke.sh` with its compose file |
 | `Dockerfile`             | The console image: builds `web/`, then installs `api/` beside it   |
 | `broker/Dockerfile`      | The broker image                                                   |
+| `Makefile`               | Every make target, local CI included ([development.md](development.md) §2) |
+| `.github/workflows/`     | `ci.yml`, the one lean GitHub job, and `docker.yml`, the ghcr publish it gates |
+| `docs/`                  | This page, [decisions.md](decisions.md) and [development.md](development.md) |
+| `journal/`               | Dated session entries (`yymmdd-name.md`), point-in-time and never rewritten |
