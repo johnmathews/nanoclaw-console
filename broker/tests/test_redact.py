@@ -8,8 +8,10 @@ import pytest
 from nanoclaw_broker.redact import (
     GROUP_CONFIG_KEYS,
     MASK,
+    redact_document,
     redact_group_config,
     redact_reply,
+    redact_text,
     reduce_url,
     strip_userinfo,
 )
@@ -64,6 +66,14 @@ def test_reduce_url_masks_anything_without_a_usable_host(value: object) -> None:
         ("a http://u@h b https://v:w@i c", "a http://•••@h b https://•••@i c"),
         ("no userinfo https://host/x?y=z", "no userinfo https://host/x?y=z"),
         ("email bob@example.com stays", "email bob@example.com stays"),
+        # An "@" inside the password: userinfo ends at the LAST "@" of the authority, as
+        # urlsplit reads it, so no password fragment is left behind.
+        ("https://u:p@ss@host/x", "https://•••@host/x"),
+        ("https://a@b.com:pw@host/", "https://•••@host/"),
+        ("//u:p@host/", "//•••@host/"),
+        ("see //u:p@ss@host/x and more", "see //•••@host/x and more"),
+        ("https://u:p@ss@host and https://v@w", "https://•••@host and https://•••@w"),
+        ("https://host/a//b@c", "https://host/a//b@c"),
     ],
 )
 def test_strip_userinfo(text: str, expected: str) -> None:
@@ -225,3 +235,43 @@ def test_group_config_keys_match_present_config() -> None:
 @pytest.mark.parametrize("value", [[], "x", None, 3])
 def test_group_config_that_is_not_an_object_is_masked(value: object) -> None:
     assert redact_group_config(value) == MASK
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("plain words", "plain words"),
+        ("GET https://u:p@ss@h.example:8080/a/b?k=v#f failed", "GET https://h.example:8080 failed"),
+        ("see http://[::1]:3000/x then", "see http://[::1]:3000 then"),
+        ("header Authorization: Bearer abc.def-ghi ok", "header Authorization: Bearer ••• ok"),
+        ("basic auth Basic dXNlcjpwdw== sent", "basic auth Basic ••• sent"),
+        ("bad https://?k=PLANTED here", "bad ••• here"),
+    ],
+)
+def test_redact_text(text: str, expected: str) -> None:
+    assert redact_text(text) == expected
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("see https://docs.example/a?b=c stays", "see https://docs.example/a?b=c stays"),
+        ("curl https://u:p@ss@h.example/x", "curl https://•••@h.example/x"),
+        ("-H 'Authorization: Bearer abc.def'", "-H 'Authorization: Bearer •••'"),
+        ("line one\nBasic dXNlcjpwdw==\nline three", "line one\nBasic •••\nline three"),
+    ],
+)
+def test_redact_document(text: str, expected: str) -> None:
+    assert redact_document(text) == expected
+
+
+@pytest.mark.parametrize("filler", ["x", "x:", "a://", "x@", "Bearer ", "//", "x.-+"])
+def test_redaction_is_linear_on_hostile_text(filler: str) -> None:
+    """A task file is writable by the agents; 256 KiB of near-misses must not stall a request."""
+    import time
+
+    text = filler * (256 * 1024 // len(filler))
+    started = time.monotonic()
+    redact_document(text)
+    redact_text(text)
+    assert time.monotonic() - started < 3

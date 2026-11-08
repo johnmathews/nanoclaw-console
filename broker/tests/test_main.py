@@ -64,6 +64,54 @@ def test_bad_socket_groups_are_refused(group: str) -> None:
     assert exc.value.code == 2
 
 
+def test_extra_read_defaults() -> None:
+    config = config_from_args(parse_args([]))
+    assert config.groups_dir == Path("/srv/apps/nanoclaw/groups")
+    assert config.mount_allowlist == Path("/etc/nanoclaw/mount-allowlist.json")
+    assert config.health_port == 3002
+    assert config.onecli_url == "http://127.0.0.1:10254"
+    assert config.probe_agent_group == "ag-1779373702795-5wbiev"
+
+
+def test_extra_read_options() -> None:
+    config = config_from_args(
+        parse_args(
+            [
+                "--groups-dir", "/g",
+                "--mount-allowlist", "/m/a.json",
+                "--health-port", "4000",
+                "--onecli-url", "http://127.0.0.1:1234",
+                "--probe-agent-group", "ag-1",
+            ]
+        )
+    )  # fmt: skip
+    assert config.groups_dir == Path("/g")
+    assert config.mount_allowlist == Path("/m/a.json")
+    assert config.health_port == 4000
+    assert config.onecli_url == "http://127.0.0.1:1234"
+    assert config.probe_agent_group == "ag-1"
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["--health-port", "0"],
+        ["--health-port", "65536"],
+        ["--health-port", "x"],
+        ["--probe-agent-group", "../x"],
+        ["--probe-agent-group", ""],
+        ["--onecli-url", "ftp://127.0.0.1:1"],
+        ["--onecli-url", "http://"],
+        ["--onecli-url", "http://[::1"],
+        ["--onecli-url", "127.0.0.1:10254"],
+    ],
+)
+def test_bad_extra_read_options_are_refused(argv: list[str]) -> None:
+    with pytest.raises(SystemExit) as exc:
+        parse_args(argv)
+    assert exc.value.code == 2
+
+
 def test_parse_args_refuses_unknown_options() -> None:
     with pytest.raises(SystemExit) as exc:
         parse_args(["--verb", "tasks-update"])

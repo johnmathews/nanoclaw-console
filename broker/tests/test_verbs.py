@@ -5,7 +5,8 @@ from typing import Any
 import pytest
 
 from nanoclaw_broker.errors import BrokerError
-from nanoclaw_broker.verbs import REGISTRY, resolve
+from nanoclaw_broker.usage import parse_usage
+from nanoclaw_broker.verbs import LOCAL_VERBS, REGISTRY, LocalVerb, Verb, resolve
 from tests.conftest import load_commands
 
 RELEASE_1 = {
@@ -24,6 +25,16 @@ RELEASE_1 = {
     "approvals-list": ("approvals-list", (), {}),
     "users-list": ("users-list", (), {}),
     "dropped-messages-list": ("dropped-messages-list", (), {}),
+    # Not release 1 proper: W5's one ncl-backed extra, parsed by `usage.py` and cached 5 minutes.
+    "usage": ("usage", (), {}),
+}
+
+# W5's reads that are not an ncl command: name -> (params, cache seconds).
+LOCAL = {
+    "health": ((), 60.0),
+    "mount-allowlist": ((), 60.0),
+    "task-file": (("id",), 20.0),
+    "claude-probe": ((), 300.0),
 }
 
 # The run plan's W4 acceptance list: no registered command may contain one of these as a
@@ -51,7 +62,7 @@ WRITE_SEGMENTS = {
 ALL_NCL_COMMANDS = load_commands()
 
 
-def test_registry_is_exactly_release_1() -> None:
+def test_registry_is_exactly_the_ncl_reads() -> None:
     assert set(REGISTRY) == set(RELEASE_1)
     for name, (command, params, fixed) in RELEASE_1.items():
         verb = REGISTRY[name]
@@ -60,6 +71,76 @@ def test_registry_is_exactly_release_1() -> None:
         assert verb.params == params
         assert dict(verb.fixed_args) == fixed
         assert verb.cacheable
+
+
+def test_local_verbs_are_exactly_the_four_extra_reads() -> None:
+    assert set(LOCAL_VERBS) == set(LOCAL)
+    for name, (params, ttl) in LOCAL.items():
+        verb = LOCAL_VERBS[name]
+        assert (verb.name, verb.params, verb.ttl) == (name, params, ttl)
+
+
+def test_usage_is_cached_five_minutes_and_everything_else_ncl_uses_the_default() -> None:
+    assert REGISTRY["usage"].ttl == 300
+    assert REGISTRY["usage"].redactor is parse_usage
+    assert all(v.ttl is None for n, v in REGISTRY.items() if n != "usage")
+
+
+def test_there_are_exactly_20_verbs_and_none_can_write() -> None:
+    """Adding a verb means editing this number, on purpose: the list is the security boundary."""
+    names = set(REGISTRY) | set(LOCAL_VERBS)
+    assert len(REGISTRY) + len(LOCAL_VERBS) == len(names) == 20
+    for name in names:
+        assert not set(name.split("-")) & WRITE_SEGMENTS, name
+
+
+def test_local_verb_names_do_not_shadow_an_ncl_verb() -> None:
+    assert not set(LOCAL_VERBS) & set(REGISTRY)
+
+
+def test_local_verbs_are_frozen() -> None:
+    with pytest.raises(TypeError):
+        LOCAL_VERBS["tasks-run"] = LOCAL_VERBS["health"]  # type: ignore[index]
+    with pytest.raises(AttributeError):
+        LOCAL_VERBS["health"].ttl = 1  # type: ignore[misc]
+
+
+@pytest.mark.parametrize("name", sorted(LOCAL))
+def test_local_verbs_resolve(name: str) -> None:
+    params = {"id": "task-1778399790530-f2euaw"} if LOCAL[name][0] else {}
+    verb, validated = resolve(name, params)
+    assert isinstance(verb, LocalVerb)
+    assert validated == params
+
+
+@pytest.mark.parametrize(
+    ("name", "params"),
+    [
+        ("health", {"id": "abc"}),
+        ("claude-probe", {"url": "http://evil"}),
+        ("mount-allowlist", {"path": "/etc/passwd"}),
+        ("task-file", {}),
+        ("task-file", {"id": "abc", "folder": "main"}),
+        ("task-file", {"path": "../../etc/passwd"}),
+        ("task-file", {"id": "../etc/passwd"}),
+        ("task-file", {"id": "a/b"}),
+        ("task-file", {"id": "-x"}),
+        ("task-file", {"id": "a" * 81}),
+        ("task-file", {"id": ["abc"]}),
+        ("task-file", {"id": "abc\n"}),
+    ],
+)
+def test_local_verbs_take_only_what_they_declare(name: str, params: dict[str, Any]) -> None:
+    with pytest.raises(BrokerError) as exc:
+        resolve(name, params)
+    assert exc.value.code == "invalid_params"
+
+
+@pytest.mark.parametrize("name", ["healthz", "HEALTH", "health ", "claude_probe", "task-files"])
+def test_near_misses_of_local_verbs_are_unknown(name: str) -> None:
+    with pytest.raises(BrokerError) as exc:
+        resolve(name, {})
+    assert exc.value.code == "unknown_verb"
 
 
 def test_registry_has_no_write_command() -> None:
@@ -110,7 +191,6 @@ def test_the_write_verbs_of_the_plan_are_in_the_refused_set() -> None:
         "messaging-groups-send",
         "sessions-history",
         "groups-connect",
-        "usage",
         "status",
     ]:
         assert command in ALL_NCL_COMMANDS
@@ -219,18 +299,24 @@ def test_params_that_are_not_an_object_are_refused(params: object) -> None:
     assert exc.value.code == "invalid_params"
 
 
+def resolve_ncl(name: str, params: dict[str, Any]) -> tuple[Verb, dict[str, str]]:
+    verb, validated = resolve(name, params)
+    assert isinstance(verb, Verb)
+    return verb, validated
+
+
 @pytest.mark.parametrize(
     "good_id",
     ["a", "A" * 80, "task-1778399790530-f2euaw", "0b6f2b8e-1d2c-4c1e-9d55-6f1d1b0f3e2a", "main"],
 )
 def test_good_ids_pass_and_build_the_frame_args(good_id: str) -> None:
-    verb, params = resolve("tasks-get", {"id": good_id})
+    verb, params = resolve_ncl("tasks-get", {"id": good_id})
     assert params == {"id": good_id}
     assert verb.build_args(params) == {"id": good_id}
 
 
 def test_fixed_args_are_added_by_the_broker() -> None:
-    verb, params = resolve("tasks-list", {})
+    verb, params = resolve_ncl("tasks-list", {})
     assert verb.build_args(params) == {"all": True}
 
 
@@ -238,13 +324,13 @@ def test_list_verbs_take_no_params_and_send_empty_args() -> None:
     for name, (_, params, fixed) in RELEASE_1.items():
         if params:
             continue
-        verb, validated = resolve(name, {})
+        verb, validated = resolve_ncl(name, {})
         assert validated == {}
         assert verb.build_args(validated) == fixed
 
 
 def test_build_args_returns_a_fresh_dict() -> None:
-    verb, params = resolve("tasks-list", {})
+    verb, params = resolve_ncl("tasks-list", {})
     args = verb.build_args(params)
     args["script"] = "x"
     assert verb.build_args(params) == {"all": True}

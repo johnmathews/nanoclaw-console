@@ -6,6 +6,8 @@ the broker sent, and counts how many calls are in flight at once.
 """
 
 import asyncio
+import contextlib
+import io
 import json
 import shutil
 import tempfile
@@ -14,6 +16,9 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
+from nanoclaw_broker.events import EventLog
+from nanoclaw_broker.server import Broker, BrokerConfig
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -122,3 +127,57 @@ async def fake_ncl(short_dir: Path, frames: dict[str, Any]) -> AsyncIterator[Fak
         yield fake
     finally:
         await fake.stop()
+
+
+async def ask(path: Path, payload: dict[str, Any] | bytes) -> dict[str, Any]:
+    """Send one request; tolerate the broker closing before we finish writing (oversize)."""
+    reader, writer = await asyncio.open_unix_connection(str(path), limit=16 * 1024 * 1024)
+    data = payload if isinstance(payload, bytes) else json.dumps(payload).encode() + b"\n"
+
+    async def send() -> None:
+        with contextlib.suppress(ConnectionError):
+            writer.write(data)
+            await writer.drain()
+
+    sender = asyncio.create_task(send())
+    line = await reader.readline()
+    await sender
+    writer.close()
+    with contextlib.suppress(ConnectionError):
+        await writer.wait_closed()
+    reply: dict[str, Any] = json.loads(line)
+    return reply
+
+
+class Running:
+    def __init__(self, broker: Broker, log: io.StringIO, path: Path) -> None:
+        self.broker = broker
+        self.log = log
+        self.path = path
+
+    def events(self) -> list[dict[str, Any]]:
+        return [json.loads(line) for line in self.log.getvalue().splitlines()]
+
+
+StartBroker = Callable[..., Any]
+
+
+@pytest.fixture
+async def start_broker(short_dir: Path, fake_ncl: FakeNcl) -> AsyncIterator[Callable[..., Any]]:
+    started: list[Broker] = []
+
+    async def _start(**overrides: Any) -> Running:
+        log = io.StringIO()
+        config = BrokerConfig(
+            socket_path=short_dir / "broker.sock",
+            ncl_socket=fake_ncl.path,
+            **overrides,
+        )
+        broker = Broker(config, events=EventLog(log))
+        await broker.start()
+        started.append(broker)
+        return Running(broker, log, config.socket_path)
+
+    yield _start
+    for b in started:
+        await b.close()

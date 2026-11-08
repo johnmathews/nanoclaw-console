@@ -1,7 +1,12 @@
 """Typed errors. Each carries the `code` the console sees (docs/architecture.md §3.3)."""
 
-# ncl's own error messages are passed on to the console, cut to this length.
-MAX_NCL_MESSAGE = 500
+import re
+
+from .redact import redact_text
+
+# ncl's own error text goes to the broker's log only, redacted and cut to this length.
+MAX_NCL_DETAIL = 500
+_NCL_CODE = re.compile(r"[a-z][a-z0-9-]{0,39}")
 
 
 class BrokerError(Exception):
@@ -14,11 +19,19 @@ class BrokerError(Exception):
 
 
 class NclError(BrokerError):
-    """ncl answered `ok: false`; `ncl_code` is its own code (`handler-error`, `invalid-args`...)."""
+    """ncl answered `ok: false`.
 
-    def __init__(self, ncl_code: str, message: str) -> None:
-        super().__init__("ncl_error", f"{ncl_code}: {message[:MAX_NCL_MESSAGE]}")
-        self.ncl_code = ncl_code
+    The client sees only `ncl_code` (ncl's own code, `handler-error`, `invalid-args`...; anything
+    that is not a short kebab-case word becomes `unknown`) in a fixed sentence. ncl's free text
+    is untrusted: it can repeat a secret from the request. It is kept as `detail`, redacted and
+    cut, for the broker's log only, and is not part of `message` or `str(error)`.
+    """
+
+    def __init__(self, ncl_code: str, detail: str) -> None:
+        safe = ncl_code if _NCL_CODE.fullmatch(ncl_code) else "unknown"
+        super().__init__("ncl_error", f"ncl rejected the request ({safe})")
+        self.ncl_code = safe
+        self.detail = redact_text(detail)[:MAX_NCL_DETAIL]
 
 
 class NclUnavailable(BrokerError):

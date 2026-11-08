@@ -1,13 +1,11 @@
 """The broker end to end, through its own Unix socket, against the fake ncl server."""
 
 import asyncio
-import contextlib
 import io
 import json
 import os
 import socket
 import stat
-from collections.abc import AsyncIterator, Callable
 from pathlib import Path
 from typing import Any
 
@@ -16,66 +14,12 @@ import pytest
 from nanoclaw_broker import server as server_module
 from nanoclaw_broker.events import EventLog
 from nanoclaw_broker.redact import MASK
-from nanoclaw_broker.server import Broker, BrokerConfig, serve
+from nanoclaw_broker.server import BrokerConfig, serve
 from nanoclaw_broker.verbs import REGISTRY, Verb
-from tests.conftest import FakeNcl, load_commands
+from tests.conftest import FakeNcl, StartBroker, ask, load_commands
 
 # Every planted value contains one of these; the captured fakes contain the others.
 FORBIDDEN = ["PLANTED-SECRET", "FAKE-TOKEN", "FAKE-ENV-VALUE", "Bearer", "user:", "bob:"]
-
-
-async def ask(path: Path, payload: dict[str, Any] | bytes) -> dict[str, Any]:
-    """Send one request; tolerate the broker closing before we finish writing (oversize)."""
-    reader, writer = await asyncio.open_unix_connection(str(path), limit=16 * 1024 * 1024)
-    data = payload if isinstance(payload, bytes) else json.dumps(payload).encode() + b"\n"
-
-    async def send() -> None:
-        with contextlib.suppress(ConnectionError):
-            writer.write(data)
-            await writer.drain()
-
-    sender = asyncio.create_task(send())
-    line = await reader.readline()
-    await sender
-    writer.close()
-    with contextlib.suppress(ConnectionError):
-        await writer.wait_closed()
-    reply: dict[str, Any] = json.loads(line)
-    return reply
-
-
-class Running:
-    def __init__(self, broker: Broker, log: io.StringIO, path: Path) -> None:
-        self.broker = broker
-        self.log = log
-        self.path = path
-
-    def events(self) -> list[dict[str, Any]]:
-        return [json.loads(line) for line in self.log.getvalue().splitlines()]
-
-
-StartBroker = Callable[..., Any]
-
-
-@pytest.fixture
-async def start_broker(short_dir: Path, fake_ncl: FakeNcl) -> AsyncIterator[Callable[..., Any]]:
-    started: list[Broker] = []
-
-    async def _start(**overrides: Any) -> Running:
-        log = io.StringIO()
-        config = BrokerConfig(
-            socket_path=short_dir / "broker.sock",
-            ncl_socket=fake_ncl.path,
-            **overrides,
-        )
-        broker = Broker(config, events=EventLog(log))
-        await broker.start()
-        started.append(broker)
-        return Running(broker, log, config.socket_path)
-
-    yield _start
-    for b in started:
-        await b.close()
 
 
 def all_requests(frames: dict[str, Any]) -> list[dict[str, Any]]:
@@ -99,7 +43,7 @@ async def test_golden_no_planted_secret_in_any_response_or_log(
 ) -> None:
     run = await start_broker()
     requests = all_requests(frames)
-    assert len(requests) == 12 + 15 + 15 + 16
+    assert len(requests) == 12 + 15 + 15 + 17
     replies = [await ask(run.path, r) for r in requests]
     assert all(r["ok"] for r in replies), [r for r in replies if not r["ok"]][:1]
     # Ask everything again: the cached copies must be just as clean.
@@ -193,7 +137,7 @@ async def test_every_non_allowlisted_command_is_refused_and_never_reaches_ncl(
 ) -> None:
     run = await start_broker()
     refused = [c for c in load_commands() if c not in REGISTRY]
-    assert len(refused) == 64 - 15
+    assert len(refused) == 64 - 16
     for command in refused:
         for params in ({}, {"id": "abc"}):
             reply = await ask(run.path, {"verb": command, "params": params})
@@ -336,7 +280,29 @@ async def test_ncl_error_is_passed_on_with_its_code(start_broker: StartBroker) -
     run = await start_broker()
     reply = await ask(run.path, {"verb": "groups-get", "params": {"id": "no-such-group"}})
     assert reply["error"]["code"] == "ncl_error"
-    assert reply["error"]["message"].startswith("handler-error: ")
+    assert reply["error"]["message"] == "ncl rejected the request (handler-error)"
+
+
+async def test_ncl_error_text_stays_out_of_the_reply_and_is_redacted_in_the_log(
+    start_broker: StartBroker, fake_ncl: FakeNcl
+) -> None:
+    async def responder(frame: dict[str, Any]) -> bytes:
+        message = "boom https://u:PLANTED-SECRET-p@ss@h.example/x Bearer PLANTED-SECRET-b"
+        error = {"code": "handler-error", "message": message}
+        return (json.dumps({"id": frame["id"], "ok": False, "error": error}) + "\n").encode()
+
+    fake_ncl.responder = responder
+    run = await start_broker()
+    reply = await ask(run.path, {"verb": "groups-get", "params": {"id": "abc"}})
+    assert reply == {
+        "ok": False,
+        "error": {"code": "ncl_error", "message": "ncl rejected the request (handler-error)"},
+    }
+    event = run.events()[-1]
+    assert event["outcome"] == "ncl_error"
+    assert event["ncl_code"] == "handler-error"
+    assert event["detail"] == "boom https://h.example Bearer •••"
+    assert "PLANTED-SECRET" not in run.log.getvalue()
 
 
 async def test_errors_are_not_cached(start_broker: StartBroker, fake_ncl: FakeNcl) -> None:

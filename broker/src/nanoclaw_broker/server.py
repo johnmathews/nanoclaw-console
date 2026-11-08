@@ -13,12 +13,20 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .cache import ReadCache
-from .errors import BrokerError
+from .errors import BrokerError, NclError
 from .events import EventLog
 from .ncl_client import DEFAULT_MAX_REPLY, DEFAULT_TIMEOUT, NclClient
-from .verbs import REGISTRY, Verb, resolve
+from .probe import DEFAULT_TIMEOUT as DEFAULT_PROBE_TIMEOUT
+from .probe import ClaudeProbe
+from .reads import LocalReads
+from .verbs import REGISTRY, LocalVerb, Verb, resolve
 
 MAX_REQUEST = 64 * 1024
+DEFAULT_GROUPS_DIR = "/srv/apps/nanoclaw/groups"
+DEFAULT_MOUNT_ALLOWLIST = "/etc/nanoclaw/mount-allowlist.json"
+DEFAULT_HEALTH_PORT = 3002
+DEFAULT_ONECLI_URL = "http://127.0.0.1:10254"
+DEFAULT_PROBE_AGENT_GROUP = "ag-1779373702795-5wbiev"  # main-group
 _REQUEST_KEYS = frozenset({"verb", "params"})
 
 
@@ -35,6 +43,12 @@ class BrokerConfig:
     read_timeout: float = 5.0
     max_request: int = MAX_REQUEST
     max_reply: int = DEFAULT_MAX_REPLY
+    groups_dir: Path = Path(DEFAULT_GROUPS_DIR)
+    mount_allowlist: Path = Path(DEFAULT_MOUNT_ALLOWLIST)
+    health_port: int = DEFAULT_HEALTH_PORT
+    onecli_url: str = DEFAULT_ONECLI_URL
+    probe_agent_group: str = DEFAULT_PROBE_AGENT_GROUP
+    probe_timeout: float = DEFAULT_PROBE_TIMEOUT
 
 
 @dataclass
@@ -46,6 +60,8 @@ class _Outcome:
     cache: str | None = None
     outcome: str = "ok"
     error: str | None = None
+    ncl_code: str | None = None
+    detail: str | None = None
 
 
 class Broker:
@@ -56,6 +72,19 @@ class Broker:
             config.ncl_socket, timeout=config.ncl_timeout, max_reply=config.max_reply
         )
         self._cache = ReadCache(ttl=config.ttl, max_inflight=config.max_inflight)
+        self._reads = LocalReads(
+            groups_dir=config.groups_dir,
+            mount_allowlist=config.mount_allowlist,
+            health_port=config.health_port,
+            probe=ClaudeProbe(
+                onecli_url=config.onecli_url,
+                agent_group=config.probe_agent_group,
+                timeout=config.probe_timeout,
+                events=self._events,
+            ),
+            ncl=self._fetch,
+            events=self._events,
+        )
         self._server: asyncio.AbstractServer | None = None
 
     async def start(self) -> None:
@@ -96,6 +125,8 @@ class Broker:
             reply = await self._serve_one(reader, result)
         except BrokerError as exc:
             result.outcome = exc.code
+            if isinstance(exc, NclError):
+                result.ncl_code, result.detail = exc.ncl_code, exc.detail
             reply = {"ok": False, "error": {"code": exc.code, "message": exc.message}}
         except Exception as exc:  # the client gets a bare "internal", the log the type name
             result.outcome = "internal"
@@ -115,6 +146,8 @@ class Broker:
             cache=result.cache,
             outcome=result.outcome,
             error=result.error,
+            ncl_code=result.ncl_code,
+            detail=result.detail,
             duration_ms=round((time.monotonic() - started) * 1000, 2),
         )
 
@@ -128,7 +161,10 @@ class Broker:
         result.params = params
         try:
             async with asyncio.timeout(self._config.request_deadline):
-                data, result.cache = await self._fetch(verb, params)
+                if isinstance(verb, LocalVerb):
+                    data, result.cache = await self._fetch_local(verb, params)
+                else:
+                    data, result.cache = await self._fetch(verb, params)
         except TimeoutError:
             raise BrokerError(
                 "timeout", f"no answer within {self._config.request_deadline:g} s"
@@ -167,7 +203,16 @@ class Broker:
         if not verb.cacheable:
             return await self._cache.run_uncached(load), "none"
         key = (verb.name, tuple(sorted(params.items())))
-        return await self._cache.get(key, load)
+        return await self._cache.get(key, load, ttl=verb.ttl)
+
+    async def _fetch_local(self, verb: LocalVerb, params: dict[str, str]) -> tuple[object, str]:
+        # slot=False: a local read may make ncl calls of its own, which take the slots.
+        return await self._cache.get(
+            (verb.name, tuple(sorted(params.items()))),
+            lambda: self._reads.run(verb.name, params),
+            ttl=verb.ttl,
+            slot=False,
+        )
 
 
 def _remove_stale_socket(path: Path) -> None:

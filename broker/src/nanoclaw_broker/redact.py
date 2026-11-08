@@ -35,7 +35,15 @@ GROUP_CONFIG_KEYS = frozenset(
 
 _MASKED_OBJECTS = frozenset({"headers", "env"})
 _DROPPED = frozenset({"payload"})
-_USERINFO = re.compile(r"([A-Za-z][A-Za-z0-9+.-]*://)[^\s/?#@]+@")
+# The authority runs to the first "/", "?" or "#"; its userinfo ends at the LAST "@" in it (as
+# urlsplit reads it), so the greedy match leaves no password fragment behind an "@" in a password.
+# A scheme-less `//user:pw@host` counts too, unless the "//" sits inside a word or path.
+# A scheme must start at the beginning of its run of scheme characters, or a long run of letters
+# would be re-scanned from every position (quadratic on a 256 KiB task file).
+_SCHEME = r"(?<![A-Za-z0-9+.-])[A-Za-z][A-Za-z0-9+.-]*"
+_USERINFO = re.compile(rf"((?<![\w:/])//|{_SCHEME}://)[^\s/?#]*@")
+_URL_IN_TEXT = re.compile(rf"{_SCHEME}://[^\s\"'<>]+")
+_BEARER = re.compile(r"\b(Bearer|bearer|BEARER|Basic)\s+[A-Za-z0-9._~+/=-]+")
 _PLAIN_COMMAND = re.compile(r"[A-Za-z0-9_./-]{1,200}")
 _PLAIN_WORD = re.compile(r"[A-Za-z0-9_-]{1,40}")
 
@@ -60,6 +68,24 @@ def reduce_url(value: object) -> str:
 def strip_userinfo(text: str) -> str:
     """Replace the `user[:password]` of every `scheme://user[:password]@` with MASK."""
     return _USERINFO.sub(rf"\g<1>{MASK}@", text)
+
+
+def redact_text(text: str) -> str:
+    """For free text that only the broker's own log sees (an ncl error message).
+
+    Every URL is cut to `scheme://host[:port]` (userinfo, path, query, fragment), and an
+    `Authorization` value after `Bearer` or `Basic` is masked. A bare secret with no such shape
+    cannot be recognised; that is why this text never goes to a client.
+    """
+    return redact_document(_URL_IN_TEXT.sub(lambda m: reduce_url(m.group(0)), text))
+
+
+def redact_document(text: str) -> str:
+    """For a file shown to John (a task's instructions): userinfo and `Bearer` values only.
+
+    URLs stay whole, because a link is part of the instruction.
+    """
+    return _BEARER.sub(lambda m: f"{m.group(1)} {MASK}", strip_userinfo(text))
 
 
 def redact_reply(data: object) -> object:

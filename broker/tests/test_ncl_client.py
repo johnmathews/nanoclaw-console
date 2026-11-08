@@ -47,19 +47,49 @@ async def test_ok_false_raises_ncl_error_with_code(fake_ncl: FakeNcl) -> None:
         await client.call("groups-get", {"id": "no-such-group"})
     assert exc.value.code == "ncl_error"
     assert exc.value.ncl_code == "handler-error"
-    assert "handler-error" in exc.value.message
+    assert exc.value.message == "ncl rejected the request (handler-error)"
 
 
-async def test_long_ncl_error_messages_are_cut(fake_ncl: FakeNcl) -> None:
+async def _ncl_says(fake_ncl: FakeNcl, code: object, message: str) -> NclError:
     async def responder(frame: dict[str, Any]) -> bytes:
-        error = {"code": "invalid-args", "message": "x" * 5000}
+        error = {"code": code, "message": message}
         reply = {"id": frame["id"], "ok": False, "error": error}
         return (json.dumps(reply) + "\n").encode()
 
     fake_ncl.responder = responder
     with pytest.raises(NclError) as exc:
         await NclClient(fake_ncl.path).call("groups-list", {})
-    assert len(exc.value.message) <= 520
+    return exc.value
+
+
+async def test_ncl_free_text_never_reaches_the_client_message(fake_ncl: FakeNcl) -> None:
+    """The client gets ncl's code and a fixed sentence; the free text is kept as `detail`."""
+    err = await _ncl_says(fake_ncl, "invalid-args", "bad flag --token PLANTED-SECRET-ncl-text")
+    assert err.message == "ncl rejected the request (invalid-args)"
+    assert "PLANTED-SECRET" not in err.message
+    assert "PLANTED-SECRET" not in str(err)  # str(err) is what a log or traceback would show
+    assert "PLANTED-SECRET" not in repr(err)
+    assert "bad flag" in err.detail  # the broker's own log still has the context
+
+
+async def test_ncl_error_detail_is_redacted_and_cut(fake_ncl: FakeNcl) -> None:
+    text = (
+        "see https://u:PLANTED-SECRET-a@ss@host/p?k=PLANTED-SECRET-b with Bearer PLANTED-SECRET-c"
+    )
+    err = await _ncl_says(fake_ncl, "handler-error", text + " " + "x" * 5000)
+    assert "PLANTED-SECRET" not in err.detail
+    assert err.detail.startswith("see https://host with Bearer •••")
+    assert len(err.detail) <= 500
+
+
+@pytest.mark.parametrize(
+    "code", ["Bad Code", "x" * 41, "1abc", "a\nb", "tok=PLANTED-SECRET-code", ""]
+)
+async def test_an_odd_ncl_code_is_reported_as_unknown(fake_ncl: FakeNcl, code: str) -> None:
+    err = await _ncl_says(fake_ncl, code, "m")
+    assert err.ncl_code == "unknown"
+    assert err.message == "ncl rejected the request (unknown)"
+    assert "PLANTED-SECRET" not in err.message
 
 
 async def test_missing_socket_is_unavailable(short_dir: Path) -> None:

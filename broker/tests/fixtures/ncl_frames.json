@@ -3317,6 +3317,14 @@
     "id": "id-0334-fixture",
     "ok": true
    }
+  },
+  {
+   "command": "usage",
+   "args": {},
+   "reply": {
+    "ok": true,
+    "data": "*Current week (all models)*\n▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 39% used\nResets Nov 10, 9pm (Europe/Amsterdam)\n\n*Extra usage credits*\nDisabled (no reason given)"
+   }
   }
  ],
  "planted_group": "ag-0022-fixture",

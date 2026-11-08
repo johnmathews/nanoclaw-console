@@ -198,3 +198,53 @@ async def test_run_uncached_respects_the_cap_and_never_stores() -> None:
 def test_bad_settings_are_refused(ttl: float, cap: int) -> None:
     with pytest.raises(ValueError, match="must be positive"):
         ReadCache(ttl=ttl, max_inflight=cap)
+
+
+async def test_a_per_call_ttl_overrides_the_default() -> None:
+    clock = Clock()
+    cache = ReadCache(ttl=20, clock=clock)
+    calls = 0
+
+    async def loader() -> int:
+        nonlocal calls
+        calls += 1
+        return calls
+
+    assert await cache.get("slow", loader, ttl=300) == (1, "miss")
+    clock.now += 299
+    assert await cache.get("slow", loader, ttl=300) == (1, "hit")
+    clock.now += 2
+    assert await cache.get("slow", loader, ttl=300) == (2, "miss")
+
+
+async def test_a_load_without_a_slot_does_not_count_against_the_cap() -> None:
+    """A local read that itself needs a slot (task-file calling ncl) must not deadlock."""
+    cache = ReadCache(ttl=20, max_inflight=1, clock=Clock())
+
+    async def inner() -> str:
+        return "inner"
+
+    async def outer() -> str:
+        value, _ = await cache.get("inner", inner)  # needs the only slot
+        return f"outer+{value}"
+
+    results = await asyncio.wait_for(
+        asyncio.gather(*(cache.get(i, outer, slot=False) for i in range(4))), timeout=2
+    )
+    assert [r[0] for r in results] == ["outer+inner"] * 4
+
+
+async def test_slotless_loads_may_exceed_the_cap() -> None:
+    cache = ReadCache(ttl=20, max_inflight=1, clock=Clock())
+    running = 0
+    peak = 0
+
+    async def loader() -> None:
+        nonlocal running, peak
+        running += 1
+        peak = max(peak, running)
+        await asyncio.sleep(0.02)
+        running -= 1
+
+    await asyncio.gather(*(cache.get(i, loader, slot=False) for i in range(3)))
+    assert peak == 3
