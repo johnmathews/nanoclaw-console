@@ -3,6 +3,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, type Page } from '@playwright/test'
 import {
+  auditView,
   groupsView,
   overview,
   permissionsView,
@@ -35,12 +36,16 @@ export function defaultAnswers(): Record<string, Answer> {
     '/api/groups': { body: groupsView() },
     '/api/permissions': { body: permissionsView() },
     '/api/problems': { body: problemsView() },
+    '/api/audit': { body: auditView() },
   }
   for (const task of TASKS) answers[`/api/tasks/${task.id}`] = { body: taskDetail(task.id) }
   return answers
 }
 
-/** Open the app at `path` in a theme, with /api answered from `answers` (merged over the defaults). */
+/**
+ * Open the app at `path` in a theme, with /api answered from `answers` (merged over the defaults).
+ * A GET is keyed by its path; any other method by `<METHOD> <path>` (an action's POST).
+ */
 export async function openApp(
   page: Page,
   {
@@ -52,7 +57,9 @@ export async function openApp(
   const table = { ...defaultAnswers(), ...answers }
   await page.emulateMedia({ colorScheme: theme })
   await page.route('**/api/**', (route) => {
-    const answer = table[new URL(route.request().url()).pathname]
+    const request = route.request()
+    const path = new URL(request.url()).pathname
+    const answer = table[request.method() === 'GET' ? path : `${request.method()} ${path}`]
     return route.fulfill({
       status: answer ? (answer.status ?? 200) : 404,
       contentType: 'application/json',

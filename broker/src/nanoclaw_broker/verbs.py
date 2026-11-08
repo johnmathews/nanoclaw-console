@@ -4,11 +4,13 @@ A client names a verb from this registry and passes only its id parameters. The 
 ncl frame from the registry entry: the ncl command name and any fixed args are constants here, so
 a client can never choose the command, add a flag or reach ncl's dash-prefix fallback.
 
-Release 1 is read-only (decision D4): 15 ncl reads, `usage` (an ncl read whose text is parsed) and
-four reads that are not ncl commands (`LOCAL_VERBS`: health, mount-allowlist, task-file,
-claude-probe). Release 2 adds exactly `tasks-pause`, `tasks-resume`,
-`tasks-run` and `groups-restart`, each with `params=("id",)` and `cacheable=False`. Nothing else
-is ever added here.
+The reads: 15 ncl reads, `usage` (an ncl read whose text is parsed) and four reads that are not
+ncl commands (`LOCAL_VERBS`: health, mount-allowlist, task-file, claude-probe).
+
+The writes (decision D4, release 2): exactly `tasks-pause`, `tasks-resume`, `tasks-run` and
+`groups-restart`, each with `params=("id",)`, `cacheable=False` and no fixed args, so ncl's
+`--rebuild`, `--message`, `--group` and `--session` can never be sent. Nothing else is ever added
+here: creating or editing tasks, grants, mounts and the rest stay in `ncl`.
 """
 
 import re
@@ -36,6 +38,11 @@ class Verb:
     redactor: Callable[[object], object] = redact_reply
     cacheable: bool = True
     ttl: float | None = None  # seconds; None means the cache default
+    write: bool = False
+    # A write only: the cached reads (verb names) it can change, dropped after it runs.
+    invalidates: tuple[str, ...] = ()
+    # A write only: the status a repeat finds the task already in ("no live task matched").
+    settles_to: str | None = None
 
     def build_args(self, params: Mapping[str, str]) -> dict[str, object]:
         """The frame's `args`: the fixed args, then the validated ids. Always a fresh dict."""
@@ -72,6 +79,25 @@ def _verb(
     )
 
 
+_TASK_READS = ("tasks-list", "tasks-get", "health")  # health carries the task counts
+_SESSION_READS = ("sessions-list", "health")
+
+
+def _write(
+    name: str, invalidates: tuple[str, ...], settles_to: str | None = None
+) -> tuple[str, Verb]:
+    """One of D4's four writes: its ncl command name, the id only, never cached."""
+    return name, Verb(
+        name=name,
+        command=name,
+        params=("id",),
+        cacheable=False,
+        write=True,
+        invalidates=invalidates,
+        settles_to=settles_to,
+    )
+
+
 REGISTRY: Mapping[str, Verb] = MappingProxyType(
     dict(
         [
@@ -93,6 +119,11 @@ REGISTRY: Mapping[str, Verb] = MappingProxyType(
             _verb("dropped-messages-list"),
             # ncl returns the quota as rendered text; the redactor parses it into fields.
             _verb("usage", redactor=parse_usage, ttl=300.0),
+            # Release 2 (D4). The id is a task's series id, or an agent group's id.
+            _write("tasks-pause", _TASK_READS, settles_to="paused"),
+            _write("tasks-resume", _TASK_READS, settles_to="pending"),
+            _write("tasks-run", _TASK_READS),
+            _write("groups-restart", _SESSION_READS),
         ]
     )
 )

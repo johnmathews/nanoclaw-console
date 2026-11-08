@@ -7,6 +7,8 @@
  * in May, so resuming either runs it once straight away.
  */
 import type {
+  AuditEntry,
+  AuditView,
   Group,
   GroupsView,
   Overview,
@@ -1024,4 +1026,110 @@ export function problemsEveryKind(): ProblemsView {
     loki: { ok: false, errors: { claude: 'timeout' } },
   }
   return base
+}
+
+// --- release 2: the audit log and the actions' answers ---------------------------------------
+
+export const AUDIT_EMAIL = 'john@example.com'
+
+function auditEntry(over: Partial<AuditEntry>): AuditEntry {
+  return {
+    at: NOW,
+    email: AUDIT_EMAIL,
+    action: 'pause',
+    target: { type: 'task', id: PAUSED_TASK.id },
+    result: 'done',
+    reason: null,
+    code: null,
+    detail: { touched: 1 },
+    cf_ray: '8c1d2e3f4a5b6c7d-AMS',
+    ...over,
+  }
+}
+
+/** One entry of every result the audit page draws, newest first, with secrets planted in keys the
+ * contract does not have (as an API that forgot to shape an entry would send them). */
+export function auditView(): AuditView {
+  return {
+    generated_at: NOW,
+    available: true,
+    writable: true,
+    truncated: false,
+    entries: [
+      auditEntry({
+        at: '2026-11-08T14:25:00.000Z',
+        action: 'restart',
+        target: { type: 'group', id: MAIN.id },
+        detail: { restarted: 1 },
+      }),
+      plant(
+        auditEntry({
+          at: '2026-11-08T14:20:00.000Z',
+          action: 'run',
+          target: { type: 'task', id: 'task-1781359424551-jyfr40' },
+          detail: { row_id: 'task-1781359424551-jyfr40-run-ab12' },
+        }),
+        { prompt: PLANTED_TOKEN, verb: 'tasks-run' },
+      ),
+      auditEntry({ at: '2026-11-08T14:10:00.000Z', result: 'already_in_state', detail: null }),
+      plant(
+        auditEntry({
+          at: '2026-11-08T13:00:00.000Z',
+          action: 'resume',
+          result: 'refused',
+          reason: 'origin',
+          detail: null,
+          cf_ray: null,
+        }),
+        { request: { origin: `https://evil.example/?t=${PLANTED_TOKEN}` } },
+      ),
+      auditEntry({
+        at: '2026-11-07T09:00:00.000Z',
+        action: 'run',
+        result: 'broker_error',
+        code: 'timeout',
+        detail: null,
+      }),
+      auditEntry({
+        at: '2026-11-07T08:00:00.000Z',
+        action: 'run',
+        target: { type: 'task', id: null },
+        result: 'refused',
+        reason: 'bad_id',
+        detail: null,
+      }),
+    ],
+  }
+}
+
+export function auditEmpty(): AuditView {
+  return { generated_at: NOW, available: true, writable: true, truncated: false, entries: [] }
+}
+
+export function auditUnwritable(): AuditView {
+  return { ...auditEmpty(), writable: false }
+}
+
+/** What the API answers an action with (architecture.md §4.8). */
+export function actionAnswer(
+  action: 'pause' | 'resume' | 'run' | 'restart',
+  result = 'done',
+  extra: Record<string, unknown> = {},
+): Record<string, unknown> {
+  const detail =
+    action === 'restart'
+      ? { restarted: 1 }
+      : action === 'run'
+        ? { row_id: `${PAUSED_TASK.id}-run-ab12` }
+        : { touched: 1 }
+  return {
+    result,
+    code: null,
+    action,
+    target:
+      action === 'restart' ? { type: 'group', id: MAIN.id } : { type: 'task', id: PAUSED_TASK.id },
+    at: NOW,
+    detail: result === 'done' ? detail : null,
+    ...extra,
+  }
 }

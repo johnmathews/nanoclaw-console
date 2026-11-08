@@ -144,6 +144,11 @@
   box-shadow: var(--shadow-overlay);
 }
 
+/* The Button card's primary on hover: `ink` lightened toward `canvas`, from the two tokens. */
+@utility bg-ink-hover {
+  background-color: color-mix(in srgb, var(--ink) 82%, var(--canvas));
+}
+
 @layer base {
   body {
     @apply bg-canvas font-sans text-ink antialiased;

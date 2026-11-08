@@ -3,6 +3,7 @@
 // attributes, titles or hidden elements.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  auditView,
   GROUP_IDS,
   groupsView,
   overview,
@@ -18,6 +19,7 @@ const ANSWERS = {
   '/api/groups': groupsView(),
   '/api/permissions': permissionsView(),
   '/api/problems': problemsView(),
+  '/api/audit': auditView(),
 }
 
 const PAGES = [
@@ -26,6 +28,7 @@ const PAGES = [
   ...Object.values(GROUP_IDS).map((id) => `/groups/${id}`),
   '/permissions',
   '/problems',
+  '/audit',
 ]
 
 describe('no page shows a planted secret', () => {
@@ -37,8 +40,14 @@ describe('no page shows a planted secret', () => {
   })
 
   it('the fixtures really carry the token', () => {
-    const all = JSON.stringify([overview(), groupsView(), permissionsView(), problemsView()])
-    expect(all.split(PLANTED_TOKEN).length - 1).toBeGreaterThanOrEqual(10)
+    const all = JSON.stringify([
+      overview(),
+      groupsView(),
+      permissionsView(),
+      problemsView(),
+      auditView(),
+    ])
+    expect(all.split(PLANTED_TOKEN).length - 1).toBeGreaterThanOrEqual(12)
   })
 
   for (const path of PAGES) {

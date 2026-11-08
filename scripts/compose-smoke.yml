@@ -1,6 +1,7 @@
 # The app container as the agent LXC runs it (proxmox-setup, roles/agent_lxc), minus the broker
-# socket and the Access settings: a read-only root filesystem with /tmp the only writable path, no
-# capabilities, no privilege escalation, uid 10001, and the deployed limits. Used by compose-smoke.sh.
+# socket and the Access settings: a read-only root filesystem with /tmp and the audit log's named
+# volume the only writable paths, no capabilities, no privilege escalation, uid 10001, and the
+# deployed limits. Used by compose-smoke.sh.
 services:
   console:
     image: ${APP_IMAGE:-nanoclaw-console:local}
@@ -15,5 +16,13 @@ services:
       - no-new-privileges:true
     mem_limit: 256m
     cpus: 0.5
+    environment:
+      AUDIT_DIR: /var/lib/nanoclaw-console/audit
+      CONSOLE_ORIGIN: https://nanoclaw.itsa-pizza.com
+    volumes:
+      - audit:/var/lib/nanoclaw-console/audit
     ports:
       - "127.0.0.1:18000:8000"
+
+volumes:
+  audit:

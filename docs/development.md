@@ -38,7 +38,7 @@
 | `build`         | Both images for `linux/amd64`, tagged `nanoclaw-console:local` and `nanoclaw-console-broker:local` |
 | `build-app`     | The console image only (`nanoclaw-console:local`)                             |
 | `build-broker`  | The broker image only (`nanoclaw-console-broker:local`)                       |
-| `compose-smoke` | Builds the app image, starts it hardened as deployed (read-only root, no capabilities, uid 10001) and checks `/healthz`, the page and a 404 |
+| `compose-smoke` | Builds the app image, starts it hardened as deployed (read-only root, no capabilities, uid 10001, the audit log on a new named volume) and checks `/healthz`, that every other path is a bare 403, that the audit volume is 10001:10001 0700 and writable, and that the root is not |
 
 ## 3. Local CI first
 
@@ -111,6 +111,11 @@ component); `checks.json` sets the gate. Rules:
 - `web/e2e/`: Playwright. `support.ts` opens the app in a theme with `/api` mocked through
   `page.route`, runs axe at WCAG 2.2 AA plus best practice, and checks for sideways scroll. The
   suite runs at 1440 px and 390 px, in light and dark.
+- **The writes** (release 2): `broker/tests/test_writes.py` (each write's exact frame, never cached,
+  the refusals the broker explains, invalidation) and `test_verbs.py` (exactly four writes, only
+  the id); `api/tests/test_actions.py` (every CSRF refusal sends nothing and is audited, the
+  answers, busy, fail closed) and `test_audit.py`; `web/e2e/w15.spec.ts` (each dialog with axe at
+  both widths and themes). No test ever talks to a live NanoClaw.
 - **The secret-absence test** (`web/src/__tests__/secrets.spec.ts`, and the last test in
   `web/e2e/w9.spec.ts`): the web fixtures plant `Bearer PLANTED-SECRET-…` in keys the contract
   does not have, and no page may carry it ([architecture.md](architecture.md) §5.7). A new page
@@ -131,6 +136,8 @@ The console reads its settings from the environment at start ([architecture.md](
 | `BROKER_SOCKET`      | `/run/nanoclaw-console/broker.sock`  | The broker's Unix socket                                                 |
 | `NANOCLAW_TIMEZONE`  | `Europe/Amsterdam`                   | The zone NanoClaw evaluates task cron in (an IANA name)                  |
 | `STATIC_DIR`         | `/app/static`                        | The built web app; ignored if the directory does not exist               |
+| `CONSOLE_ORIGIN`     | `https://nanoclaw.itsa-pizza.com`    | The console's own origin; an action's `Origin` must equal it exactly (architecture.md §4.8) |
+| `AUDIT_DIR`          | `/var/lib/nanoclaw-console/audit`    | The audit log's directory, a named volume when deployed (§4.9)           |
 
 - **The three `ACCESS_*`/`ALLOWED_EMAILS` settings fail closed.** With any of them empty, or a team
   domain that is not a bare `*.cloudflareaccess.com` host, every request except `/healthz` gets 403
@@ -139,6 +146,11 @@ The console reads its settings from the environment at start ([architecture.md](
   signed with a key you serve (the tests do this, `api/tests/jwt_helpers.py`).
 - **Without `LOKI_URL`** the console still serves every view; Claude's Loki signals and the host
   log groups are `null`, and `sources.loki` says `not_configured`.
-- A `LOKI_URL` that is not an `http://` or `https://` URL, or a `NANOCLAW_TIMEZONE` that is not a
-  known zone, stops the console at start: that is a deployment mistake, and failing loudly beats
-  showing wrong times.
+- A `LOKI_URL` that is not an `http://` or `https://` URL, a `NANOCLAW_TIMEZONE` that is not a
+  known zone, or a `CONSOLE_ORIGIN` that is not a bare `scheme://host[:port]`, stops the console at
+  start: that is a deployment mistake, and failing loudly beats showing wrong times or refusing
+  every action.
+- **An `AUDIT_DIR` that cannot be written does not stop the console:** the views work, and the four
+  actions answer 503 and do nothing until it can (fail closed). Locally, set it to a directory you
+  own (`AUDIT_DIR=/tmp/ncc-audit`), and `CONSOLE_ORIGIN=http://localhost:5173` to try the actions
+  through the Vite dev server.

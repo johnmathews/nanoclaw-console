@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ChevronLeft } from '@lucide/vue'
+import ActionBar from '@/components/ActionBar.vue'
 import FactItem from '@/components/ui/FactItem.vue'
 import FactList from '@/components/ui/FactList.vue'
 import InlineMessage from '@/components/ui/InlineMessage.vue'
@@ -11,19 +12,36 @@ import TaskStatus from '@/components/TaskStatus.vue'
 import TimeText from '@/components/TimeText.vue'
 import { useApi } from '@/composables/useApi'
 import { usePageTitle } from '@/composables/usePageTitle'
+import { taskActions, taskConfirmation, type ActionOutcome } from '@/lib/actions'
 import { OVERDUE_WORDS, runsWords, taskName } from '@/lib/tasks'
 import { formatWhen } from '@/lib/time'
 import type { TaskDetail } from '@/lib/types'
 
 /**
  * One task (question 3 in full): what it will do (its task file), its whole prompt, its schedule
- * and its recent runs. The header leaves room at its right for release 2's actions (W15).
+ * and its recent runs. Its header carries release 2's actions: pause or resume by its status, and
+ * run now, each behind a ConfirmDialog; the answer shows under the header and the page refreshes.
  */
 const route = useRoute()
 const id = computed(() => String(route.params.id))
-const { data, error, checkedAt } = useApi<TaskDetail>(
+const { data, error, checkedAt, refresh } = useApi<TaskDetail>(
   computed(() => `/api/tasks/${encodeURIComponent(id.value)}`),
 )
+
+const actions = computed(() => {
+  const t = task.value
+  if (!t) return []
+  return taskActions(t).map((action) => ({
+    slot: action === 'run' ? 'run' : 'toggle',
+    confirmation: taskConfirmation(action, t, checkedAt.value),
+  }))
+})
+const outcome = ref<ActionOutcome | null>(null)
+watch(id, () => (outcome.value = null))
+function answered(result: ActionOutcome): void {
+  outcome.value = result
+  void refresh()
+}
 
 const task = computed(() => data.value?.task ?? null)
 const missing = computed(() => !data.value && error.value?.status === 404)
@@ -68,6 +86,7 @@ const overdueSentence = computed(() => {
       </p>
       <div class="flex flex-wrap items-start justify-between gap-4">
         <h1 class="display min-w-0 break-words">{{ title }}</h1>
+        <ActionBar :items="actions" @answered="answered" />
       </div>
       <template v-if="task">
         <div class="body flex flex-wrap items-baseline gap-x-4 gap-y-1">
@@ -81,6 +100,14 @@ const overdueSentence = computed(() => {
         >.
       </p>
       <p v-else-if="!error" class="body-large text-ink-secondary">Asking the console’s API…</p>
+      <InlineMessage
+        v-if="task && outcome"
+        id="action-result"
+        :tone="outcome.tone"
+        :data-tone="outcome.tone"
+      >
+        <p class="body">{{ outcome.text }}</p>
+      </InlineMessage>
       <PageStatus
         v-if="!missing"
         :generated-at="data?.generated_at ?? null"

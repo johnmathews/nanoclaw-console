@@ -5,7 +5,13 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from nanoclaw_console.config import DEFAULT_BROKER_SOCKET, DEFAULT_STATIC_DIR, Settings
+from nanoclaw_console.config import (
+    DEFAULT_AUDIT_DIR,
+    DEFAULT_BROKER_SOCKET,
+    DEFAULT_CONSOLE_ORIGIN,
+    DEFAULT_STATIC_DIR,
+    Settings,
+)
 
 
 def test_defaults_with_an_empty_environment() -> None:
@@ -17,6 +23,8 @@ def test_defaults_with_an_empty_environment() -> None:
     assert s.broker_socket == DEFAULT_BROKER_SOCKET == Path("/run/nanoclaw-console/broker.sock")
     assert s.timezone == ZoneInfo("Europe/Amsterdam")
     assert s.static_dir == DEFAULT_STATIC_DIR == Path("/app/static")
+    assert s.console_origin == DEFAULT_CONSOLE_ORIGIN == "https://nanoclaw.itsa-pizza.com"
+    assert s.audit_dir == DEFAULT_AUDIT_DIR == Path("/var/lib/nanoclaw-console/audit")
 
 
 def test_every_variable_is_read() -> None:
@@ -29,6 +37,8 @@ def test_every_variable_is_read() -> None:
             "BROKER_SOCKET": "/run/x/b.sock",
             "NANOCLAW_TIMEZONE": "UTC",
             "STATIC_DIR": "/srv/web",
+            "CONSOLE_ORIGIN": " http://localhost:5173 ",
+            "AUDIT_DIR": "/data/audit",
         }
     )
     assert s.access_team_domain == "team.cloudflareaccess.com"
@@ -40,6 +50,8 @@ def test_every_variable_is_read() -> None:
     assert s.broker_socket == Path("/run/x/b.sock")
     assert s.timezone == ZoneInfo("UTC")
     assert s.static_dir == Path("/srv/web")
+    assert s.console_origin == "http://localhost:5173"
+    assert s.audit_dir == Path("/data/audit")
 
 
 @pytest.mark.parametrize("value", ["", "   "])
@@ -57,3 +69,30 @@ def test_bad_loki_url_stops_the_console(value: str) -> None:
 def test_bad_timezone_stops_the_console(value: str) -> None:
     with pytest.raises(ValueError, match="NANOCLAW_TIMEZONE"):
         Settings.from_env({"NANOCLAW_TIMEZONE": value})
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "nanoclaw.itsa-pizza.com",
+        "https://nanoclaw.itsa-pizza.com/",
+        "https://nanoclaw.itsa-pizza.com/x",
+        "https://nanoclaw.itsa-pizza.com?x=1",
+        "https://u@nanoclaw.itsa-pizza.com",
+        "ftp://nanoclaw.itsa-pizza.com",
+        "https://",
+        "*",
+        "null",
+        "https://h.example:99999",
+    ],
+)
+def test_a_console_origin_that_is_not_an_origin_stops_the_console(value: str) -> None:
+    """The Origin check compares strings exactly, so the setting must be a bare origin."""
+    with pytest.raises(ValueError, match="CONSOLE_ORIGIN"):
+        Settings.from_env({"CONSOLE_ORIGIN": value})
+
+
+def test_an_origin_keeps_its_port() -> None:
+    assert Settings.from_env({"CONSOLE_ORIGIN": "https://h.example:8443"}).console_origin == (
+        "https://h.example:8443"
+    )

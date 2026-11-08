@@ -6,6 +6,7 @@ import GroupsPage from './views/GroupsPage.vue'
 import GroupPage from './views/GroupPage.vue'
 import PermissionsPage from './views/PermissionsPage.vue'
 import ProblemsPage from './views/ProblemsPage.vue'
+import AuditPage from './views/AuditPage.vue'
 import NotFoundPage from './views/NotFoundPage.vue'
 
 /**
@@ -30,6 +31,7 @@ export function createAppRouter(history: RouterHistory) {
         meta: { nav: 'permissions' },
       },
       { path: '/problems', name: 'problems', component: ProblemsPage, meta: { nav: 'problems' } },
+      { path: '/audit', name: 'audit', component: AuditPage, meta: { nav: 'audit' } },
       { path: '/:rest(.*)*', name: 'not-found', component: NotFoundPage },
     ],
     scrollBehavior: () => ({ top: 0 }),

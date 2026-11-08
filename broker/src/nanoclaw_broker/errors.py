@@ -8,6 +8,12 @@ from .redact import redact_text
 MAX_NCL_DETAIL = 500
 _NCL_CODE = re.compile(r"[a-z][a-z0-9-]{0,39}")
 
+# The two refusals of a task write that mean something to the console (NanoClaw 479a9510,
+# src/cli/resources/tasks.ts:277 and :404). They are matched on ncl's raw text at its start and
+# only classified; the text itself never leaves the broker.
+_NO_LIVE_TASK = "no live task matched: "
+_TASK_NOT_FOUND = "task not found: "
+
 
 class BrokerError(Exception):
     """An error the broker reports to its client as `{"code", "message"}`."""
@@ -32,6 +38,13 @@ class NclError(BrokerError):
         super().__init__("ncl_error", f"ncl rejected the request ({safe})")
         self.ncl_code = safe
         self.detail = redact_text(detail)[:MAX_NCL_DETAIL]
+        # What the refusal was, for the write verbs: "no_live_task", "task_not_found" or None.
+        self.kind: str | None = None
+        if safe == "handler-error":
+            if detail.startswith(_NO_LIVE_TASK):
+                self.kind = "no_live_task"
+            elif detail.startswith(_TASK_NOT_FOUND):
+                self.kind = "task_not_found"
 
 
 class NclUnavailable(BrokerError):

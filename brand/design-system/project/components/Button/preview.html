@@ -1,4 +1,4 @@
-<!-- @dsCard group="Basics" height=520 subtitle="Primary, secondary and quiet; md 44px and sm 36px; every state" -->
+<!-- @dsCard group="Basics" height=520 subtitle="Primary, secondary and quiet, 44px tall; every state" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -13,8 +13,7 @@
   .cell { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); }
   .state { margin: 0; color: var(--ink-secondary); }
 
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); box-sizing: border-box; height: 44px; padding: 0 var(--space-4); border: 1px solid transparent; border-radius: var(--radius-md); font: 600 16px/24px var(--font-sans); cursor: pointer; text-wrap: nowrap; }
-  .btn.sm { height: 36px; padding: 0 var(--space-3); font-size: 14px; line-height: 20px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); box-sizing: border-box; height: 44px; padding: 0 var(--space-4); border: 1px solid transparent; border-radius: var(--radius-md); font: 600 18px/26px var(--font-sans); cursor: pointer; text-wrap: nowrap; }
   .btn:focus-visible, .btn.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
   .primary { background: var(--ink); color: var(--on-ink); }
   .primary:hover, .primary.is-hover { background: color-mix(in srgb, var(--ink) 82%, var(--canvas)); }
@@ -33,33 +32,29 @@
 </head>
 <body>
 <section aria-labelledby="h-primary">
-  <h2 class="label" id="h-primary">Primary</h2>
+  <h2 class="label" id="h-primary">Primary: the verb of a confirmation</h2>
   <div class="row">
-    <div class="cell"><p class="caption state">Default</p><button class="btn primary" type="button">Sign in</button></div>
-    <div class="cell"><p class="caption state">Hover</p><button class="btn primary is-hover" type="button">Sign in</button></div>
-    <div class="cell"><p class="caption state">Focus</p><button class="btn primary is-focus" type="button">Sign in</button></div>
-    <div class="cell"><p class="caption state">Busy</p><button class="btn primary" type="button" aria-busy="true">Signing in…</button></div>
-    <div class="cell"><p class="caption state">Small</p><button class="btn primary sm" type="button">Add exercise</button></div>
+    <div class="cell"><p class="caption state">Default</p><button class="btn primary" type="button">Resume</button></div>
+    <div class="cell"><p class="caption state">Hover</p><button class="btn primary is-hover" type="button">Run now</button></div>
+    <div class="cell"><p class="caption state">Focus</p><button class="btn primary is-focus" type="button">Restart</button></div>
+    <div class="cell"><p class="caption state">Busy</p><button class="btn primary" type="button" aria-busy="true">Pausing…</button></div>
   </div>
 </section>
 <section aria-labelledby="h-secondary">
-  <h2 class="label" id="h-secondary">Secondary</h2>
+  <h2 class="label" id="h-secondary">Secondary: a page’s actions, and Cancel</h2>
   <div class="row">
-    <div class="cell"><p class="caption state">Default</p><button class="btn secondary" type="button">Not mine</button></div>
-    <div class="cell"><p class="caption state">Hover</p><button class="btn secondary is-hover" type="button">Not mine</button></div>
-    <div class="cell"><p class="caption state">Focus</p><button class="btn secondary is-focus" type="button">Not mine</button></div>
-    <div class="cell"><p class="caption state">Busy</p><button class="btn secondary" type="button" aria-busy="true">Importing…</button></div>
-    <div class="cell"><p class="caption state">Small</p><button class="btn secondary sm" type="button">Export</button></div>
+    <div class="cell"><p class="caption state">Default</p><button class="btn secondary" type="button">Pause</button></div>
+    <div class="cell"><p class="caption state">Hover</p><button class="btn secondary is-hover" type="button">Run now</button></div>
+    <div class="cell"><p class="caption state">Focus</p><button class="btn secondary is-focus" type="button">Cancel</button></div>
+    <div class="cell"><p class="caption state">Disabled</p><button class="btn secondary" type="button" disabled>Restart</button></div>
   </div>
 </section>
 <section aria-labelledby="h-quiet">
-  <h2 class="label" id="h-quiet">Quiet</h2>
+  <h2 class="label" id="h-quiet">Quiet: kept for the least likely choice</h2>
   <div class="row">
-    <div class="cell"><p class="caption state">Default</p><button class="btn quiet" type="button">Later</button></div>
-    <div class="cell"><p class="caption state">Hover</p><button class="btn quiet is-hover" type="button">Later</button></div>
-    <div class="cell"><p class="caption state">Focus</p><button class="btn quiet is-focus" type="button">Later</button></div>
-    <div class="cell"><p class="caption state">Small</p><button class="btn quiet sm" type="button">This week</button></div>
-    <div class="cell"><p class="caption state">Disabled</p><button class="btn secondary" type="button" disabled>Import…</button></div>
+    <div class="cell"><p class="caption state">Default</p><button class="btn quiet" type="button">Not now</button></div>
+    <div class="cell"><p class="caption state">Hover</p><button class="btn quiet is-hover" type="button">Not now</button></div>
+    <div class="cell"><p class="caption state">Focus</p><button class="btn quiet is-focus" type="button">Not now</button></div>
   </div>
 </section>
 <script></script>

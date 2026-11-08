@@ -112,6 +112,7 @@ const ALL_PAGES = [
   ...Object.values(GROUP_IDS).map((id) => `/groups/${id}`),
   '/permissions',
   '/problems',
+  '/audit',
 ]
 
 test('no page carries the planted Bearer token anywhere in its DOM', async ({ page }) => {

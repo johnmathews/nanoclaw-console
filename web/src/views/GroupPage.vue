@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ChevronLeft } from '@lucide/vue'
+import ActionBar from '@/components/ActionBar.vue'
 import AccessMark from '@/components/ui/AccessMark.vue'
 import FactItem from '@/components/ui/FactItem.vue'
 import FactList from '@/components/ui/FactList.vue'
@@ -11,6 +12,7 @@ import PolicyValue from '@/components/PolicyValue.vue'
 import TimeText from '@/components/TimeText.vue'
 import { useApi } from '@/composables/useApi'
 import { usePageTitle } from '@/composables/usePageTitle'
+import { groupConfirmation, type ActionOutcome } from '@/lib/actions'
 import { channelLabel, domId, engageWords, groupName, mcpWhere } from '@/lib/groups'
 import type { Destination, GroupsView, McpServer } from '@/lib/types'
 import { listWords } from '@/lib/words'
@@ -19,11 +21,12 @@ import { listWords } from '@/lib/words'
  * One group in full (question 2): its model and settings, each wired channel with its engage,
  * sender and unknown-sender policies, its MCP servers (name and host only), its mounts with
  * read-write flagged, and whom it may message. It reads /api/groups, which answers for every
- * group, and picks this one. The header leaves room at its right for release 2's restart (W15).
+ * group, and picks this one. Its header carries release 2's restart, behind a ConfirmDialog; the
+ * answer shows under the header and the page refreshes.
  */
 const route = useRoute()
 const id = computed(() => String(route.params.id))
-const { data, error, checkedAt } = useApi<GroupsView>(ref('/api/groups'))
+const { data, error, checkedAt, refresh } = useApi<GroupsView>(ref('/api/groups'))
 
 const group = computed(() => data.value?.groups.find((g) => g.id === id.value) ?? null)
 const listFailed = computed(
@@ -36,6 +39,16 @@ const title = computed(() =>
 usePageTitle(() => title.value)
 
 const config = computed(() => group.value?.config ?? null)
+
+const actions = computed(() =>
+  group.value ? [{ slot: 'restart', confirmation: groupConfirmation(group.value) }] : [],
+)
+const outcome = ref<ActionOutcome | null>(null)
+watch(id, () => (outcome.value = null))
+function answered(result: ActionOutcome): void {
+  outcome.value = result
+  void refresh()
+}
 
 const SETTINGS = [
   ['effort', 'Effort'],
@@ -110,6 +123,7 @@ function destinationWords(d: Destination): string {
       </p>
       <div class="flex flex-wrap items-start justify-between gap-4">
         <h1 class="display min-w-0 break-words">{{ title }}</h1>
+        <ActionBar :items="actions" @answered="answered" />
       </div>
       <p
         v-if="group"
@@ -129,6 +143,14 @@ function destinationWords(d: Destination): string {
         >.
       </p>
       <p v-else-if="!error" class="body-large text-ink-secondary">Asking the console’s API…</p>
+      <InlineMessage
+        v-if="group && outcome"
+        id="action-result"
+        :tone="outcome.tone"
+        :data-tone="outcome.tone"
+      >
+        <p class="body">{{ outcome.text }}</p>
+      </InlineMessage>
       <PageStatus
         :generated-at="data?.generated_at ?? null"
         :checked-at="checkedAt"

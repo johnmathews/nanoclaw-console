@@ -26,6 +26,7 @@ const PAGES = [
   { name: 'a group', path: `/groups/${GROUP_IDS.main}`, heading: 'main-group' },
   { name: 'permissions', path: '/permissions', heading: 'Permissions' },
   { name: 'problems', path: '/problems', heading: 'Problems' },
+  { name: 'audit', path: '/audit', heading: 'Audit log' },
 ] as const
 
 test('dark really is dark', async ({ page, context }) => {
