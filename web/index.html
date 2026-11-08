@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <script src="/theme-init.js"></script>
+    <!-- The latin files of the two typefaces every screen uses, fetched alongside the CSS rather than
+         after it. Vite resolves these into the same hashed /assets/ files the font CSS points at. -->
+    <link
+      rel="preload"
+      href="/node_modules/@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/node_modules/@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <!-- The name comes from src/lib/app.ts; vite.config.ts writes it in. -->
+    <title>%APP_NAME%</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

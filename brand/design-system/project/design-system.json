@@ -1,0 +1,186 @@
+{
+  "v": 3,
+  "assetGroups": {
+    "Icons": {
+      "files": {
+        "calendar-days.svg": {
+          "blob": "b62664c905b8057d6fae2e889ac60f5e",
+          "name": "calendar-days.svg",
+          "size": 564,
+          "type": "image/svg+xml"
+        },
+        "check.svg": {
+          "blob": "baff1d9149c8dac6ac209a476d288704",
+          "name": "check.svg",
+          "size": 312,
+          "type": "image/svg+xml"
+        },
+        "chevron-left.svg": {
+          "blob": "3d9aeffc9528c47cbbd02e197ed8a5f4",
+          "name": "chevron-left.svg",
+          "size": 318,
+          "type": "image/svg+xml"
+        },
+        "chevron-right.svg": {
+          "blob": "163297f1f5f006dddcff1d15d3ae1743",
+          "name": "chevron-right.svg",
+          "size": 318,
+          "type": "image/svg+xml"
+        },
+        "circle-alert.svg": {
+          "blob": "e2f02abc59181f3d5717b76526fdc4f1",
+          "name": "circle-alert.svg",
+          "size": 412,
+          "type": "image/svg+xml"
+        },
+        "cloud-off.svg": {
+          "blob": "0c04dcf8705616f689d66d5615d573a7",
+          "name": "cloud-off.svg",
+          "size": 462,
+          "type": "image/svg+xml"
+        },
+        "info.svg": {
+          "blob": "4270ca924a3c6a9628c06f0b62c1494c",
+          "name": "info.svg",
+          "size": 366,
+          "type": "image/svg+xml"
+        },
+        "list.svg": {
+          "blob": "00f76dd5a50a47317a71ac18e107b196",
+          "name": "list.svg",
+          "size": 425,
+          "type": "image/svg+xml"
+        },
+        "minus.svg": {
+          "blob": "a889a1f0ad49baf2a1eee161cc6b02f6",
+          "name": "minus.svg",
+          "size": 305,
+          "type": "image/svg+xml"
+        },
+        "monitor.svg": {
+          "blob": "eac3a5894310471f6b0c5ba2135f8043",
+          "name": "monitor.svg",
+          "size": 421,
+          "type": "image/svg+xml"
+        },
+        "moon.svg": {
+          "blob": "458bcfacbf824318ecd7f300674f006f",
+          "name": "moon.svg",
+          "size": 406,
+          "type": "image/svg+xml"
+        },
+        "pencil.svg": {
+          "blob": "070a5c9a138aa8c7af6f1773eeff7895",
+          "name": "pencil.svg",
+          "size": 451,
+          "type": "image/svg+xml"
+        },
+        "plus.svg": {
+          "blob": "c9f167dfb95a96063a298edaf15b036b",
+          "name": "plus.svg",
+          "size": 328,
+          "type": "image/svg+xml"
+        },
+        "refresh-cw.svg": {
+          "blob": "6d6d0badaf0bbe62ff26b5aafdb36cd3",
+          "name": "refresh-cw.svg",
+          "size": 470,
+          "type": "image/svg+xml"
+        },
+        "search.svg": {
+          "blob": "09b4277268d7754ea8b718e50a7da489",
+          "name": "search.svg",
+          "size": 349,
+          "type": "image/svg+xml"
+        },
+        "settings.svg": {
+          "blob": "bf6c32e8d6841be38befe201ba3b432e",
+          "name": "settings.svg",
+          "size": 662,
+          "type": "image/svg+xml"
+        },
+        "sticky-note.svg": {
+          "blob": "45bd006f99d53aa84790f10cf9a2e6e5",
+          "name": "sticky-note.svg",
+          "size": 455,
+          "type": "image/svg+xml"
+        },
+        "sun.svg": {
+          "blob": "f07697c086c7507eda2710ac72810a85",
+          "name": "sun.svg",
+          "size": 556,
+          "type": "image/svg+xml"
+        },
+        "trash-2.svg": {
+          "blob": "546686eae25c6afe935b206bf6f2e8e9",
+          "name": "trash-2.svg",
+          "size": 464,
+          "type": "image/svg+xml"
+        },
+        "triangle-alert.svg": {
+          "blob": "8d41fbfd46e054802dd170dc3f0f675c",
+          "name": "triangle-alert.svg",
+          "size": 427,
+          "type": "image/svg+xml"
+        },
+        "x.svg": {
+          "blob": "23ad7fd6b4463105c657956e8e6ba884",
+          "name": "x.svg",
+          "size": 329,
+          "type": "image/svg+xml"
+        }
+      },
+      "name": "Icons",
+      "order": [
+        "check.svg",
+        "circle-alert.svg",
+        "triangle-alert.svg",
+        "info.svg",
+        "chevron-left.svg",
+        "chevron-right.svg",
+        "settings.svg",
+        "x.svg",
+        "plus.svg",
+        "minus.svg",
+        "pencil.svg",
+        "trash-2.svg",
+        "search.svg",
+        "cloud-off.svg",
+        "refresh-cw.svg",
+        "sun.svg",
+        "moon.svg",
+        "monitor.svg",
+        "calendar-days.svg",
+        "list.svg",
+        "sticky-note.svg"
+      ],
+      "tile": "xs"
+    }
+  },
+  "blobs": {},
+  "createdOnFiles": {
+    "at": "2026-11-08T13:00:00Z",
+    "v": 1
+  },
+  "docs": {
+    "readme": "project/README.md",
+    "sections": [
+      "project/foundations.md",
+      "project/voice.md"
+    ]
+  },
+  "groups": [
+    "Icons"
+  ],
+  "lastChange": {
+    "by": "John Mathews",
+    "at": "2026-11-08T15:40:00Z",
+    "via": "Claude Code",
+    "note": "W9: the Groups, Permissions and Problems screens. New cards RecordList, GroupList, AccessMark, LogGroupList and NotVisible; Header, WarningList, StatusMark, FactList, Panel, InlineMessage and TextLink extended with their uses. No new tokens."
+  },
+  "layout": "files",
+  "libraries": [],
+  "namespace": "NanoClawConsole",
+  "sections": {},
+  "title": "NanoClaw console design system"
+}

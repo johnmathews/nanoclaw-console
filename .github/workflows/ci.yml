@@ -1,0 +1,42 @@
+name: CI
+
+# The one lean job GitHub runs (Actions cost money; docs/development.md §3). The full suite, e2e
+# included, runs locally with `make ci` before every push. This job exists because a green run on
+# main is what lets docker.yml publish the images that WUD auto-deploys.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      # setup-uv publishes only full version tags, no floating major tag.
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            api/uv.lock
+            broker/uv.lock
+      # `make install` runs npm 11 through npx: npm 10.9 (bundled with Node 22) crashes resolving
+      # this tree (tracker, docs/development.md).
+      - run: make install
+      - run: make lint
+      - run: make typecheck
+      - run: make test
+      # Stdlib Python only, under a second: the design system's gate and tokens.css's freshness.
+      - run: make design-check

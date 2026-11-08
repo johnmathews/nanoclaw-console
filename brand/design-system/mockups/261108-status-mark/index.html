@@ -1,0 +1,201 @@
+<title>The status mark</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="tokens.css">
+<!--
+  A mockup (design-system skill, references/mockups.md). Fill in, top to bottom:
+  1. The question: one sentence, and what stays as it is.
+  2. One <section class="option"> per option, two to four, lettered A, B, C. Mark one
+     data-recommended. Each changes only what the question is about.
+  3. Every proposed value as a --candidate-* custom property on its option (see the style block); everything
+     else from the system's tokens (var(--ink)), type classes (.body, .caption) and real copy.
+  4. The stage: the real screen or component the change lands in, at its real size, once per
+     theme (the two .pane elements). Add a close-up only beside it, never instead of it.
+  5. Measures: one <li data-fg data-bg data-min> per new colour pairing; the page computes them.
+  The frame (.mockup-*) is plain on purpose; the options are the design.
+-->
+<style>
+  body { margin: 0; background: var(--canvas); color: var(--ink); font-family: var(--font-sans); }
+  .mockup-page {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: var(--space-8, 32px) var(--space-16, 64px);
+    max-width: 1200px; margin: 0 auto; display: grid; gap: var(--space-12, 48px);
+  }
+  .mockup-head { display: grid; gap: var(--space-2, 8px); max-width: 70ch; }
+  .mockup-head h1, .option h2 { margin: 0; text-wrap: balance; }
+  .mockup-head p, .option p { margin: 0; }
+  .mockup-meta { color: var(--ink-secondary); }
+  .option { display: grid; gap: var(--space-4, 16px); }
+  .option-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2, 8px) var(--space-3, 12px); }
+  .option-tag { color: var(--ink-secondary); }
+  .option[data-recommended] .option-tag::after { content: " · Recommended"; color: var(--ink); }
+  /* The same stage in light and in dark, side by side; stacked on a phone. Each pane is a
+     data-theme subtree, so the system's own tokens switch inside it. */
+  .panes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: var(--space-4, 16px); }
+  .pane { min-width: 0; background: var(--canvas); color: var(--ink); border: 1px solid var(--line);
+          border-radius: var(--radius-lg, 10px); padding: var(--space-4, 16px); overflow-x: auto; }
+  .pane-label { color: var(--ink-secondary); margin: 0 0 var(--space-3, 12px); }
+  .measures { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); }
+  .measures li { border: 1px solid var(--line); border-radius: var(--radius-sm, 4px); padding: 2px var(--space-2, 8px); font-variant-numeric: tabular-nums; }
+  .measures li[data-pass="no"] { border-color: currentColor; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  /* ---- The options' own styles: build from var(--token) and the --candidate-* values. ----
+     Declare each candidate on the option AND its themed subtrees ("#a, #a [data-theme]"): a
+     custom property that names another resolves where it is declared, so declared on #a alone it
+     would keep the page theme's value inside the dark pane. A candidate with its own dark value
+     gets a second rule: #a [data-theme="dark"] { --candidate-pen: #f5c518; } */
+  #a, #a [data-theme] { --candidate-mark-size: 10px; --candidate-mark-radius: var(--radius-full); }
+  #b, #b [data-theme] { --candidate-mark-size: 12px; --candidate-mark-radius: 2px; }
+
+  /* The stage: the Overview's Claude and NanoClaw cards and one Tasks row, as the app draws them. */
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--space-6); display: grid; gap: var(--space-3); }
+  .card h3 { margin: 0; }
+  .card p, .card ul, .card dl { margin: 0; }
+  .status { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; }
+  .mark { flex: none; width: var(--candidate-mark-size); height: var(--candidate-mark-size); border-radius: var(--candidate-mark-radius); }
+  .mark.ok { background: var(--pen); }
+  .mark.degraded { background: var(--pen-partial); }
+  .mark.failing { background: var(--pen-missed); }
+  .mark.unknown { box-shadow: inset 0 0 0 2px var(--control-border); }
+  .reasons { padding-left: var(--space-6); color: var(--ink-secondary); }
+  .facts { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-4); }
+  .facts dt { color: var(--ink-secondary); }
+  .facts dd { margin: 0; }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); }
+  .caution { color: var(--caution-ink); display: inline-flex; gap: var(--space-2); align-items: flex-start; }
+  .caution svg { width: 16px; height: 16px; margin-top: 3px; flex: none; }
+  .stack { display: grid; gap: var(--space-4); }
+</style>
+
+<main class="mockup-page">
+  <header class="mockup-head">
+    <p class="caption mockup-meta">Mockup · 2026-11-08 · NanoClaw console</p>
+    <h1 class="title-1">The status mark</h1>
+    <p class="body">Which shape marks OK, degraded and failing beside its words (foundations.md left it to the first screen with a status). The pens, the words and every other part of the cards stay as they are; unknown is a hollow ring in both options, because it is not one of the three pens.</p>
+  </header>
+
+  <section class="option" id="a" data-recommended aria-labelledby="a-h">
+    <div class="option-head">
+      <h2 class="title-2" id="a-h">A. A dot</h2>
+      <span class="label option-tag">Option A</span>
+    </div>
+    <p class="body">A 10px circle (radius-full, which foundations.md already reserves for status dots), the word after it.</p>
+    <div class="panes">
+      <div class="pane" data-theme="light"><p class="label pane-label">Light</p><div class="stack">
+  <section class="card"><h3 class="title-2">Claude</h3>
+    <p class="body"><span class="status"><span class="mark ok"></span>OK</span> · Claude is answering NanoClaw’s agents.</p>
+    <ul class="caption reasons"><li>The last agent call to Claude succeeded (HTTP 200).</li></ul>
+    <dl class="caption facts"><dt>Last success</dt><dd>today at 15:28 CET (two minutes ago)</dd><dt>Refused tokens</dt><dd>None in the last hour, none in 24 hours</dd><dt>Probe</dt><dd><span class="status"><span class="mark ok"></span>OK</span>, today at 15:26 CET</dd></dl>
+  </section>
+  <section class="card"><h3 class="title-2">Each state</h3>
+    <div class="row body"><span class="status"><span class="mark ok"></span>OK</span><span class="status"><span class="mark degraded"></span>Degraded</span><span class="status"><span class="mark failing"></span>Failing</span><span class="status"><span class="mark unknown"></span>Unknown</span></div>
+    <div class="row caption"><span class="status"><span class="mark ok"></span>slack connected</span><span class="status"><span class="mark failing"></span>cli not connected</span></div>
+  </section>
+  <section class="card"><h3 class="title-2">A paused task (Tasks)</h3>
+    <p class="body"><strong>documentation-summary</strong> · main-group · At 09:03 every day</p>
+    <p class="caption caution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>Paused — will run once immediately if resumed</span></p>
+  </section>
+</div></div>
+      <div class="pane" data-theme="dark"><p class="label pane-label">Dark</p><div class="stack">
+  <section class="card"><h3 class="title-2">Claude</h3>
+    <p class="body"><span class="status"><span class="mark ok"></span>OK</span> · Claude is answering NanoClaw’s agents.</p>
+    <ul class="caption reasons"><li>The last agent call to Claude succeeded (HTTP 200).</li></ul>
+    <dl class="caption facts"><dt>Last success</dt><dd>today at 15:28 CET (two minutes ago)</dd><dt>Refused tokens</dt><dd>None in the last hour, none in 24 hours</dd><dt>Probe</dt><dd><span class="status"><span class="mark ok"></span>OK</span>, today at 15:26 CET</dd></dl>
+  </section>
+  <section class="card"><h3 class="title-2">Each state</h3>
+    <div class="row body"><span class="status"><span class="mark ok"></span>OK</span><span class="status"><span class="mark degraded"></span>Degraded</span><span class="status"><span class="mark failing"></span>Failing</span><span class="status"><span class="mark unknown"></span>Unknown</span></div>
+    <div class="row caption"><span class="status"><span class="mark ok"></span>slack connected</span><span class="status"><span class="mark failing"></span>cli not connected</span></div>
+  </section>
+  <section class="card"><h3 class="title-2">A paused task (Tasks)</h3>
+    <p class="body"><strong>documentation-summary</strong> · main-group · At 09:03 every day</p>
+    <p class="caption caution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>Paused — will run once immediately if resumed</span></p>
+  </section>
+</div></div>
+    </div>
+    <ul class="measures caption">
+      <li data-fg="var(--pen)" data-bg="var(--panel)" data-min="3">OK mark on a card</li>
+      <li data-fg="var(--pen-missed)" data-bg="var(--panel)" data-min="3">Failing mark on a card</li>
+      <li data-fg="var(--pen-partial)" data-bg="var(--panel)" data-min="1.5">Degraded mark on a card (words carry it)</li>
+      <li data-fg="var(--control-border)" data-bg="var(--panel)" data-min="3">Unknown ring on a card</li>
+      <li data-fg="var(--caution-ink)" data-bg="var(--panel)" data-min="4.5">Paused caution on a card</li>
+    </ul>
+  </section>
+
+  <section class="option" id="b" aria-labelledby="b-h">
+    <div class="option-head">
+      <h2 class="title-2" id="b-h">B. A small square</h2>
+      <span class="label option-tag">Option B</span>
+    </div>
+    <p class="body">A 12px square with 2px corners, the word after it: closer to tracker’s filled day boxes.</p>
+    <div class="panes">
+      <div class="pane" data-theme="light"><p class="label pane-label">Light</p><div class="stack">
+  <section class="card"><h3 class="title-2">Claude</h3>
+    <p class="body"><span class="status"><span class="mark ok"></span>OK</span> · Claude is answering NanoClaw’s agents.</p>
+    <ul class="caption reasons"><li>The last agent call to Claude succeeded (HTTP 200).</li></ul>
+    <dl class="caption facts"><dt>Last success</dt><dd>today at 15:28 CET (two minutes ago)</dd><dt>Refused tokens</dt><dd>None in the last hour, none in 24 hours</dd><dt>Probe</dt><dd><span class="status"><span class="mark ok"></span>OK</span>, today at 15:26 CET</dd></dl>
+  </section>
+  <section class="card"><h3 class="title-2">Each state</h3>
+    <div class="row body"><span class="status"><span class="mark ok"></span>OK</span><span class="status"><span class="mark degraded"></span>Degraded</span><span class="status"><span class="mark failing"></span>Failing</span><span class="status"><span class="mark unknown"></span>Unknown</span></div>
+    <div class="row caption"><span class="status"><span class="mark ok"></span>slack connected</span><span class="status"><span class="mark failing"></span>cli not connected</span></div>
+  </section>
+  <section class="card"><h3 class="title-2">A paused task (Tasks)</h3>
+    <p class="body"><strong>documentation-summary</strong> · main-group · At 09:03 every day</p>
+    <p class="caption caution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>Paused — will run once immediately if resumed</span></p>
+  </section>
+</div></div>
+      <div class="pane" data-theme="dark"><p class="label pane-label">Dark</p><div class="stack">
+  <section class="card"><h3 class="title-2">Claude</h3>
+    <p class="body"><span class="status"><span class="mark ok"></span>OK</span> · Claude is answering NanoClaw’s agents.</p>
+    <ul class="caption reasons"><li>The last agent call to Claude succeeded (HTTP 200).</li></ul>
+    <dl class="caption facts"><dt>Last success</dt><dd>today at 15:28 CET (two minutes ago)</dd><dt>Refused tokens</dt><dd>None in the last hour, none in 24 hours</dd><dt>Probe</dt><dd><span class="status"><span class="mark ok"></span>OK</span>, today at 15:26 CET</dd></dl>
+  </section>
+  <section class="card"><h3 class="title-2">Each state</h3>
+    <div class="row body"><span class="status"><span class="mark ok"></span>OK</span><span class="status"><span class="mark degraded"></span>Degraded</span><span class="status"><span class="mark failing"></span>Failing</span><span class="status"><span class="mark unknown"></span>Unknown</span></div>
+    <div class="row caption"><span class="status"><span class="mark ok"></span>slack connected</span><span class="status"><span class="mark failing"></span>cli not connected</span></div>
+  </section>
+  <section class="card"><h3 class="title-2">A paused task (Tasks)</h3>
+    <p class="body"><strong>documentation-summary</strong> · main-group · At 09:03 every day</p>
+    <p class="caption caution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>Paused — will run once immediately if resumed</span></p>
+  </section>
+</div></div>
+    </div>
+    <ul class="measures caption">
+      <li data-fg="var(--pen)" data-bg="var(--panel)" data-min="3">OK mark on a card</li>
+      <li data-fg="var(--pen-missed)" data-bg="var(--panel)" data-min="3">Failing mark on a card</li>
+      <li data-fg="var(--pen-partial)" data-bg="var(--panel)" data-min="1.5">Degraded mark on a card (words carry it)</li>
+      <li data-fg="var(--control-border)" data-bg="var(--panel)" data-min="3">Unknown ring on a card</li>
+      <li data-fg="var(--caution-ink)" data-bg="var(--panel)" data-min="4.5">Paused caution on a card</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+  // Measures: for each <li data-fg data-bg data-min>, the WCAG contrast of the two colours in each
+  // theme, resolved inside the option (so --candidate-* values apply), written after the label.
+  (() => {
+    const rgb = (value, scope, theme) => {
+      const probe = document.createElement('span')
+      probe.dataset.theme = theme
+      probe.style.color = value
+      scope.append(probe)
+      const parts = getComputedStyle(probe).color.match(/[\d.]+/g).map(Number)
+      probe.remove()
+      return parts.slice(0, 3)
+    }
+    const lum = ([r, g, b]) => [r, g, b]
+      .map((c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4 })
+      .reduce((sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i], 0)
+    const ratio = (a, b) => { const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05) }
+    for (const li of document.querySelectorAll('.measures li[data-fg]')) {
+      const scope = li.closest('.option') || document.body
+      const min = Number(li.dataset.min || 0)
+      const results = ['light', 'dark'].map((theme) => {
+        const r = ratio(rgb(li.dataset.fg, scope, theme), rgb(li.dataset.bg, scope, theme))
+        return { theme, r, ok: !min || r >= min }
+      })
+      li.dataset.pass = results.every((x) => x.ok) ? 'yes' : 'no'
+      li.append(`: ${results.map((x) => `${x.theme} ${x.r.toFixed(1)}:1${x.ok ? '' : ' (below ' + min + ':1)'}`).join(', ')}`)
+    }
+  })()
+</script>

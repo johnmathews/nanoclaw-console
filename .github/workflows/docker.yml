@@ -1,0 +1,71 @@
+name: Docker
+
+on:
+  # Publishing waits for CI to pass on main: the agent LXC auto-deploys the console's :latest
+  # (What's Up Docker), so an image on GHCR is a production deploy and a red commit must never get
+  # one. The broker is pinned by SHA on the host and never auto-deployed, but publishes the same way.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  # A manual republish of main's HEAD (a lost image, a base-image refresh). Refused on any other ref.
+  workflow_dispatch:
+
+jobs:
+  publish:
+    if: >-
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - name: app
+            context: .
+            image: ghcr.io/johnmathews/nanoclaw-console
+          - name: broker
+            context: broker
+            image: ghcr.io/johnmathews/nanoclaw-console-broker
+    env:
+      # workflow_run starts on the default branch's newest commit, which may be newer than the one
+      # CI just passed: build exactly the commit CI passed. A manual run builds the commit it ran on.
+      COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ env.COMMIT }}
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Under workflow_run, github.sha is the default branch's HEAD, not the commit CI passed, so
+      # metadata-action's own `type=sha` would name the wrong commit. Tag and label it explicitly.
+      - id: commit
+        run: echo "short=${COMMIT::7}" >> "$GITHUB_OUTPUT"
+      - id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ matrix.image }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=sha-${{ steps.commit.outputs.short }}
+          labels: |
+            org.opencontainers.image.revision=${{ env.COMMIT }}
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: ${{ matrix.context }}
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}

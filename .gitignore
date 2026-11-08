@@ -1,0 +1,38 @@
+node_modules/
+dist/
+coverage/
+.engineering-team/
+.worktrees/
+.DS_Store
+*.log
+test-results/
+playwright-report/
+*.tsbuildinfo
+.eslintcache
+*.local
+.vscode/*
+!.vscode/extensions.json
+.idea
+.playwright-mcp/
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credentials.json
+*.secret
+
+# Python (api/, broker/)
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Design system gallery (scripts/design_preview.py)
+brand/design-system/preview/
+
+# Claude Code session worktrees: checkouts, never content.
+.claude/worktrees/

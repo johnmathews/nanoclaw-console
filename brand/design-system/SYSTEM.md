@@ -1,0 +1,1 @@
+Design system artifact: not published yet. Until it is, this folder is the only copy; the source of truth is the repo either way. Copied from Tracker's system (https://claude.ai/artifact/9pkE17ugXFGGyBirapyCgH) on 2026-11-08 under decision D9.

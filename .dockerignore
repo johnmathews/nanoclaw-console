@@ -1,0 +1,26 @@
+# The app image needs web/ (minus its build output and modules) and api/ (minus its venv and caches).
+# Everything else stays out of the build context.
+**/node_modules
+**/dist
+**/coverage
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/.coverage
+**/htmlcov
+**/test-results
+**/playwright-report
+**/.eslintcache
+**/*.tsbuildinfo
+.git
+.github
+.engineering-team
+.worktrees
+.claude
+.env
+.env.*
+docs
+journal
+brand/design-system/preview

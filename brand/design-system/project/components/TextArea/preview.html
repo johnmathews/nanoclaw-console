@@ -1,0 +1,48 @@
+<!-- @dsCard group="Forms" height=470 subtitle="Several lines, with the same label, hint and error as TextField" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TextArea — preview</title>
+<style>
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); }
+  .grid { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+  .cell { flex: 1 1 260px; min-width: 0; max-width: 340px; }
+  .state { margin: 0 0 var(--space-2); color: var(--ink-secondary); }
+
+  .field { display: flex; flex-direction: column; gap: var(--space-1); }
+  .area { box-sizing: border-box; display: block; width: 100%; min-height: 104px; padding: 10px var(--space-3); border: 1px solid var(--control-border); border-radius: var(--radius-sm); background: var(--panel); color: var(--ink); font: 400 16px/24px var(--font-sans); resize: vertical; }
+  .area:hover, .area.is-hover { border-color: var(--ink); }
+  .area:focus-visible, .area.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .area[aria-invalid="true"] { border-color: var(--error-ink); }
+  .field.is-disabled { opacity: .4; }
+  .meta { display: flex; justify-content: space-between; gap: var(--space-2); margin: 0; color: var(--ink-secondary); }
+  .count { font-variant-numeric: tabular-nums; }
+  .error { display: flex; gap: var(--space-1); align-items: flex-start; margin: var(--space-1) 0 0; color: var(--error-ink); }
+  .error svg { flex: none; width: 16px; height: 16px; margin-top: 2px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .area { transition: border-color 120ms ease-out; }
+  }
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="cell"><p class="caption state">Default, empty</p>
+    <div class="field"><label class="label" for="t1">Note</label>
+      <textarea class="area" id="t1" aria-describedby="t1-hint"></textarea>
+      <p class="caption meta" id="t1-hint"><span>Up to 2,000 characters.</span></p></div></div>
+  <div class="cell"><p class="caption state">Focus, with text and a count</p>
+    <div class="field"><label class="label" for="t2">Note</label>
+      <textarea class="area is-focus" id="t2" aria-describedby="t2-count">Left shoulder felt tight on the last set. Dropped to 10 kg.</textarea>
+      <p class="caption meta"><span></span><span class="count" id="t2-count">59 of 2,000 characters</span></p></div></div>
+  <div class="cell"><p class="caption state">Error</p>
+    <div class="field"><label class="label" for="t3">Note</label>
+      <textarea class="area" id="t3" aria-invalid="true" aria-describedby="t3-err">Warm-up: five minutes on the bike, then band pull-aparts and slow goblet squats before the first working set…</textarea>
+      <p class="caption error" id="t3-err" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>This note is 2,140 characters. Shorten it to 2,000 or fewer to save it.</span></p></div></div>
+  <div class="cell"><p class="caption state">Hover</p>
+    <div class="field"><label class="label" for="t4">Note</label>
+      <textarea class="area is-hover" id="t4"></textarea></div></div>
+</div>
+<script></script>
+</body>
+</html>

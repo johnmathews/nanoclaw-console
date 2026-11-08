@@ -1,0 +1,29 @@
+# NanoClaw console
+
+A web console for NanoClaw v2 on the home server's agent LXC: Claude health, groups and channels,
+scheduled tasks, permissions, errors and warnings. Read [docs/architecture.md](docs/architecture.md)
+first, and [docs/decisions.md](docs/decisions.md) for why.
+
+**Stack:** `api/` FastAPI on Python 3.13 with uv; `broker/` stdlib-only Python 3.13 with uv;
+`web/` Vue 3, Vite, Tailwind v4, reka-ui, Pinia. Two images: the console (`Dockerfile`) and the
+broker (`broker/Dockerfile`). Make targets: [docs/development.md](docs/development.md) §2.
+
+**The broker is the security boundary.** It is the only process that opens NanoClaw's `ncl.sock`,
+and its fixed verb list is what limits the console. The console holds no NanoClaw access of its own;
+never give it the socket, `data/`, `groups/` or `.env`. Never add a NanoClaw write verb outside the
+documented list: release 1 has none, and release 2 adds exactly `tasks-pause`, `tasks-resume`,
+`tasks-run` and `groups-restart`, each with `--id` only (decision D4). Anything else stays in `ncl`.
+
+**Never touch the NanoClaw fork** (D1). This repo reads NanoClaw from outside.
+
+**CI is local.** Run `make ci` before every push. Once it has passed, put `[skip ci]` in the commit
+message. A push to `main` that should publish images needs GitHub's CI to run: its success is what
+lets `docker.yml` publish, and the console's `latest` auto-deploys.
+
+**UI follows the design system** in `brand/design-system/` (tracker's, reused: D9). Use the
+design-system skill, build from the tokens and cards, and add or rewrite a card in the system before
+a screen uses it. A visual change starts as a mockup in `brand/design-system/mockups/` and waits for
+John's pick. Never show a secret value on screen; show that it exists.
+
+Every session that changes something adds a dated entry to `journal/` (`yymmdd-name.md`), and
+`docs/` stays current.

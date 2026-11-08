@@ -1,0 +1,69 @@
+<!-- @dsCard group="Overlays" height=760 subtitle="Replaces window.confirm: the facts, then the choice" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ConfirmDialog — preview</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: var(--space-6); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+  .case { margin: 0 0 var(--space-2); color: var(--ink-secondary); }
+  .case + .stage, .case + .confirm { margin-bottom: var(--space-6); }
+
+  .stage { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg); min-height: 300px; padding: var(--space-6); }
+  .behind p { margin: 0; padding: var(--space-3) 0; border-bottom: 1px solid var(--line); font-weight: 600; }
+  .scrim { position: absolute; inset: 0; background: var(--scrim); opacity: .4; }
+  .stage .confirm { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); }
+
+  .confirm { width: min(600px, calc(100% - 32px)); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: 32px; }
+  /* At u = 1 (a 1280×800 screen), K55: in the app the sizes follow the screen. */
+  .confirm h2 { margin: 0; font-size: 27px; line-height: 34px; }
+  .confirm p { font-size: 19px; line-height: 28px; }
+  .confirm p { margin: var(--space-2) 0 0; }
+  .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-6); }
+  .btn { height: 60px; padding: 0 22px; border-radius: var(--radius-md); font: inherit; font-size: 19px; font-weight: 600; cursor: pointer; }
+  .btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--control-border); }
+  .btn.secondary:hover { background: var(--tile); }
+  .btn.primary { background: var(--ink); color: var(--on-ink); border: 1px solid var(--ink); }
+  .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  @media (prefers-reduced-motion: no-preference) { .btn { transition: background-color 120ms; } }
+  @media (max-width: 639px) {
+    body { padding: var(--space-4); }
+    .stage { padding: var(--space-4); min-height: 320px; }
+    .confirm { padding: var(--space-4); }
+    .stage .confirm { top: var(--space-6); }
+  }
+</style>
+</head>
+<body>
+<p class="case label">Removing an exercise (Edit plan, remove button)</p>
+<div class="stage">
+  <div class="behind" aria-hidden="true" inert>
+    <p>Push-ups</p>
+    <p>Pull-ups</p>
+    <p>Squats</p>
+    <p>Kettlebell halos</p>
+  </div>
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="c1-t" aria-describedby="c1-d">
+    <h2 class="title-2" id="c1-t">Remove Push-ups?</h2>
+    <p id="c1-d">It comes off this week's plan. Weeks with their own plan keep it, and its marks stay.</p>
+    <div class="actions">
+      <button type="button" class="btn secondary">Cancel</button>
+      <button type="button" class="btn primary">Remove</button>
+    </div>
+  </div>
+</div>
+
+<p class="case label">Signing out with changes not yet synced</p>
+<div class="confirm" role="alertdialog" aria-labelledby="c3-t" aria-describedby="c3-d">
+  <h2 class="title-2" id="c3-t">Sign out now?</h2>
+  <p id="c3-d">Two changes on this device haven't reached the server yet. Signing out now loses them.</p>
+  <div class="actions">
+    <button type="button" class="btn secondary">Cancel</button>
+    <button type="button" class="btn primary">Sign out</button>
+  </div>
+</div>
+<script></script>
+</body>
+</html>

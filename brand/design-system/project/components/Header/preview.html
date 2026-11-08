@@ -1,0 +1,46 @@
+<!-- @dsCard group="Basics" height=220 subtitle="The product name and the page navigation, wrapping on a phone" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Header — preview</title>
+<style>
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+  p, h1, h2, h3, ul, ol, dl, dd { margin: 0; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-6); max-width: 720px; }
+  .state { color: var(--ink-secondary); margin-bottom: var(--space-2); }
+  .muted { color: var(--ink-secondary); }
+  .mono { font-family: var(--font-mono); }
+  a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .mark { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; }
+  .mark i { width: 10px; height: 10px; border-radius: var(--radius-full); flex: none; }
+  .mark .ok { background: var(--pen); } .mark .degraded { background: var(--pen-partial); }
+  .mark .failing { background: var(--pen-missed); } .mark .unknown { box-shadow: inset 0 0 0 2px var(--control-border); }
+  .caution { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--caution-ink); }
+  .error { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--error-ink); }
+  .caution svg, .error svg { flex: none; width: 16px; height: 16px; margin-top: 3px; }
+  .facts { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+  .facts > div { display: grid; gap: 2px; }
+  .facts dt { color: var(--ink-secondary); }
+  @media (min-width: 640px) { .facts { grid-template-columns: minmax(9rem, max-content) 1fr; gap: var(--space-2) var(--space-6); } .facts > div { display: contents; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--space-6); display: grid; gap: var(--space-4); }
+  @media (max-width: 639px) { .panel { padding: var(--space-4); } }
+  header { border-bottom: 1px solid var(--line); margin: calc(-1 * var(--space-6)) calc(-1 * var(--space-4)) 0; padding: var(--space-2) var(--space-4); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-1) var(--space-8); }
+  .name { font-family: var(--font-serif); font-size: 22px; line-height: 28px; font-weight: 600; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+  nav ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; margin: 0 calc(-1 * var(--space-2)); }
+  nav a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 var(--space-2); text-decoration: none; text-underline-offset: 6px; }
+  nav a:hover { text-decoration: underline; text-decoration-thickness: 1px; }
+  nav a[aria-current="page"], nav a.section { text-decoration: underline; text-decoration-thickness: 2px; }
+</style>
+</head>
+<body>
+<div class="stack">
+  <header><a class="name" href="#">NanoClaw console</a>
+    <nav aria-label="Pages"><ul><li><a class="body" href="#">Overview</a></li><li><a class="body" href="#" aria-current="page">Tasks</a></li></ul></nav></header>
+  <p class="caption muted">Tasks is the current page: a 2px underline at 6px offset. On a task's own page Tasks keeps the underline, without aria-current. Hover draws a 1px underline. W9 adds Groups, Permissions and Problems to the same list.</p>
+</div>
+<script></script>
+</body>
+</html>
