@@ -68,8 +68,16 @@ The dev server on <http://localhost:5173> forwards `/api` and `/healthz` to `127
 want with Vite in front. To see the production shape instead, `make build-app` and run the image, or
 `make compose-smoke`.
 
-The broker has nothing to run yet: it parses `--socket` and `--ncl-socket` and exits 69 ("not
-implemented").
+The broker needs a NanoClaw `ncl.sock`, which only exists on the agent host. Locally, its tests
+run it against a fake ncl server that replays frames captured from the host
+(`broker/tests/fixtures/`). To run it by hand against any socket:
+
+```sh
+cd broker && uv run python -m nanoclaw_broker --socket /tmp/b.sock --ncl-socket /path/to/ncl.sock
+printf '%s\n' '{"verb": "groups-list"}' | nc -U /tmp/b.sock
+```
+
+Its options and protocol are in [architecture.md](architecture.md) §3.
 
 ## 5. The design system
 
@@ -89,7 +97,13 @@ component); `checks.json` sets the gate. Rules:
 ## 6. Tests
 
 - `api/tests/`, `broker/tests/`: pytest. Each Python project's coverage floor is in its
-  `pyproject.toml`.
+  `pyproject.toml`. The broker's async tests use `pytest-asyncio` (dev only; the image stays
+  standard library).
+- **Broker fixtures** (`broker/tests/fixtures/`): `ncl_frames.json` holds real replies from the
+  host, scrubbed on the host before they were printed (free text is lorem ipsum, ids are fixture
+  ids), with fake secrets planted (every one contains `PLANTED-SECRET`). `ncl_commands.json` is
+  every registered ncl command. Recapture both after a NanoClaw update that changes the CLI; never
+  copy a raw `groups config get` reply off the host, because it carries live bearer tokens.
 - `web/src/**/__tests__/`: Vitest component and store tests, with `fetch` stubbed.
 - `web/e2e/`: Playwright. `support.ts` opens the app in a theme with `/api` mocked through
   `page.route`, runs axe at WCAG 2.2 AA plus best practice, and checks for sideways scroll. The

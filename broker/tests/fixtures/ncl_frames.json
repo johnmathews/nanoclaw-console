@@ -1,0 +1,3324 @@
+{
+ "_about": "Replies captured from NanoClaw 479a9510 on the agent host on 2026-11-08 through ncl.sock, scrubbed on the host before they were printed: every free-text value is lorem ipsum, ids are consistent fixture ids, MCP headers/env/urls/args are fakes. Values containing PLANTED-SECRET were then planted by hand for the redaction tests; none of them may ever appear in broker output or logs.",
+ "entries": [
+  {
+   "args": {},
+   "command": "groups-list",
+   "reply": {
+    "data": [
+     {
+      "created_at": "2026-06-13T12:16:35.120Z",
+      "folder": "slack-0003-fixture",
+      "id": "id-0002-fixture",
+      "name": "Lorem ipsum dolor sit amet 1"
+     },
+     {
+      "created_at": "2026-06-12T11:43:40.673Z",
+      "folder": "slack-0005-fixture",
+      "id": "id-0004-fixture",
+      "name": "Lorem ipsum dolor sit amet 2"
+     },
+     {
+      "created_at": "2026-06-11T11:25:20.844Z",
+      "folder": "slack-0007-fixture",
+      "id": "id-0006-fixture",
+      "name": "Lorem ipsum dolor sit amet 3"
+     },
+     {
+      "created_at": "2026-05-30T10:30:54.842Z",
+      "folder": "id-0009-fixture",
+      "id": "ag-0008-fixture",
+      "name": "Lorem ipsum dolor sit amet 4"
+     },
+     {
+      "created_at": "2026-05-26T10:10:22.919Z",
+      "folder": "slack-0011-fixture",
+      "id": "ag-0010-fixture",
+      "name": "Lorem ipsum dolor sit amet 5"
+     },
+     {
+      "created_at": "2026-05-21T14:28:22.801Z",
+      "folder": "slack-0013-fixture",
+      "id": "ag-0012-fixture",
+      "name": "Lorem ipsum dolor sit amet 6"
+     },
+     {
+      "created_at": "2026-05-21T14:28:22.800Z",
+      "folder": "slack-0015-fixture",
+      "id": "ag-0014-fixture",
+      "name": "Lorem ipsum dolor sit amet 7"
+     },
+     {
+      "created_at": "2026-05-21T14:28:22.799Z",
+      "folder": "slack-0017-fixture",
+      "id": "ag-0016-fixture",
+      "name": "Lorem ipsum dolor sit amet 8"
+     },
+     {
+      "created_at": "2026-05-21T14:28:22.798Z",
+      "folder": "slack-0019-fixture",
+      "id": "ag-0018-fixture",
+      "name": "Lorem ipsum dolor sit amet 9"
+     },
+     {
+      "created_at": "2026-05-21T14:28:22.798Z",
+      "folder": "slack-0021-fixture",
+      "id": "ag-0020-fixture",
+      "name": "Lorem ipsum dolor sit amet 10"
+     },
+     {
+      "created_at": "2026-05-21T14:28:22.797Z",
+      "folder": "whatsapp-0023-fixture",
+      "id": "ag-0022-fixture",
+      "name": "Lorem ipsum dolor sit amet 11"
+     },
+     {
+      "created_at": "2026-05-21T14:28:22.796Z",
+      "folder": "slack-0025-fixture",
+      "id": "ag-0024-fixture",
+      "name": "Lorem ipsum dolor sit amet 12"
+     },
+     {
+      "created_at": "2026-05-21T14:28:22.795Z",
+      "folder": "id-0027-fixture",
+      "id": "ag-0026-fixture",
+      "name": "Lorem ipsum dolor sit amet 13"
+     },
+     {
+      "created_at": "2026-05-21T14:28:22.794Z",
+      "folder": "slack-0029-fixture",
+      "id": "ag-0028-fixture",
+      "name": "Lorem ipsum dolor sit amet 14"
+     },
+     {
+      "created_at": "2026-05-21T14:28:22.792Z",
+      "folder": "slack-0031-fixture",
+      "id": "ag-0030-fixture",
+      "name": "Lorem ipsum dolor sit amet 15"
+     }
+    ],
+    "id": "id-0001-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {},
+   "command": "messaging-groups-list",
+   "reply": {
+    "data": [
+     {
+      "channel_type": "slack",
+      "created_at": "2026-06-13T12:16:35.120Z",
+      "denied_at": null,
+      "id": "id-0033-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "see https://bob:PLANTED-SECRET-userinfo-9d9d@chat.example.com/room",
+      "platform_id": "slack-0034-fixture",
+      "unknown_sender_policy": "decline_notify",
+      "webhook_url": "https://hooks.example.com/services/PLANTED-SECRET-hookpath-1e1e?sig=PLANTED-SECRET-sig-1f1f"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-06-11T11:25:28.752Z",
+      "denied_at": null,
+      "id": "id-0035-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 17",
+      "platform_id": "slack-0036-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-06-12T10:59:56.829Z",
+      "denied_at": null,
+      "id": "id-0037-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 18",
+      "platform_id": "slack-0038-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "cli",
+      "created_at": "2026-05-21T13:42:16.391Z",
+      "denied_at": null,
+      "id": "mg-0039-fixture",
+      "instance": "cli",
+      "is_group": 0,
+      "name": "Lorem ipsum dolor sit amet 19",
+      "platform_id": "id-0040-fixture",
+      "unknown_sender_policy": "public"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.792Z",
+      "denied_at": null,
+      "id": "mg-0041-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 20",
+      "platform_id": "slack-0042-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.794Z",
+      "denied_at": null,
+      "id": "mg-0043-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 21",
+      "platform_id": "slack-0044-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.796Z",
+      "denied_at": null,
+      "id": "mg-0045-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 22",
+      "platform_id": "slack-0046-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.795Z",
+      "denied_at": null,
+      "id": "mg-0047-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 23",
+      "platform_id": "slack-0048-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "whatsapp",
+      "created_at": "2026-05-21T14:28:22.797Z",
+      "denied_at": null,
+      "id": "mg-0049-fixture",
+      "instance": "whatsapp",
+      "is_group": 0,
+      "name": "Lorem ipsum dolor sit amet 24",
+      "platform_id": "id-0050-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.798Z",
+      "denied_at": null,
+      "id": "mg-0051-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 25",
+      "platform_id": "slack-0052-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.798Z",
+      "denied_at": null,
+      "id": "mg-0053-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 26",
+      "platform_id": "slack-0054-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.799Z",
+      "denied_at": null,
+      "id": "mg-0055-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 27",
+      "platform_id": "slack-0056-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.800Z",
+      "denied_at": null,
+      "id": "mg-0057-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 28",
+      "platform_id": "slack-0058-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.801Z",
+      "denied_at": null,
+      "id": "mg-0059-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 29",
+      "platform_id": "slack-0060-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-25T12:07:23.591Z",
+      "denied_at": null,
+      "id": "mg-0061-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 30",
+      "platform_id": "slack-0062-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-26T10:10:22.919Z",
+      "denied_at": null,
+      "id": "mg-0063-fixture",
+      "instance": "slack",
+      "is_group": 1,
+      "name": "Lorem ipsum dolor sit amet 31",
+      "platform_id": "slack-0064-fixture",
+      "unknown_sender_policy": "decline_notify"
+     },
+     {
+      "channel_type": "slack",
+      "created_at": "2026-05-30T10:30:04.703Z",
+      "denied_at": null,
+      "id": "mg-0065-fixture",
+      "instance": "slack",
+      "is_group": 0,
+      "name": null,
+      "platform_id": "slack-0066-fixture",
+      "unknown_sender_policy": "decline_notify"
+     }
+    ],
+    "id": "id-0032-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {},
+   "command": "wirings-list",
+   "reply": {
+    "data": [
+     {
+      "agent_group_id": "ag-0014-fixture",
+      "created_at": "2026-06-19T22:00:47.124Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 32",
+      "id": "id-0068-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "mg-0049-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 33",
+      "threads": null
+     },
+     {
+      "agent_group_id": "id-0002-fixture",
+      "created_at": "2026-06-13T12:16:35.120Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 34",
+      "id": "id-0069-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "id-0033-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 35",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "id-0004-fixture",
+      "created_at": "2026-06-12T11:43:52.811Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 36",
+      "id": "id-0070-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "id-0037-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 37",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "id-0006-fixture",
+      "created_at": "2026-06-11T11:25:39.218Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 38",
+      "id": "id-0071-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "id-0035-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 39",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "ag-0008-fixture",
+      "created_at": "2026-05-30T10:30:54.844Z",
+      "engage_mode": "mention-sticky",
+      "engage_pattern": null,
+      "id": "mga-0072-fixture",
+      "ignored_message_policy": "accumulate",
+      "messaging_group_id": "mg-0065-fixture",
+      "priority": 0,
+      "sender_scope": "known",
+      "session_mode": "Lorem ipsum dolor sit amet 40",
+      "threads": null
+     },
+     {
+      "agent_group_id": "ag-0010-fixture",
+      "created_at": "2026-05-26T10:10:22.919Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 41",
+      "id": "mga-0073-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "mg-0063-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 42",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "ag-0012-fixture",
+      "created_at": "2026-05-21T14:28:22.801Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 43",
+      "id": "mga-0074-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "mg-0059-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 44",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "ag-0016-fixture",
+      "created_at": "2026-05-21T14:28:22.799Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 45",
+      "id": "mga-0075-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "mg-0055-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 46",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "ag-0020-fixture",
+      "created_at": "2026-05-21T14:28:22.798Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 47",
+      "id": "mga-0076-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "mg-0051-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 48",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "ag-0018-fixture",
+      "created_at": "2026-05-21T14:28:22.798Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 49",
+      "id": "mga-0077-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "mg-0053-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 50",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "ag-0024-fixture",
+      "created_at": "2026-05-21T14:28:22.796Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 51",
+      "id": "mga-0078-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "mg-0045-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 52",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "created_at": "2026-05-21T14:28:22.795Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 53",
+      "id": "mga-0079-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "mg-0047-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 54",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "created_at": "2026-05-21T14:28:22.794Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 55",
+      "id": "mga-0080-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "mg-0043-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 56",
+      "threads": 0
+     },
+     {
+      "agent_group_id": "ag-0030-fixture",
+      "created_at": "2026-05-21T14:28:22.792Z",
+      "engage_mode": "pattern",
+      "engage_pattern": "Lorem ipsum dolor sit amet 57",
+      "id": "mga-0081-fixture",
+      "ignored_message_policy": "drop",
+      "messaging_group_id": "mg-0041-fixture",
+      "priority": 0,
+      "sender_scope": "all",
+      "session_mode": "Lorem ipsum dolor sit amet 58",
+      "threads": 0
+     }
+    ],
+    "id": "id-0067-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {},
+   "command": "destinations-list",
+   "reply": {
+    "data": [
+     {
+      "agent_group_id": "id-0004-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-06-12 11:53:41",
+      "display_name": "Lorem ipsum dolor sit amet 60",
+      "local_name": "Lorem ipsum dolor sit amet 59",
+      "target_id": "id-0037-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "id-0002-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-06-13T12:16:35.120Z",
+      "display_name": "Lorem ipsum dolor sit amet 62",
+      "local_name": "Lorem ipsum dolor sit amet 61",
+      "target_id": "id-0033-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0030-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.792Z",
+      "display_name": "Lorem ipsum dolor sit amet 64",
+      "local_name": "Lorem ipsum dolor sit amet 63",
+      "target_id": "mg-0041-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.794Z",
+      "display_name": "Lorem ipsum dolor sit amet 66",
+      "local_name": "Lorem ipsum dolor sit amet 65",
+      "target_id": "mg-0043-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.795Z",
+      "display_name": "Lorem ipsum dolor sit amet 68",
+      "local_name": "Lorem ipsum dolor sit amet 67",
+      "target_id": "mg-0047-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0024-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.796Z",
+      "display_name": "Lorem ipsum dolor sit amet 70",
+      "local_name": "Lorem ipsum dolor sit amet 69",
+      "target_id": "mg-0045-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0022-fixture",
+      "channel_type": "whatsapp",
+      "created_at": "2026-05-21T14:28:22.797Z",
+      "display_name": "Lorem ipsum dolor sit amet 72",
+      "local_name": "Lorem ipsum dolor sit amet 71",
+      "target_id": "mg-0049-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0018-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.798Z",
+      "display_name": "Lorem ipsum dolor sit amet 74",
+      "local_name": "Lorem ipsum dolor sit amet 73",
+      "target_id": "mg-0053-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0020-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.798Z",
+      "display_name": "Lorem ipsum dolor sit amet 76",
+      "local_name": "Lorem ipsum dolor sit amet 75",
+      "target_id": "mg-0051-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0016-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.799Z",
+      "display_name": "Lorem ipsum dolor sit amet 78",
+      "local_name": "Lorem ipsum dolor sit amet 77",
+      "target_id": "mg-0055-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0014-fixture",
+      "channel_type": "whatsapp",
+      "created_at": "2026-06-19 22:01:35",
+      "display_name": "Lorem ipsum dolor sit amet 80",
+      "local_name": "Lorem ipsum dolor sit amet 79",
+      "target_id": "mg-0049-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0012-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-05-21T14:28:22.801Z",
+      "display_name": "Lorem ipsum dolor sit amet 82",
+      "local_name": "Lorem ipsum dolor sit amet 81",
+      "target_id": "mg-0059-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0010-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-11-06T22:31:40.963Z",
+      "display_name": "Lorem ipsum dolor sit amet 84",
+      "local_name": "Lorem ipsum dolor sit amet 83",
+      "target_id": "mg-0063-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "ag-0008-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-05-30T10:30:54.844Z",
+      "display_name": null,
+      "local_name": "Lorem ipsum dolor sit amet 85",
+      "target_id": "mg-0065-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "id-0006-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-11-06T22:31:40.202Z",
+      "display_name": "Lorem ipsum dolor sit amet 87",
+      "local_name": "Lorem ipsum dolor sit amet 86",
+      "target_id": "id-0035-fixture",
+      "target_type": "channel"
+     },
+     {
+      "agent_group_id": "id-0006-fixture",
+      "channel_type": "slack",
+      "created_at": "2026-11-07T16:42:32.560Z",
+      "display_name": "Lorem ipsum dolor sit amet 89",
+      "local_name": "Lorem ipsum dolor sit amet 88",
+      "target_id": "id-0035-fixture",
+      "target_type": "channel"
+     }
+    ],
+    "id": "id-0082-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {},
+   "command": "sessions-list",
+   "reply": {
+    "data": [
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-11-07T20:38:14.316Z",
+      "id": "sess-0084-fixture",
+      "last_active": "2026-11-08T09:01:56.560Z",
+      "messaging_group_id": null,
+      "status": "active",
+      "thread_id": "system-0085-fixture"
+     },
+     {
+      "agent_group_id": "id-0004-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-11-05T23:07:27.079Z",
+      "id": "sess-0086-fixture",
+      "last_active": "2026-11-06T22:25:14.671Z",
+      "messaging_group_id": null,
+      "status": "active",
+      "thread_id": "system-0087-fixture"
+     },
+     {
+      "agent_group_id": "ag-0014-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-06-19T22:06:02.353Z",
+      "id": "sess-0088-fixture",
+      "last_active": "2026-11-08T07:00:56.507Z",
+      "messaging_group_id": "mg-0049-fixture",
+      "status": "active",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "id-0002-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-06-13T12:18:33.298Z",
+      "id": "sess-0089-fixture",
+      "last_active": "2026-11-07T07:00:38.385Z",
+      "messaging_group_id": "id-0033-fixture",
+      "status": "active",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "id-0004-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-06-12T11:47:25.825Z",
+      "id": "sess-0090-fixture",
+      "last_active": "2026-11-06T22:25:04.052Z",
+      "messaging_group_id": "id-0037-fixture",
+      "status": "active",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "id-0006-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-06-11T11:28:55.761Z",
+      "id": "sess-0091-fixture",
+      "last_active": "2026-11-08T08:00:05.328Z",
+      "messaging_group_id": "id-0035-fixture",
+      "status": "active",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0008-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-30T10:30:54.846Z",
+      "id": "sess-0092-fixture",
+      "last_active": "2026-11-07T16:44:08.419Z",
+      "messaging_group_id": "mg-0065-fixture",
+      "status": "active",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0010-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-26T10:15:42.227Z",
+      "id": "sess-0093-fixture",
+      "last_active": "2026-11-08T11:14:53.227Z",
+      "messaging_group_id": "mg-0063-fixture",
+      "status": "active",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0016-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-26T08:57:49.914Z",
+      "id": "sess-0094-fixture",
+      "last_active": "2026-05-26T08:57:50.166Z",
+      "messaging_group_id": "mg-0055-fixture",
+      "status": "active",
+      "thread_id": "slack-0095-fixture"
+     },
+     {
+      "agent_group_id": "ag-0012-fixture",
+      "agent_provider": null,
+      "container_status": "running",
+      "created_at": "2026-05-26T08:56:57.760Z",
+      "id": "sess-0096-fixture",
+      "last_active": "2026-05-26T08:56:57.985Z",
+      "messaging_group_id": "mg-0059-fixture",
+      "status": "closed",
+      "thread_id": "slack-0097-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-26T08:56:47.836Z",
+      "id": "sess-0098-fixture",
+      "last_active": "2026-05-26T08:56:48.060Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0099-fixture"
+     },
+     {
+      "agent_group_id": "ag-0014-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-26T08:55:31.636Z",
+      "id": "sess-0100-fixture",
+      "last_active": "2026-11-08T07:01:13.507Z",
+      "messaging_group_id": "mg-0057-fixture",
+      "status": "active",
+      "thread_id": "slack-0101-fixture"
+     },
+     {
+      "agent_group_id": "ag-0020-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-26T08:54:58.670Z",
+      "id": "sess-0102-fixture",
+      "last_active": "2026-11-07T20:03:51.760Z",
+      "messaging_group_id": "mg-0051-fixture",
+      "status": "active",
+      "thread_id": "slack-0103-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "running",
+      "created_at": "2026-05-26T08:54:50.005Z",
+      "id": "sess-0104-fixture",
+      "last_active": "2026-05-26T08:54:50.230Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0105-fixture"
+     },
+     {
+      "agent_group_id": "ag-0016-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-26T08:54:20.740Z",
+      "id": "sess-0106-fixture",
+      "last_active": "2026-05-26T08:54:21.055Z",
+      "messaging_group_id": "mg-0055-fixture",
+      "status": "closed",
+      "thread_id": "slack-0107-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T20:55:35.212Z",
+      "id": "sess-0108-fixture",
+      "last_active": "2026-05-25T20:59:07.257Z",
+      "messaging_group_id": "mg-0061-fixture",
+      "status": "closed",
+      "thread_id": "slack-0109-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T18:41:19.935Z",
+      "id": "sess-0110-fixture",
+      "last_active": "2026-05-25T18:44:42.559Z",
+      "messaging_group_id": "mg-0061-fixture",
+      "status": "closed",
+      "thread_id": "slack-0111-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T18:39:40.763Z",
+      "id": "sess-0112-fixture",
+      "last_active": "2026-05-25T18:39:40.988Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0113-fixture"
+     },
+     {
+      "agent_group_id": "ag-0020-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T18:39:08.550Z",
+      "id": "sess-0114-fixture",
+      "last_active": "2026-05-25T18:39:08.789Z",
+      "messaging_group_id": "mg-0051-fixture",
+      "status": "closed",
+      "thread_id": "slack-0115-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T18:38:52.910Z",
+      "id": "sess-0116-fixture",
+      "last_active": "2026-05-25T18:38:53.133Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0117-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T18:38:27.704Z",
+      "id": "sess-0118-fixture",
+      "last_active": "2026-05-25T18:38:27.952Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0119-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T18:37:32.593Z",
+      "id": "sess-0120-fixture",
+      "last_active": "2026-05-25T18:37:32.829Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0121-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T18:36:59.483Z",
+      "id": "sess-0122-fixture",
+      "last_active": "2026-05-25T18:36:59.775Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0123-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T15:57:43.710Z",
+      "id": "sess-0124-fixture",
+      "last_active": "2026-05-25T16:01:23.022Z",
+      "messaging_group_id": "mg-0061-fixture",
+      "status": "closed",
+      "thread_id": "slack-0125-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T15:56:27.543Z",
+      "id": "sess-0126-fixture",
+      "last_active": "2026-05-25T16:01:00.696Z",
+      "messaging_group_id": "mg-0061-fixture",
+      "status": "closed",
+      "thread_id": "slack-0127-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "running",
+      "created_at": "2026-05-25T13:57:56.994Z",
+      "id": "sess-0128-fixture",
+      "last_active": "2026-05-25T14:01:15.278Z",
+      "messaging_group_id": "mg-0061-fixture",
+      "status": "closed",
+      "thread_id": "slack-0129-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "running",
+      "created_at": "2026-05-25T13:51:41.821Z",
+      "id": "sess-0130-fixture",
+      "last_active": "2026-05-25T13:51:42.061Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0131-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "running",
+      "created_at": "2026-05-25T13:38:58.633Z",
+      "id": "sess-0132-fixture",
+      "last_active": "2026-05-25T13:38:58.886Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0133-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T12:51:15.594Z",
+      "id": "sess-0134-fixture",
+      "last_active": "2026-05-25T12:51:15.951Z",
+      "messaging_group_id": "mg-0061-fixture",
+      "status": "closed",
+      "thread_id": "slack-0135-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T12:51:15.277Z",
+      "id": "sess-0136-fixture",
+      "last_active": "2026-05-25T12:51:15.540Z",
+      "messaging_group_id": "mg-0061-fixture",
+      "status": "closed",
+      "thread_id": "slack-0137-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-25T08:06:40.269Z",
+      "id": "sess-0138-fixture",
+      "last_active": "2026-05-25T08:07:04.512Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0139-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-24T11:45:26.099Z",
+      "id": "sess-0140-fixture",
+      "last_active": "2026-05-24T11:45:26.326Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0141-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-24T11:44:52.626Z",
+      "id": "sess-0142-fixture",
+      "last_active": "2026-05-24T11:44:52.889Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0143-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T14:47:33.008Z",
+      "id": "sess-0144-fixture",
+      "last_active": "2026-05-23T14:47:33.258Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0145-fixture"
+     },
+     {
+      "agent_group_id": "ag-0018-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:56:53.859Z",
+      "id": "sess-0146-fixture",
+      "last_active": "2026-05-23T13:56:54.113Z",
+      "messaging_group_id": "mg-0053-fixture",
+      "status": "active",
+      "thread_id": "slack-0147-fixture"
+     },
+     {
+      "agent_group_id": "ag-0024-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:56:39.540Z",
+      "id": "sess-0148-fixture",
+      "last_active": "2026-05-23T13:56:39.966Z",
+      "messaging_group_id": "mg-0045-fixture",
+      "status": "active",
+      "thread_id": "slack-0149-fixture"
+     },
+     {
+      "agent_group_id": "ag-0024-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:56:37.282Z",
+      "id": "sess-0150-fixture",
+      "last_active": "2026-05-23T13:56:37.523Z",
+      "messaging_group_id": "mg-0045-fixture",
+      "status": "closed",
+      "thread_id": "slack-0151-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:56:19.425Z",
+      "id": "sess-0152-fixture",
+      "last_active": "2026-05-23T13:56:19.659Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0153-fixture"
+     },
+     {
+      "agent_group_id": "ag-0020-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:56:12.922Z",
+      "id": "sess-0154-fixture",
+      "last_active": "2026-05-23T13:56:13.173Z",
+      "messaging_group_id": "mg-0051-fixture",
+      "status": "closed",
+      "thread_id": "slack-0155-fixture"
+     },
+     {
+      "agent_group_id": "ag-0012-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:56:08.987Z",
+      "id": "sess-0156-fixture",
+      "last_active": "2026-05-23T13:56:09.224Z",
+      "messaging_group_id": "mg-0059-fixture",
+      "status": "closed",
+      "thread_id": "slack-0157-fixture"
+     },
+     {
+      "agent_group_id": "ag-0018-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:54:58.594Z",
+      "id": "sess-0158-fixture",
+      "last_active": "2026-05-23T13:54:58.866Z",
+      "messaging_group_id": "mg-0053-fixture",
+      "status": "closed",
+      "thread_id": "slack-0159-fixture"
+     },
+     {
+      "agent_group_id": "ag-0012-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:54:29.306Z",
+      "id": "sess-0160-fixture",
+      "last_active": "2026-05-23T13:54:29.554Z",
+      "messaging_group_id": "mg-0059-fixture",
+      "status": "closed",
+      "thread_id": "slack-0161-fixture"
+     },
+     {
+      "agent_group_id": "ag-0024-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:52:57.962Z",
+      "id": "sess-0162-fixture",
+      "last_active": "2026-05-23T13:52:58.149Z",
+      "messaging_group_id": "mg-0045-fixture",
+      "status": "closed",
+      "thread_id": "slack-0163-fixture"
+     },
+     {
+      "agent_group_id": "ag-0012-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:52:22.106Z",
+      "id": "sess-0164-fixture",
+      "last_active": "2026-05-23T13:52:22.349Z",
+      "messaging_group_id": "mg-0059-fixture",
+      "status": "closed",
+      "thread_id": "slack-0165-fixture"
+     },
+     {
+      "agent_group_id": "ag-0020-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:51:47.480Z",
+      "id": "sess-0166-fixture",
+      "last_active": "2026-05-23T13:51:47.724Z",
+      "messaging_group_id": "mg-0051-fixture",
+      "status": "closed",
+      "thread_id": "slack-0167-fixture"
+     },
+     {
+      "agent_group_id": "ag-0020-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:51:31.966Z",
+      "id": "sess-0168-fixture",
+      "last_active": "2026-05-23T13:51:32.247Z",
+      "messaging_group_id": "mg-0051-fixture",
+      "status": "closed",
+      "thread_id": "slack-0169-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:51:25.184Z",
+      "id": "sess-0170-fixture",
+      "last_active": "2026-05-23T13:51:25.432Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0171-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-23T13:51:09.029Z",
+      "id": "sess-0172-fixture",
+      "last_active": "2026-05-23T13:51:09.325Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0173-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T22:03:49.240Z",
+      "id": "sess-0174-fixture",
+      "last_active": "2026-05-22T22:03:49.494Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0175-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T22:00:54.878Z",
+      "id": "sess-0176-fixture",
+      "last_active": "2026-05-22T22:02:09.594Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0177-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T21:59:56.371Z",
+      "id": "sess-0178-fixture",
+      "last_active": "2026-05-22T21:59:56.624Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0179-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T21:58:28.456Z",
+      "id": "sess-0180-fixture",
+      "last_active": "2026-05-22T21:58:28.740Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0181-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T21:53:21.477Z",
+      "id": "sess-0182-fixture",
+      "last_active": "2026-05-22T21:53:21.737Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0183-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T21:52:31.394Z",
+      "id": "sess-0184-fixture",
+      "last_active": "2026-05-22T21:52:31.654Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0185-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T20:41:31.915Z",
+      "id": "sess-0186-fixture",
+      "last_active": "2026-05-22T20:41:32.127Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0187-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T20:41:04.828Z",
+      "id": "sess-0188-fixture",
+      "last_active": "2026-05-22T20:41:05.075Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0189-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T20:40:40.962Z",
+      "id": "sess-0190-fixture",
+      "last_active": "2026-05-22T20:40:41.192Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0191-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T20:40:27.449Z",
+      "id": "sess-0192-fixture",
+      "last_active": "2026-05-22T20:40:27.692Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0193-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T20:39:33.368Z",
+      "id": "sess-0194-fixture",
+      "last_active": "2026-05-22T20:39:33.631Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0195-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T20:39:12.364Z",
+      "id": "sess-0196-fixture",
+      "last_active": "2026-05-22T20:39:12.634Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0197-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "running",
+      "created_at": "2026-05-22T16:41:22.140Z",
+      "id": "sess-0198-fixture",
+      "last_active": "2026-05-22T16:41:22.416Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0199-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T15:07:18.139Z",
+      "id": "sess-0200-fixture",
+      "last_active": "2026-05-22T15:07:18.374Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0201-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T15:07:08.222Z",
+      "id": "sess-0202-fixture",
+      "last_active": "2026-05-22T15:07:08.449Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0203-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T15:06:25.472Z",
+      "id": "sess-0204-fixture",
+      "last_active": "2026-05-22T15:06:25.674Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0205-fixture"
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T15:05:53.145Z",
+      "id": "sess-0206-fixture",
+      "last_active": "2026-05-22T15:05:53.424Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "closed",
+      "thread_id": "slack-0207-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T15:05:26.346Z",
+      "id": "sess-0208-fixture",
+      "last_active": "2026-05-22T15:05:26.597Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0209-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T15:05:02.080Z",
+      "id": "sess-0210-fixture",
+      "last_active": "2026-05-22T15:05:02.324Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0211-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T14:53:53.542Z",
+      "id": "sess-0212-fixture",
+      "last_active": null,
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0213-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-22T14:48:03.551Z",
+      "id": "sess-0214-fixture",
+      "last_active": null,
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0215-fixture"
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "running",
+      "created_at": "2026-05-22T08:04:49.041Z",
+      "id": "sess-0216-fixture",
+      "last_active": "2026-05-22T08:04:49.700Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "closed",
+      "thread_id": "slack-0217-fixture"
+     },
+     {
+      "agent_group_id": "ag-0022-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-21T14:28:26.053Z",
+      "id": "sess-0218-fixture",
+      "last_active": "2026-06-19T22:00:09.864Z",
+      "messaging_group_id": "mg-0049-fixture",
+      "status": "active",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0012-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-21T14:28:25.838Z",
+      "id": "sess-0219-fixture",
+      "last_active": "2026-11-06T22:32:38.853Z",
+      "messaging_group_id": "mg-0059-fixture",
+      "status": "active",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0020-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-21T14:28:25.674Z",
+      "id": "sess-0220-fixture",
+      "last_active": null,
+      "messaging_group_id": "mg-0051-fixture",
+      "status": "closed",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0014-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-21T14:28:25.477Z",
+      "id": "sess-0221-fixture",
+      "last_active": null,
+      "messaging_group_id": "mg-0057-fixture",
+      "status": "closed",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0030-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-21T14:28:25.309Z",
+      "id": "sess-0222-fixture",
+      "last_active": null,
+      "messaging_group_id": "mg-0041-fixture",
+      "status": "active",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0016-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-21T14:28:25.115Z",
+      "id": "sess-0223-fixture",
+      "last_active": null,
+      "messaging_group_id": "mg-0055-fixture",
+      "status": "closed",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0024-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-21T14:28:24.791Z",
+      "id": "sess-0224-fixture",
+      "last_active": null,
+      "messaging_group_id": "mg-0045-fixture",
+      "status": "closed",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-21T14:28:24.595Z",
+      "id": "sess-0225-fixture",
+      "last_active": "2026-11-07T22:08:17.775Z",
+      "messaging_group_id": "mg-0043-fixture",
+      "status": "active",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0018-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-21T14:28:24.432Z",
+      "id": "sess-0226-fixture",
+      "last_active": null,
+      "messaging_group_id": "mg-0053-fixture",
+      "status": "closed",
+      "thread_id": null
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "agent_provider": null,
+      "container_status": "stopped",
+      "created_at": "2026-05-21T14:28:24.233Z",
+      "id": "sess-0227-fixture",
+      "last_active": "2026-11-07T20:22:35.521Z",
+      "messaging_group_id": "mg-0047-fixture",
+      "status": "active",
+      "thread_id": null
+     }
+    ],
+    "id": "id-0083-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "all": true
+   },
+   "command": "tasks-list",
+   "reply": {
+    "data": [
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "created_at": "2026-05-26T07:05:23.000Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-05-26T07:03:00.000Z",
+      "log": "id-0231-fixture",
+      "next_run": "2026-05-27T07:03:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-05-27T07:03:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 90",
+      "recurrence": "3 9 * * *",
+      "row_id": "task-0230-fixture",
+      "runs": 5,
+      "schedule": "3 9 * * *",
+      "script": "echo PLANTED-SECRET-list-script-7c7c",
+      "series_id": "task-0229-fixture",
+      "session_id": "sess-0227-fixture",
+      "status": "paused",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "created_at": "2026-08-23T05:02:19.000Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-08-23T05:02:00.000Z",
+      "log": "id-0234-fixture",
+      "next_run": "2026-08-24T05:02:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-08-24T05:02:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 91",
+      "recurrence": "2 7 * * *",
+      "row_id": "task-0233-fixture",
+      "runs": 94,
+      "schedule": "2 7 * * *",
+      "series_id": "task-0232-fixture",
+      "session_id": "sess-0227-fixture",
+      "status": "paused",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "created_at": "2026-11-08T13:22:40.667Z",
+      "failed_runs": 0,
+      "has_script": 1,
+      "last_run": "2026-11-08T13:22:00.000Z",
+      "log": "id-0237-fixture",
+      "next_run": "2026-11-08T13:37:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-08T13:37:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 92",
+      "recurrence": "7,22,37,52 * * * *",
+      "row_id": "task-0236-fixture",
+      "runs": 11846,
+      "schedule": "7,22,37,52 * * * *",
+      "series_id": "task-0235-fixture",
+      "session_id": "sess-0227-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0026-fixture",
+      "created_at": "2026-11-02T08:00:50.000Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-02T08:00:00.000Z",
+      "log": "id-0240-fixture",
+      "next_run": "2026-11-09T08:00:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-09T08:00:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 93",
+      "recurrence": "0 9 * * 1",
+      "row_id": "task-0239-fixture",
+      "runs": 21,
+      "schedule": "0 9 * * 1",
+      "series_id": "task-0238-fixture",
+      "session_id": "sess-0227-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "created_at": "2026-11-05T01:05:38.000Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-05T01:03:00.000Z",
+      "log": "id-0243-fixture",
+      "next_run": "2026-11-09T01:03:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-09T01:03:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 94",
+      "recurrence": "3 2 * * 1,4",
+      "row_id": "task-0242-fixture",
+      "runs": 47,
+      "schedule": "3 2 * * 1,4",
+      "series_id": "task-0241-fixture",
+      "session_id": "sess-0225-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0012-fixture",
+      "created_at": "2026-11-04T01:08:57.000Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-04T01:07:00.000Z",
+      "log": "id-0246-fixture",
+      "next_run": "2026-11-11T01:07:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-11T01:07:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 95",
+      "recurrence": "7 2 * * 3",
+      "row_id": "task-0245-fixture",
+      "runs": 24,
+      "schedule": "7 2 * * 3",
+      "series_id": "task-0244-fixture",
+      "session_id": "sess-0219-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0014-fixture",
+      "created_at": "2026-11-07T16:01:13.527Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-07T16:00:00.000Z",
+      "log": "id-0249-fixture",
+      "next_run": "2026-11-08T16:00:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-08T16:00:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 96",
+      "recurrence": "0 17 * * *",
+      "row_id": "task-0248-fixture",
+      "runs": 140,
+      "schedule": "0 17 * * *",
+      "series_id": "task-0247-fixture",
+      "session_id": "sess-0100-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0014-fixture",
+      "created_at": "2026-11-08T07:01:46.655Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-08T07:00:00.000Z",
+      "log": "id-0252-fixture",
+      "next_run": "2026-11-09T07:00:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-09T07:00:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 97",
+      "recurrence": "0 8 * * *",
+      "row_id": "task-0251-fixture",
+      "runs": 140,
+      "schedule": "0 8 * * *",
+      "series_id": "task-0250-fixture",
+      "session_id": "sess-0100-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0010-fixture",
+      "created_at": "2026-11-08T06:18:32.439Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-08T06:10:00.000Z",
+      "log": "id-0255-fixture",
+      "next_run": "2026-11-11T06:10:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-11T06:10:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 98",
+      "recurrence": "10 7 * * 0,3",
+      "row_id": "task-0254-fixture",
+      "runs": 44,
+      "schedule": "10 7 * * 0,3",
+      "series_id": "task-0253-fixture",
+      "session_id": "sess-0093-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "id-0006-fixture",
+      "created_at": "2026-11-08T08:02:05.917Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-08T08:00:00.000Z",
+      "log": "id-0258-fixture",
+      "next_run": "2026-11-09T08:00:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-09T08:00:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 99",
+      "recurrence": "0 9 * * *",
+      "row_id": "task-0257-fixture",
+      "runs": 75,
+      "schedule": "0 9 * * *",
+      "series_id": "task-0256-fixture",
+      "session_id": "sess-0091-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "id-0004-fixture",
+      "created_at": "2026-11-02T08:01:51.000Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-02T08:00:00.000Z",
+      "log": "id-0261-fixture",
+      "next_run": "2026-11-09T08:00:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-09T08:00:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 100",
+      "recurrence": "0 9 * * 1",
+      "row_id": "task-0260-fixture",
+      "runs": 22,
+      "schedule": "0 9 * * 1",
+      "series_id": "task-0259-fixture",
+      "session_id": "sess-0090-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "id-0002-fixture",
+      "created_at": "2026-11-07T07:19:44.875Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-07T07:00:00.000Z",
+      "log": "id-0264-fixture",
+      "next_run": "2026-11-09T07:00:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-09T07:00:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 101",
+      "recurrence": "0 8 */2 * *",
+      "row_id": "task-0263-fixture",
+      "runs": 55,
+      "schedule": "0 8 */2 * *",
+      "series_id": "task-0262-fixture",
+      "session_id": "sess-0089-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0014-fixture",
+      "created_at": "2026-11-07T16:01:16.520Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-07T16:00:00.000Z",
+      "log": "id-0267-fixture",
+      "next_run": "2026-11-08T16:00:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-08T16:00:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 102",
+      "recurrence": "0 17 * * *",
+      "row_id": "task-0266-fixture",
+      "runs": 137,
+      "schedule": "0 17 * * *",
+      "series_id": "task-0265-fixture",
+      "session_id": "sess-0088-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0014-fixture",
+      "created_at": "2026-11-08T07:00:56.534Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-08T07:00:00.000Z",
+      "log": "id-0270-fixture",
+      "next_run": "2026-11-09T07:00:00.000Z",
+      "origin_session_id": null,
+      "process_after": "2026-11-09T07:00:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 103",
+      "recurrence": "0 8 * * *",
+      "row_id": "task-0269-fixture",
+      "runs": 137,
+      "schedule": "0 8 * * *",
+      "series_id": "task-0268-fixture",
+      "session_id": "sess-0088-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "id-0004-fixture",
+      "created_at": "2026-11-05T23:07:27.260Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-06T22:25:04.012Z",
+      "log": "id-0272-fixture",
+      "next_run": "2026-11-09T06:01:00.000Z",
+      "origin_session_id": "sess-0090-fixture",
+      "process_after": "2026-11-09T06:01:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 104",
+      "recurrence": "1 7 * * 1",
+      "row_id": "check-0271-fixture",
+      "runs": 1,
+      "schedule": "1 7 * * 1",
+      "series_id": "check-0271-fixture",
+      "session_id": "sess-0086-fixture",
+      "status": "pending",
+      "tries": 0
+     },
+     {
+      "agent_group_id": "ag-0028-fixture",
+      "created_at": "2026-11-08T09:03:24.868Z",
+      "failed_runs": 0,
+      "has_script": 0,
+      "last_run": "2026-11-08T09:00:00.000Z",
+      "log": "id-0275-fixture",
+      "next_run": "2026-11-15T09:00:00.000Z",
+      "origin_session_id": "sess-0225-fixture",
+      "process_after": "2026-11-15T09:00:00.000Z",
+      "prompt": "Lorem ipsum dolor sit amet 105",
+      "recurrence": "0 10 * * 0",
+      "row_id": "task-0274-fixture",
+      "runs": 1,
+      "schedule": "0 10 * * 0",
+      "series_id": "weekly-0273-fixture",
+      "session_id": "sess-0084-fixture",
+      "status": "pending",
+      "tries": 0
+     }
+    ],
+    "human": "PLANTED-SECRET-human-table-8b8b",
+    "id": "id-0228-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {},
+   "command": "roles-list",
+   "reply": {
+    "data": [
+     {
+      "agent_group_id": null,
+      "granted_at": "2026-05-26 11:50:07",
+      "granted_by": null,
+      "role": "owner",
+      "user_id": "slack-0277-fixture"
+     },
+     {
+      "agent_group_id": null,
+      "granted_at": "2026-05-21T15:10:18.079Z",
+      "granted_by": null,
+      "role": "owner",
+      "user_id": "whatsapp-0278-fixture"
+     }
+    ],
+    "id": "id-0276-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {},
+   "command": "members-list",
+   "reply": {
+    "data": [
+     {
+      "added_at": "2026-11-07T14:21:00.890Z",
+      "added_by": "Lorem ipsum dolor sit amet 107",
+      "agent_group_id": "ag-0010-fixture",
+      "user_id": "slack-0280-fixture"
+     },
+     {
+      "added_at": "2026-05-30T10:30:54.845Z",
+      "added_by": "Lorem ipsum dolor sit amet 108",
+      "agent_group_id": "ag-0008-fixture",
+      "user_id": "slack-0277-fixture"
+     }
+    ],
+    "id": "id-0279-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {},
+   "command": "policies-list",
+   "reply": {
+    "data": [],
+    "id": "id-0281-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {},
+   "command": "approvals-list",
+   "reply": {
+    "data": [
+     {
+      "action": "cli_command",
+      "agent_group_id": null,
+      "approval_id": "appr-0283-fixture",
+      "channel_type": null,
+      "created_at": "2026-06-14T13:39:50.906Z",
+      "expires_at": null,
+      "options_json": "Lorem ipsum dolor sit amet 111",
+      "payload": "{\"frame\": {\"command\": \"tasks-update\", \"args\": {\"script\": \"PLANTED-SECRET-payload-3c3c\"}}}",
+      "platform_id": null,
+      "platform_message_id": null,
+      "request_id": "appr-0283-fixture",
+      "session_id": "sess-0100-fixture",
+      "status": "pending",
+      "title": "Lorem ipsum dolor sit amet 110"
+     }
+    ],
+    "id": "id-0282-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {},
+   "command": "users-list",
+   "reply": {
+    "data": [
+     {
+      "created_at": "2026-05-26T17:14:27.258Z",
+      "display_name": "Lorem ipsum dolor sit amet 112",
+      "id": "slack-0280-fixture",
+      "kind": "slack"
+     },
+     {
+      "created_at": "2026-05-25T13:57:56.993Z",
+      "display_name": "Lorem ipsum dolor sit amet 113",
+      "id": "slack-0285-fixture",
+      "kind": "slack"
+     },
+     {
+      "created_at": "2026-05-25T12:06:35.161Z",
+      "display_name": "Lorem ipsum dolor sit amet 114",
+      "id": "slack-0286-fixture",
+      "kind": "slack"
+     },
+     {
+      "created_at": "2026-05-22T08:04:49.040Z",
+      "display_name": "Lorem ipsum dolor sit amet 115",
+      "id": "slack-0277-fixture",
+      "kind": "slack"
+     },
+     {
+      "created_at": "2026-05-21T14:50:29.182Z",
+      "display_name": "Lorem ipsum dolor sit amet 116",
+      "id": "whatsapp-0278-fixture",
+      "kind": "whatsapp"
+     },
+     {
+      "created_at": "2026-05-21T13:42:16.391Z",
+      "display_name": "Lorem ipsum dolor sit amet 117",
+      "id": "cli-0287-fixture",
+      "kind": "cli"
+     }
+    ],
+    "id": "id-0284-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {},
+   "command": "dropped-messages-list",
+   "reply": {
+    "data": [
+     {
+      "agent_group_id": null,
+      "channel_type": "slack",
+      "first_seen": "2026-05-30T10:30:04.703Z",
+      "last_seen": "2026-05-30T10:30:04.703Z",
+      "message_count": 1,
+      "messaging_group_id": "mg-0065-fixture",
+      "platform_id": "slack-0066-fixture",
+      "reason": "no_agent_wired",
+      "sender_name": "Lorem ipsum dolor sit amet 118",
+      "user_id": null
+     },
+     {
+      "agent_group_id": "ag-0010-fixture",
+      "channel_type": "slack",
+      "first_seen": "2026-05-26T10:12:07.247Z",
+      "last_seen": "2026-05-26T10:12:22.812Z",
+      "message_count": 4,
+      "messaging_group_id": "mg-0063-fixture",
+      "platform_id": "slack-0064-fixture",
+      "reason": "no_agent_engaged",
+      "sender_name": "Lorem ipsum dolor sit amet 119",
+      "user_id": "slack-0277-fixture"
+     },
+     {
+      "agent_group_id": null,
+      "channel_type": "slack",
+      "first_seen": "2026-05-25T12:07:23.591Z",
+      "last_seen": "2026-05-25T12:07:23.591Z",
+      "message_count": 1,
+      "messaging_group_id": "mg-0061-fixture",
+      "platform_id": "slack-0062-fixture",
+      "reason": "no_agent_wired",
+      "sender_name": "Lorem ipsum dolor sit amet 120",
+      "user_id": null
+     }
+    ],
+    "id": "id-0288-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0008-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-30T10:30:54.842Z",
+     "folder": "id-0009-fixture",
+     "id": "ag-0008-fixture",
+     "name": "Lorem ipsum dolor sit amet 124"
+    },
+    "id": "id-0292-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0010-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-26T10:10:22.919Z",
+     "folder": "slack-0011-fixture",
+     "id": "ag-0010-fixture",
+     "name": "Lorem ipsum dolor sit amet 125"
+    },
+    "id": "id-0293-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0012-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-21T14:28:22.801Z",
+     "folder": "slack-0013-fixture",
+     "id": "ag-0012-fixture",
+     "name": "Lorem ipsum dolor sit amet 126"
+    },
+    "id": "id-0294-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0014-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-21T14:28:22.800Z",
+     "folder": "slack-0015-fixture",
+     "id": "ag-0014-fixture",
+     "name": "Lorem ipsum dolor sit amet 127"
+    },
+    "id": "id-0295-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0016-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-21T14:28:22.799Z",
+     "folder": "slack-0017-fixture",
+     "id": "ag-0016-fixture",
+     "name": "Lorem ipsum dolor sit amet 128"
+    },
+    "id": "id-0296-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0018-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-21T14:28:22.798Z",
+     "folder": "slack-0019-fixture",
+     "id": "ag-0018-fixture",
+     "name": "Lorem ipsum dolor sit amet 129"
+    },
+    "id": "id-0297-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0020-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-21T14:28:22.798Z",
+     "folder": "slack-0021-fixture",
+     "id": "ag-0020-fixture",
+     "name": "Lorem ipsum dolor sit amet 130"
+    },
+    "id": "id-0298-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0022-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-21T14:28:22.797Z",
+     "folder": "whatsapp-0023-fixture",
+     "id": "ag-0022-fixture",
+     "name": "Lorem ipsum dolor sit amet 131"
+    },
+    "id": "id-0299-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0024-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-21T14:28:22.796Z",
+     "folder": "slack-0025-fixture",
+     "id": "ag-0024-fixture",
+     "name": "Lorem ipsum dolor sit amet 132"
+    },
+    "id": "id-0300-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0026-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-21T14:28:22.795Z",
+     "folder": "id-0027-fixture",
+     "id": "ag-0026-fixture",
+     "name": "Lorem ipsum dolor sit amet 133"
+    },
+    "id": "id-0301-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0028-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-21T14:28:22.794Z",
+     "folder": "slack-0029-fixture",
+     "id": "ag-0028-fixture",
+     "name": "Lorem ipsum dolor sit amet 134"
+    },
+    "id": "id-0302-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0030-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-05-21T14:28:22.792Z",
+     "folder": "slack-0031-fixture",
+     "id": "ag-0030-fixture",
+     "name": "Lorem ipsum dolor sit amet 135"
+    },
+    "id": "id-0303-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "id-0002-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-06-13T12:16:35.120Z",
+     "folder": "slack-0003-fixture",
+     "id": "id-0002-fixture",
+     "name": "Lorem ipsum dolor sit amet 121"
+    },
+    "id": "id-0289-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "id-0004-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-06-12T11:43:40.673Z",
+     "folder": "slack-0005-fixture",
+     "id": "id-0004-fixture",
+     "name": "Lorem ipsum dolor sit amet 122"
+    },
+    "id": "id-0290-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "id-0006-fixture"
+   },
+   "command": "groups-get",
+   "reply": {
+    "data": {
+     "created_at": "2026-06-11T11:25:20.844Z",
+     "folder": "slack-0007-fixture",
+     "id": "id-0006-fixture",
+     "name": "Lorem ipsum dolor sit amet 123"
+    },
+    "id": "id-0291-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0008-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "ag-0008-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 139",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-05-30T10:30:54.843Z"
+    },
+    "id": "id-0307-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0010-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "ag-0010-fixture",
+     "assistant_name": "Lorem ipsum dolor sit amet 140",
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": "",
+     "max_messages_per_prompt": null,
+     "mcp_servers": {
+      "playwright": {
+       "args": [
+        "--fixture-arg",
+        "--fixture-arg",
+        "--fixture-arg",
+        "--fixture-arg",
+        "--fixture-arg"
+       ],
+       "command": "fixture-mcp-command",
+       "env": {}
+      }
+     },
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": "",
+     "skills": "Lorem ipsum dolor sit amet 141",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-06-14T05:10:18.089Z"
+    },
+    "id": "id-0308-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0012-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [
+      {
+       "containerPath": "Lorem ipsum dolor sit amet 144",
+       "hostPath": "Lorem ipsum dolor sit amet 143",
+       "readonly": false
+      }
+     ],
+     "agent_group_id": "ag-0012-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {
+      "gmail": {
+       "args": [],
+       "command": "fixture-mcp-command",
+       "env": {
+        "GMAIL_CREDENTIALS_PATH": "FAKE-ENV-VALUE",
+        "GMAIL_OAUTH_PATH": "FAKE-ENV-VALUE"
+       }
+      }
+     },
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 142",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-06-17T00:07:39.008Z"
+    },
+    "id": "id-0309-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0014-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "ag-0014-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": "medium",
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-sonnet-4-6",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 145",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-06-14T13:47:27.280Z"
+    },
+    "id": "id-0310-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0016-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "ag-0016-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 146",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-05-26T11:08:20.536Z"
+    },
+    "id": "id-0311-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0018-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "ag-0018-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 147",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-05-26T11:08:20.536Z"
+    },
+    "id": "id-0312-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0020-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "ag-0020-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 148",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-05-26T11:08:20.536Z"
+    },
+    "id": "id-0313-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0022-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [
+      {
+       "containerPath": "Lorem ipsum dolor sit amet 151",
+       "hostPath": "Lorem ipsum dolor sit amet 150",
+       "readonly": false
+      },
+      {
+       "containerPath": "Lorem ipsum dolor sit amet 153",
+       "hostPath": "Lorem ipsum dolor sit amet 152",
+       "readonly": false
+      }
+     ],
+     "agent_group_id": "ag-0022-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "env": {
+      "ANTHROPIC_API_KEY": "PLANTED-SECRET-toplevel-env-3f3f"
+     },
+     "future_secret_field": "PLANTED-SECRET-new-field-4a4a",
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {
+      "calendar": {
+       "args": [],
+       "command": "fixture-mcp-command",
+       "env": {
+        "GOOGLE_CALENDAR_MCP_TOKEN_PATH": "FAKE-ENV-VALUE",
+        "GOOGLE_OAUTH_CREDENTIALS": "FAKE-ENV-VALUE"
+       }
+      },
+      "docs": {
+       "type": "http",
+       "url": "http://mcp.fixture.internal:8080/mcp"
+      },
+      "gmail": {
+       "args": [
+        "--api-key=PLANTED-SECRET-arg-9a9a",
+        "--verbose"
+       ],
+       "command": "sh -c 'TOKEN=PLANTED-SECRET-cmd-6e6e gmail-mcp'",
+       "env": {
+        "GMAIL_CREDENTIALS_PATH": "FAKE-ENV-VALUE",
+        "GMAIL_OAUTH_PATH": "PLANTED-SECRET-env-51b2"
+       }
+      },
+      "journal": {
+       "headers": {
+        "Authorization": "Bearer PLANTED-SECRET-hdr-7f3a9c",
+        "X-Api-Key": "PLANTED-SECRET-hdr2-11aa"
+       },
+       "type": "http",
+       "url": "https://user:PLANTED-SECRET-pass-88d1@mcp.example.internal:8443/api/webhook/mcp_PLANTED-SECRET-path-c0de/readonly?token=PLANTED-SECRET-query-4e6f#PLANTED-SECRET-frag-0f0f"
+      },
+      "parallel-search": {
+       "headers": {
+        "Authorization": "Bearer FAKE-TOKEN-xyz123"
+       },
+       "type": "http",
+       "url": "http://mcp.fixture.internal:8080/mcp"
+      },
+      "parallel-task": {
+       "headers": {
+        "Authorization": "Bearer FAKE-TOKEN-xyz123"
+       },
+       "token": "PLANTED-SECRET-unknown-key-2d2d",
+       "type": "http",
+       "url": "http://mcp.fixture.internal:8080/mcp"
+      }
+     },
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 149",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-11-07T20:19:11.045Z"
+    },
+    "human": "journal: Authorization: Bearer PLANTED-SECRET-human-5d5d",
+    "id": "id-0314-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0024-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "ag-0024-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 154",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-05-26T11:08:20.536Z"
+    },
+    "id": "id-0315-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0026-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [
+      {
+       "containerPath": "Lorem ipsum dolor sit amet 157",
+       "hostPath": "Lorem ipsum dolor sit amet 156",
+       "readonly": false
+      },
+      {
+       "containerPath": "Lorem ipsum dolor sit amet 159",
+       "hostPath": "Lorem ipsum dolor sit amet 158",
+       "readonly": false
+      },
+      {
+       "containerPath": "Lorem ipsum dolor sit amet 161",
+       "hostPath": "Lorem ipsum dolor sit amet 160",
+       "readonly": false
+      },
+      {
+       "containerPath": "Lorem ipsum dolor sit amet 163",
+       "hostPath": "Lorem ipsum dolor sit amet 162",
+       "readonly": false
+      },
+      {
+       "containerPath": "Lorem ipsum dolor sit amet 165",
+       "hostPath": "Lorem ipsum dolor sit amet 164",
+       "readonly": false
+      }
+     ],
+     "agent_group_id": "ag-0026-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {
+      "calendar": {
+       "args": [],
+       "command": "fixture-mcp-command",
+       "env": {
+        "GOOGLE_CALENDAR_MCP_TOKEN_PATH": "FAKE-ENV-VALUE",
+        "GOOGLE_OAUTH_CREDENTIALS": "FAKE-ENV-VALUE"
+       }
+      },
+      "docs": {
+       "type": "http",
+       "url": "http://mcp.fixture.internal:8080/mcp"
+      },
+      "gmail": {
+       "args": [],
+       "command": "fixture-mcp-command",
+       "env": {
+        "GMAIL_CREDENTIALS_PATH": "FAKE-ENV-VALUE",
+        "GMAIL_OAUTH_PATH": "FAKE-ENV-VALUE"
+       }
+      },
+      "journal": {
+       "headers": {
+        "Authorization": "Bearer FAKE-TOKEN-xyz123"
+       },
+       "type": "http",
+       "url": "http://mcp.fixture.internal:8080/mcp"
+      },
+      "parallel-search": {
+       "headers": {
+        "Authorization": "Bearer FAKE-TOKEN-xyz123"
+       },
+       "type": "http",
+       "url": "http://mcp.fixture.internal:8080/mcp"
+      },
+      "parallel-task": {
+       "headers": {
+        "Authorization": "Bearer FAKE-TOKEN-xyz123"
+       },
+       "type": "http",
+       "url": "http://mcp.fixture.internal:8080/mcp"
+      }
+     },
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 155",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-11-07T20:19:05.591Z"
+    },
+    "id": "id-0316-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0028-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [
+      {
+       "containerPath": "Lorem ipsum dolor sit amet 168",
+       "hostPath": "Lorem ipsum dolor sit amet 167",
+       "readonly": false
+      }
+     ],
+     "agent_group_id": "ag-0028-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 166",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-06-15T00:03:55.633Z"
+    },
+    "id": "id-0317-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "ag-0030-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "ag-0030-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 169",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-05-26T11:08:20.536Z"
+    },
+    "id": "id-0318-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "id-0002-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "id-0002-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 136",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-11-06T22:31:45.252Z"
+    },
+    "id": "id-0304-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "id-0004-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "id-0004-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 137",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-06-15T07:00:23.287Z"
+    },
+    "id": "id-0305-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "id-0006-fixture"
+   },
+   "command": "groups-config-get",
+   "reply": {
+    "data": {
+     "additional_mounts": [],
+     "agent_group_id": "id-0006-fixture",
+     "assistant_name": null,
+     "cli_scope": "group",
+     "effort": null,
+     "image_tag": null,
+     "max_messages_per_prompt": null,
+     "mcp_servers": {},
+     "model": "claude-opus-4-7",
+     "packages_apt": [],
+     "packages_npm": [],
+     "provider": null,
+     "skills": "Lorem ipsum dolor sit amet 138",
+     "speed": null,
+     "timezone": null,
+     "updated_at": "2026-11-06T22:31:43.361Z"
+    },
+    "id": "id-0306-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "check-0271-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "id-0004-fixture",
+     "completed_runs": 1,
+     "created_at": "2026-11-05T23:07:27.260Z",
+     "failed_runs": 0,
+     "has_script": 1,
+     "origin_session_id": "sess-0090-fixture",
+     "process_after": "2026-11-09T06:01:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 184",
+     "recent_log": [
+      "Lorem ipsum dolor sit amet 185"
+     ],
+     "recurrence": "1 7 * * 1",
+     "row_id": "check-0271-fixture",
+     "script": "curl -sf -H 'Authorization: Bearer PLANTED-SECRET-script-2b2b' https://api.example.com/x",
+     "series_id": "check-0271-fixture",
+     "session_id": "sess-0086-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0333-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0229-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0026-fixture",
+     "completed_runs": 5,
+     "created_at": "2026-05-26T07:05:23.000Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-05-27T07:03:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 170",
+     "recent_log": [],
+     "recurrence": "3 9 * * *",
+     "row_id": "task-0230-fixture",
+     "script": null,
+     "series_id": "task-0229-fixture",
+     "session_id": "sess-0227-fixture",
+     "status": "paused",
+     "tries": 0
+    },
+    "id": "id-0319-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0232-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0026-fixture",
+     "completed_runs": 94,
+     "created_at": "2026-08-23T05:02:19.000Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-08-24T05:02:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 171",
+     "recent_log": [],
+     "recurrence": "2 7 * * *",
+     "row_id": "task-0233-fixture",
+     "script": null,
+     "series_id": "task-0232-fixture",
+     "session_id": "sess-0227-fixture",
+     "status": "paused",
+     "tries": 0
+    },
+    "id": "id-0320-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0235-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0026-fixture",
+     "completed_runs": 11846,
+     "created_at": "2026-11-08T13:22:40.667Z",
+     "failed_runs": 0,
+     "has_script": 1,
+     "origin_session_id": null,
+     "process_after": "2026-11-08T13:37:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 172",
+     "recent_log": [],
+     "recurrence": "7,22,37,52 * * * *",
+     "row_id": "task-0236-fixture",
+     "script": "echo '{\"wakeAgent\": true}'",
+     "series_id": "task-0235-fixture",
+     "session_id": "sess-0227-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0321-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0238-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0026-fixture",
+     "completed_runs": 21,
+     "created_at": "2026-11-02T08:00:50.000Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-09T08:00:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 173",
+     "recent_log": [],
+     "recurrence": "0 9 * * 1",
+     "row_id": "task-0239-fixture",
+     "script": null,
+     "series_id": "task-0238-fixture",
+     "session_id": "sess-0227-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0322-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0241-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0028-fixture",
+     "completed_runs": 47,
+     "created_at": "2026-11-05T01:05:38.000Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-09T01:03:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 174",
+     "recent_log": [],
+     "recurrence": "3 2 * * 1,4",
+     "row_id": "task-0242-fixture",
+     "script": null,
+     "series_id": "task-0241-fixture",
+     "session_id": "sess-0225-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0323-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0244-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0012-fixture",
+     "completed_runs": 24,
+     "created_at": "2026-11-04T01:08:57.000Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-11T01:07:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 175",
+     "recent_log": [],
+     "recurrence": "7 2 * * 3",
+     "row_id": "task-0245-fixture",
+     "script": null,
+     "series_id": "task-0244-fixture",
+     "session_id": "sess-0219-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0324-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0247-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0014-fixture",
+     "completed_runs": 140,
+     "created_at": "2026-11-07T16:01:13.527Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-08T16:00:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 176",
+     "recent_log": [],
+     "recurrence": "0 17 * * *",
+     "row_id": "task-0248-fixture",
+     "script": null,
+     "series_id": "task-0247-fixture",
+     "session_id": "sess-0100-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0325-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0250-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0014-fixture",
+     "completed_runs": 140,
+     "created_at": "2026-11-08T07:01:46.655Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-09T07:00:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 177",
+     "recent_log": [],
+     "recurrence": "0 8 * * *",
+     "row_id": "task-0251-fixture",
+     "script": null,
+     "series_id": "task-0250-fixture",
+     "session_id": "sess-0100-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0326-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0253-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0010-fixture",
+     "completed_runs": 44,
+     "created_at": "2026-11-08T06:18:32.439Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-11T06:10:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 178",
+     "recent_log": [],
+     "recurrence": "10 7 * * 0,3",
+     "row_id": "task-0254-fixture",
+     "script": null,
+     "series_id": "task-0253-fixture",
+     "session_id": "sess-0093-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0327-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0256-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "id-0006-fixture",
+     "completed_runs": 75,
+     "created_at": "2026-11-08T08:02:05.917Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-09T08:00:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 179",
+     "recent_log": [],
+     "recurrence": "0 9 * * *",
+     "row_id": "task-0257-fixture",
+     "script": null,
+     "series_id": "task-0256-fixture",
+     "session_id": "sess-0091-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0328-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0259-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "id-0004-fixture",
+     "completed_runs": 22,
+     "created_at": "2026-11-02T08:01:51.000Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-09T08:00:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 180",
+     "recent_log": [],
+     "recurrence": "0 9 * * 1",
+     "row_id": "task-0260-fixture",
+     "script": null,
+     "series_id": "task-0259-fixture",
+     "session_id": "sess-0090-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0329-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0262-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "id-0002-fixture",
+     "completed_runs": 55,
+     "created_at": "2026-11-07T07:19:44.875Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-09T07:00:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 181",
+     "recent_log": [],
+     "recurrence": "0 8 */2 * *",
+     "row_id": "task-0263-fixture",
+     "script": null,
+     "series_id": "task-0262-fixture",
+     "session_id": "sess-0089-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0330-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0265-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0014-fixture",
+     "completed_runs": 137,
+     "created_at": "2026-11-07T16:01:16.520Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-08T16:00:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 182",
+     "recent_log": [],
+     "recurrence": "0 17 * * *",
+     "row_id": "task-0266-fixture",
+     "script": null,
+     "series_id": "task-0265-fixture",
+     "session_id": "sess-0088-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0331-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "task-0268-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0014-fixture",
+     "completed_runs": 137,
+     "created_at": "2026-11-08T07:00:56.534Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": null,
+     "process_after": "2026-11-09T07:00:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 183",
+     "recent_log": [],
+     "recurrence": "0 8 * * *",
+     "row_id": "task-0269-fixture",
+     "script": null,
+     "series_id": "task-0268-fixture",
+     "session_id": "sess-0088-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0332-fixture",
+    "ok": true
+   }
+  },
+  {
+   "args": {
+    "id": "weekly-0273-fixture"
+   },
+   "command": "tasks-get",
+   "reply": {
+    "data": {
+     "agent_group_id": "ag-0028-fixture",
+     "completed_runs": 1,
+     "created_at": "2026-11-08T09:03:24.868Z",
+     "failed_runs": 0,
+     "has_script": 0,
+     "origin_session_id": "sess-0225-fixture",
+     "process_after": "2026-11-15T09:00:00.000Z",
+     "prompt": "Lorem ipsum dolor sit amet 186",
+     "recent_log": [
+      "Lorem ipsum dolor sit amet 187"
+     ],
+     "recurrence": "0 10 * * 0",
+     "row_id": "task-0274-fixture",
+     "script": null,
+     "series_id": "weekly-0273-fixture",
+     "session_id": "sess-0084-fixture",
+     "status": "pending",
+     "tries": 0
+    },
+    "id": "id-0334-fixture",
+    "ok": true
+   }
+  }
+ ],
+ "planted_group": "ag-0022-fixture",
+ "planted_task": "check-0271-fixture"
+}

@@ -31,3 +31,9 @@
 | B2  | The three pens mean OK, degraded and failing, always beside words. | Tracker's green, yellow and red markers map onto a status without new colours; `pen-partial` is too faint for text, so the words carry the meaning. |
 | B3  | The theme follows the OS (`prefers-color-scheme`); there is no theme setting. | A one-person console needs no settings page yet. |
 | B4  | `/healthz` sits outside `/api/` and returns only `{"ok": true}`, with no auth. | It is the container healthcheck, and must say nothing about NanoClaw to whoever can reach the port. |
+| B5  | Broker ids match `^[A-Za-z0-9][A-Za-z0-9-]{0,79}$`: the run plan's pattern, tightened so an id cannot start with `-`. | An id like `--script` is harmless in a JSON frame, but refusing it at the boundary costs nothing; every live group and task id matches. |
+| B6  | A redacted URL keeps only `scheme://host[:port]`; the path goes with the userinfo, query and fragment. | Paths carry secrets too (Home Assistant's MCP webhook is `/api/webhook/mcp_<secret>/…`), and the UI needs only the host. |
+| B7  | MCP server entries are allowlisted: `type`, `transport`, a reduced `url`, a plain-path `command`, and header and env names; `args` items and any other field are masked. | stdio servers take tokens as arguments, and a field NanoClaw adds later must stay hidden until someone decides it is safe. |
+| B8  | `groups-config-get` returns only the 16 keys NanoClaw's `presentConfig` has today; other top-level keys are dropped. | An `env` block or a new secret-bearing field upstream is dropped by default instead of shown. |
+| B9  | Broker errors are not cached. | Single-flight and the cap of 2 calls in flight already bound the load a failing verb causes, and a cached error would hide NanoClaw coming back. |
+| B10 | The broker never forwards ncl's `human` field, only `data`. | `human` is server-rendered text; it could repeat what redaction removes from `data`. |
