@@ -17,19 +17,19 @@ help: ## List the targets
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
 
 install: ## Install the locked dependencies of api/, broker/ and web/
-	@for p in $(PY_PROJECTS); do (cd $$p && uv sync --locked); done
+	@for p in $(PY_PROJECTS); do (cd $$p && uv sync --locked) || exit 1; done
 	cd web && $(NPM) ci
 
 lint: ## ruff (check and format) on api/ and broker/; oxlint, eslint and prettier on web/
-	@for p in $(PY_PROJECTS); do (cd $$p && uv run ruff check . && uv run ruff format --check .); done
+	@for p in $(PY_PROJECTS); do (cd $$p && uv run ruff check . && uv run ruff format --check .) || exit 1; done
 	cd web && npm run lint && npm run format:check
 
 typecheck: ## mypy --strict on api/ and broker/; vue-tsc on web/
-	@for p in $(PY_PROJECTS); do (cd $$p && uv run mypy); done
+	@for p in $(PY_PROJECTS); do (cd $$p && uv run mypy) || exit 1; done
 	cd web && npm run type-check
 
 test: ## Unit tests with coverage floors: pytest on api/ and broker/, vitest on web/
-	@for p in $(PY_PROJECTS); do (cd $$p && uv run coverage run -m pytest && uv run coverage report); done
+	@for p in $(PY_PROJECTS); do (cd $$p && uv run coverage run -m pytest && uv run coverage report) || exit 1; done
 	cd web && npm run test:coverage
 
 e2e: ## Playwright and axe against the production build (vite preview), /api mocked
@@ -54,5 +54,5 @@ build-app:
 build-broker:
 	docker build --platform $(PLATFORM) -t $(BROKER_IMAGE) broker
 
-compose-smoke: build-app ## Start the app image hardened as deployed and check /healthz
+compose-smoke: build-app ## Start the app image hardened as deployed; check /healthz, the 403s and the audit volume
 	APP_IMAGE=$(APP_IMAGE) scripts/compose-smoke.sh
