@@ -1,0 +1,35 @@
+{
+  "required_components": [
+    "Button",
+    "IconButton",
+    "TextLink",
+    "Panel",
+    "TextField",
+    "TextArea",
+    "SearchField",
+    "Switch",
+    "SegmentedControl",
+    "Dialog",
+    "ConfirmDialog",
+    "InlineMessage",
+    "Banner"
+  ],
+  "extra_contrast_pairs": [
+    ["caution-ink", "canvas", 4.5],
+    ["caution-ink", "panel", 4.5],
+    ["control-border", "tile", 3.0],
+    ["on-ink", "ink", 4.5],
+    ["error-ink", "tile", 4.5],
+    ["pen", "canvas", 4.5],
+    ["pen", "panel", 4.5],
+    ["pen-partial", "canvas", 1.5],
+    ["pen-partial", "panel", 1.5],
+    ["pen-partial", "tile", 1.5],
+    ["pen-missed", "canvas", 3.0],
+    ["pen-missed", "panel", 3.0],
+    ["pen-missed", "tile", 3.0],
+    ["pen", "tile", 3.0]
+  ],
+  "forbidden_words": ["crushed", "beast", "streak", "awesome", "amazing"],
+  "group_order": ["Basics", "Forms", "Overlays", "Feedback"]
+}

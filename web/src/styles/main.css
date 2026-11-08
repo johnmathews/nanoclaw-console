@@ -1,0 +1,100 @@
+@import 'tailwindcss';
+/*
+ * The design system's roles, scales and type styles, generated from
+ * brand/design-system/project/tokens.json by `npm run tokens`; never edit it by hand. That script
+ * drops the generated @font-face rules: the fonts come from the Fontsource packages imported in
+ * src/main.ts, which Vite bundles under /assets/.
+ *
+ * It goes in Tailwind's `components` layer, below `utilities`, so a utility beside a type class
+ * wins as it reads: `caption font-semibold` is semibold. The layer is also how the lint
+ * (eslint.config.ts) knows `caption` and `title-2` are real classes.
+ */
+@import './tokens.css' layer(components);
+
+/* Dark mode follows a `.dark` class on <html>, set from the OS setting by public/theme-init.js
+   before first paint and whenever the setting changes. tokens.css matches it. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Type-style details tokens.css does not emit: the note is italic, the display smaller on phones.
+   In the same layer as the type classes, so utilities still win over them. */
+@layer components {
+  .note {
+    font-style: italic;
+  }
+
+  @media (width < 40rem) {
+    .display {
+      font-size: 36px;
+      line-height: 40px;
+    }
+  }
+}
+
+/*
+ * Tailwind utilities named after the roles (bg-canvas, text-ink-secondary, border-control-border…).
+ * The default palette is switched off (no red-500, no white or black), so a palette class
+ * generates nothing: every colour on screen comes from a role and follows the theme.
+ */
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-canvas: var(--canvas);
+  --color-panel: var(--panel);
+  --color-tile: var(--tile);
+  --color-line: var(--line);
+  --color-control-border: var(--control-border);
+  --color-ink: var(--ink);
+  --color-on-ink: var(--on-ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-error-ink: var(--error-ink);
+  --color-focus: var(--focus);
+  --color-pen: var(--pen);
+  --color-pen-partial: var(--pen-partial);
+  --color-pen-missed: var(--pen-missed);
+  --color-caution-ink: var(--caution-ink);
+  --color-scrim: var(--scrim);
+}
+
+/* Tailwind's text sizes on the type scale: `text-base` is `body`, 18/26; `text-sm` is `caption`,
+   16/22. tokens.css emits the type styles as classes only, so the sizes are written here; keep them
+   with tokens.json's. */
+@theme {
+  --text-base: 18px;
+  --text-base--line-height: 26px;
+  --text-sm: 16px;
+  --text-sm--line-height: 22px;
+}
+
+/* tokens.css already declares --font-sans/--font-serif and --radius-sm/md/lg on :root, in the
+   components layer, which beats Tailwind's theme layer: font-sans and rounded-lg follow the tokens
+   without mapping (a self-map is a cycle). */
+@utility shadow-overlay {
+  box-shadow: var(--shadow-overlay);
+}
+
+@layer base {
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* Keyboard focus on every interactive element: a solid 2px ring at a 2px offset. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}

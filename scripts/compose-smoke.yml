@@ -1,0 +1,19 @@
+# The app container as the agent LXC runs it (proxmox-setup, roles/agent_lxc), minus the broker
+# socket and the Access settings: a read-only root filesystem with /tmp the only writable path, no
+# capabilities, no privilege escalation, uid 10001, and the deployed limits. Used by compose-smoke.sh.
+services:
+  console:
+    image: ${APP_IMAGE:-nanoclaw-console:local}
+    platform: linux/amd64
+    user: "10001:10001"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    cpus: 0.5
+    ports:
+      - "127.0.0.1:18000:8000"

@@ -1,0 +1,60 @@
+<!-- @dsCard group="Forms" height=400 subtitle="Search icon, placeholder, clear button and a live result count" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SearchField — preview</title>
+<style>
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); }
+  .grid { display: flex; flex-wrap: wrap; gap: var(--space-6) var(--space-8); align-items: flex-start; }
+  .cell { flex: 1 1 280px; min-width: 0; max-width: 360px; }
+  .state { margin: 0 0 var(--space-2); color: var(--ink-secondary); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+  .search-form { margin: 0; }
+
+  .search { position: relative; }
+  .search .lead { position: absolute; left: var(--space-3); top: 12px; display: inline-flex; color: var(--ink-secondary); pointer-events: none; }
+  .search .lead svg { width: 20px; height: 20px; }
+  .input { box-sizing: border-box; width: 100%; height: 44px; padding: 0 44px 0 40px; border: 1px solid var(--control-border); border-radius: var(--radius-sm); background: var(--panel); color: var(--ink); font: 400 16px/24px var(--font-sans); appearance: none; }
+  .input::-webkit-search-cancel-button { appearance: none; }
+  .input::placeholder { color: var(--ink-secondary); opacity: 1; }
+  .input:hover, .input.is-hover { border-color: var(--ink); }
+  .input:focus-visible, .input.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .clear { position: absolute; right: 0; top: 0; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink); cursor: pointer; }
+  .clear svg { width: 20px; height: 20px; }
+  .clear:hover, .clear.is-hover { background: var(--tile); }
+  .clear:focus-visible, .clear.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .status { margin: var(--space-2) 0 0; color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: no-preference) {
+    .input, .clear { transition: border-color 120ms ease-out, background-color 120ms ease-out; }
+  }
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="cell"><p class="caption state">Empty</p>
+    <div class="search-form" role="search"><label class="sr-only" for="q1">Search notes</label>
+      <div class="search"><span class="lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+        <input class="input" id="q1" type="search" placeholder="Search notes" autocomplete="off"></div>
+      <p class="caption status" aria-live="polite"></p></div></div>
+  <div class="cell"><p class="caption state">Hover</p>
+    <div class="search-form" role="search"><label class="sr-only" for="q2">Search notes</label>
+      <div class="search"><span class="lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+        <input class="input is-hover" id="q2" type="search" placeholder="Search notes" autocomplete="off"></div>
+      <p class="caption status" aria-live="polite"></p></div></div>
+  <div class="cell"><p class="caption state">Focus, with results</p>
+    <div class="search-form" role="search"><label class="sr-only" for="q3">Search notes</label>
+      <div class="search"><span class="lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+        <input class="input is-focus" id="q3" type="search" value="shoulder" placeholder="Search notes" autocomplete="off" aria-describedby="q3-status">
+        <button class="clear" type="button" aria-label="Clear search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+      <p class="caption status" id="q3-status" aria-live="polite">Two notes mention “shoulder”.</p></div></div>
+  <div class="cell"><p class="caption state">No results; focus on clear</p>
+    <div class="search-form" role="search"><label class="sr-only" for="q4">Search notes</label>
+      <div class="search"><span class="lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+        <input class="input" id="q4" type="search" value="knee" placeholder="Search notes" autocomplete="off" aria-describedby="q4-status">
+        <button class="clear is-focus" type="button" aria-label="Clear search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+      <p class="caption status" id="q4-status" aria-live="polite">No notes mention “knee”.</p></div></div>
+</div>
+<script></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!-- @dsCard group="Basics" height=420 subtitle="The raised surface for dialogs, popovers and cards" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Panel — preview</title>
+<style>
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+  .cell { display: flex; flex-direction: column; gap: var(--space-1); flex: 1 1 280px; min-width: 0; max-width: 420px; }
+  .state { margin: 0; color: var(--ink-secondary); }
+
+  .panel { box-sizing: border-box; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--space-6); }
+  .panel.compact { padding: var(--space-4); }
+  .panel h2 { margin: 0 0 var(--space-1); }
+  .panel p { margin: 0; }
+  .muted { color: var(--ink-secondary); }
+  .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
+  .actions.tight { justify-content: flex-start; margin-top: var(--space-2); }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: var(--space-3) 0; }
+  .line { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+
+  .btn { display: inline-flex; align-items: center; height: 44px; padding: 0 var(--space-4); border: 1px solid transparent; border-radius: var(--radius-md); font: 600 16px/24px var(--font-sans); cursor: pointer; text-wrap: nowrap; }
+  .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .primary { background: var(--ink); color: var(--on-ink); }
+  .secondary { background: transparent; color: var(--ink); border-color: var(--control-border); }
+  .quiet { background: transparent; color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="cell">
+    <p class="caption state">Card, padding space-6</p>
+    <section class="panel" aria-labelledby="import-title">
+      <h2 class="title-2" id="import-title">Data from before accounts</h2>
+      <p class="body muted">This browser holds a log saved before accounts existed. If it's yours, add it to your account. Adds 12 weekly plans and 140 marked days. Existing plans and marks stay as they are.</p>
+      <div class="actions">
+        <button class="btn quiet" type="button">Later</button>
+        <button class="btn secondary" type="button">Not mine</button>
+        <button class="btn primary" type="button">Add to my account</button>
+      </div>
+    </section>
+  </div>
+  <div class="cell">
+    <p class="caption state">Popover body, padding space-4, 44px buttons</p>
+    <div class="panel compact" role="group" aria-label="Settings">
+      <p class="label">Account</p>
+      <div class="line"><span class="caption"><span class="muted">Signed in as</span> anna</span><button class="btn secondary" type="button">Sign out</button></div>
+      <hr class="rule">
+      <p class="label">Data</p>
+      <div class="actions tight">
+        <button class="btn secondary" type="button">Export</button>
+        <button class="btn secondary" type="button">Import…</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script></script>
+</body>
+</html>

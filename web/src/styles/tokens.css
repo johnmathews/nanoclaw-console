@@ -1,0 +1,62 @@
+/* NanoClaw console — generated from tokens.json */
+:root, [data-theme="light"] {
+  --canvas: #faf8f3;
+  --panel: #fffefb;
+  --tile: #f1ede4;
+  --line: #e4dfd5;
+  --control-border: #888175;
+  --ink: #1f1d1a;
+  --on-ink: #faf8f3;
+  --ink-secondary: #5f5a52;
+  --error-ink: #9f1d1d;
+  --focus: #2b4c7e;
+  --pen: #2e7a4c;
+  --pen-partial: #f2b300;
+  --pen-missed: #c0392b;
+  --caution-ink: #a0461a;
+  --scrim: #1f1d1a;
+  --shadow-overlay: 0 1px 2px rgba(31,29,26,.06), 0 8px 24px rgba(31,29,26,.08);
+}
+.dark {
+  --canvas: #1b1a18;
+  --panel: #23221f;
+  --tile: #2b2926;
+  --line: #3a3733;
+  --control-border: #8f887c;
+  --ink: #ede9e2;
+  --on-ink: #1b1a18;
+  --ink-secondary: #b3ac9f;
+  --error-ink: #f08a7e;
+  --focus: #9db8e8;
+  --pen: #3fd273;
+  --pen-partial: #ffc21a;
+  --pen-missed: #ff5c4d;
+  --caution-ink: #e3a06b;
+  --scrim: #000000;
+  --shadow-overlay: none;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-full: 999px;
+  --font-serif: "Source Serif 4 Variable", "Source Serif 4", Georgia, serif;
+  --font-sans: "Source Sans 3 Variable", "Source Sans 3", -apple-system, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.display { font-family: var(--font-serif); font-size: 44px; line-height: 48px; font-weight: 600; letter-spacing: 0; }
+.title-1 { font-family: var(--font-serif); font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: 0; }
+.title-2 { font-family: var(--font-sans); font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: 0; }
+.body-large { font-family: var(--font-sans); font-size: 20px; line-height: 28px; font-weight: 400; letter-spacing: 0; }
+.body { font-family: var(--font-sans); font-size: 18px; line-height: 26px; font-weight: 400; letter-spacing: 0; }
+.caption { font-family: var(--font-sans); font-size: 16px; line-height: 22px; font-weight: 400; letter-spacing: 0; }
+.label { font-family: var(--font-sans); font-size: 16px; line-height: 22px; font-weight: 600; letter-spacing: 0; }
+.note { font-family: var(--font-serif); font-size: 18px; line-height: 26px; font-weight: 400; letter-spacing: 0; }

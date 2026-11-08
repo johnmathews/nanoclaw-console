@@ -1,0 +1,96 @@
+# Development
+
+> Purpose
+>
+> How to work on the console: the toolchain, the make targets, running it locally, the local CI
+> that runs before every push, and the design system's gate.
+
+## 1. Toolchain
+
+- **Python 3.13 with uv** for `api/` and `broker/`, two separate uv projects with their own
+  `uv.lock`. ruff (tracker's rule set), mypy `--strict`, pytest with branch coverage and a 95 %
+  floor (`fail_under` in each `pyproject.toml`).
+- **The broker is standard library only** at runtime. A dependency there is attack surface on the
+  one process that holds NanoClaw's authority, so adding one needs a reason in
+  [decisions.md](decisions.md).
+- **Node 22 and npm 11** for `web/`. npm 10.9, which ships with Node 22, crashes resolving this
+  dependency tree (`Cannot read properties of null (reading 'edgesOut')`), so the make targets run
+  `npx -y npm@11`. The tree and its lockfile were copied from tracker.
+- **The web stack:** Vue 3.5, Pinia, Vite 8, Tailwind CSS 4, reka-ui, TypeScript 6, Vitest 4 with
+  jsdom and v8 coverage (95 % floors in `vitest.config.ts`), Playwright with `@axe-core/playwright`,
+  oxlint and ESLint (with the Tailwind and template-accessibility rules), Prettier.
+- **Docker** to build the two images and run `make compose-smoke`.
+
+## 2. Make targets
+
+`make help` lists them. All run from the repo root.
+
+| Target          | What it does                                                                  |
+| --------------- | ----------------------------------------------------------------------------- |
+| `install`       | `uv sync --locked` in `api/` and `broker/`; `npm ci` in `web/`                |
+| `lint`          | ruff check and format check; oxlint, ESLint and Prettier's check              |
+| `typecheck`     | mypy on both Python projects; `vue-tsc --build` on `web/`                     |
+| `test`          | pytest under coverage on both Python projects; Vitest with coverage           |
+| `e2e`           | Playwright and axe against `vite preview` of the production build, `/api` mocked |
+| `design-check`  | The design system's gate (`--complete`) and the freshness of `tokens.css`     |
+| `ci`            | `lint`, `typecheck`, `test`, `e2e`, `design-check`, in that order, stopping at the first failure |
+| `build`         | Both images for `linux/amd64`, tagged `nanoclaw-console:local` and `nanoclaw-console-broker:local` |
+| `compose-smoke` | Builds the app image, starts it hardened as deployed (read-only root, no capabilities, uid 10001) and checks `/healthz`, the page and a 404 |
+
+## 3. Local CI first
+
+GitHub Actions costs money, so the full suite runs on your machine:
+
+1. `make ci` before every push. It is the only place e2e runs.
+2. Once it has passed, put `[skip ci]` in the commit message, unless the push is to `main` and
+   should publish images (below).
+3. GitHub keeps one lean job (`.github/workflows/ci.yml`: install, lint, typecheck, unit tests and
+   the design gate). It exists because a green run of it on `main` is what lets
+   `.github/workflows/docker.yml` publish.
+
+**Publishing.** `docker.yml` runs when CI completes on `main`, and only if it succeeded on a push.
+It builds the exact commit CI passed (`head_sha`), for amd64, and pushes
+`ghcr.io/johnmathews/nanoclaw-console` and `ghcr.io/johnmathews/nanoclaw-console-broker`, each tagged
+`latest` and `sha-<7 chars>` and labelled `org.opencontainers.image.revision`. It can also be run by
+hand on `main` (`workflow_dispatch`). The console's `latest` is auto-deployed on the agent LXC, so a
+commit on `main` is a deploy. The broker is pinned by SHA there and is upgraded deliberately.
+
+## 4. Running it locally
+
+```sh
+make install
+cd api && uv run uvicorn --factory nanoclaw_console.app:create_app_from_env --port 8000
+cd web && npm run dev
+```
+
+The dev server on <http://localhost:5173> forwards `/api` and `/healthz` to `127.0.0.1:8000`
+(`API_URL` overrides it). Without a `STATIC_DIR` the API serves only its routes, which is what you
+want with Vite in front. To see the production shape instead, `make build-app` and run the image, or
+`make compose-smoke`.
+
+The broker has nothing to run yet: it parses `--socket` and `--ncl-socket` and exits 69 ("not
+implemented").
+
+## 5. The design system
+
+The look is tracker's design system, reused (decision D9). Its source is
+`brand/design-system/project/` (`tokens.json`, `foundations.md`, `voice.md` and a card per
+component); `checks.json` sets the gate. Rules:
+
+- Build from the tokens and the cards. A new component, or the first console use of a carried-over
+  card, starts as a card in the system (preview and README) before it reaches `web/`.
+- `web/src/styles/tokens.css` is generated: change `tokens.json`, then `npm run tokens` in `web/`.
+  `make design-check` fails on a hand edit or a stale file.
+- Tailwind's default palette is off (`web/src/styles/main.css`): a colour comes from a role
+  (`bg-canvas`, `text-ink-secondary`), and ESLint refuses arbitrary colours.
+- `python3 scripts/design_preview.py brand/design-system` writes an offline gallery to
+  `brand/design-system/preview/` (git-ignored).
+
+## 6. Tests
+
+- `api/tests/`, `broker/tests/`: pytest. Each Python project's coverage floor is in its
+  `pyproject.toml`.
+- `web/src/**/__tests__/`: Vitest component and store tests, with `fetch` stubbed.
+- `web/e2e/`: Playwright. `support.ts` opens the app in a theme with `/api` mocked through
+  `page.route`, runs axe at WCAG 2.2 AA plus best practice, and checks for sideways scroll. The
+  suite runs at 1440 px and 390 px, in light and dark.

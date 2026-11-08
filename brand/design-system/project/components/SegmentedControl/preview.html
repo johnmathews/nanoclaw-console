@@ -1,0 +1,75 @@
+<!-- @dsCard group="Forms" height=330 subtitle="Two or three choices, one selected in ink; theme and per-side" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SegmentedControl — preview</title>
+<style>
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); }
+  .grid { display: flex; flex-wrap: wrap; gap: var(--space-6) var(--space-8); align-items: flex-start; }
+  .cell { min-width: 0; max-width: 100%; }
+  .state { margin: 0 0 var(--space-2); color: var(--ink-secondary); }
+  .field { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; max-width: 100%; }
+
+  .seg { display: inline-flex; flex-wrap: wrap; align-self: flex-start; box-sizing: border-box; max-width: 100%; border: 1px solid var(--control-border); border-radius: var(--radius-md); }
+  .seg button { position: relative; height: 42px; padding: 0 var(--space-4); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink); font: 600 14px/20px var(--font-sans); cursor: pointer; text-wrap: nowrap; }
+  .seg button:hover, .seg button.is-hover { background: var(--tile); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
+  .seg button:focus-visible, .seg button.is-focus { z-index: 1; outline: 2px solid var(--focus); outline-offset: 2px; }
+  .seg[aria-disabled="true"] { opacity: .4; }
+  .seg[aria-disabled="true"] button { cursor: not-allowed; }
+  @media (prefers-reduced-motion: no-preference) {
+    .seg button { transition: background-color 120ms ease-out, color 120ms ease-out; }
+  }
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="cell"><p class="caption state">Default: System chosen</p>
+    <div class="field"><span class="label" id="l1">Theme</span>
+      <div class="seg" role="group" aria-labelledby="l1">
+        <button type="button" tabindex="0" aria-pressed="true">System</button><button type="button" tabindex="-1" aria-pressed="false">Light</button><button type="button" tabindex="-1" aria-pressed="false">Dark</button>
+      </div></div></div>
+  <div class="cell"><p class="caption state">Hover on Dark</p>
+    <div class="field"><span class="label" id="l2">Theme</span>
+      <div class="seg" role="group" aria-labelledby="l2">
+        <button type="button" tabindex="0" aria-pressed="true">System</button><button type="button" tabindex="-1" aria-pressed="false">Light</button><button type="button" tabindex="-1" aria-pressed="false" class="is-hover">Dark</button>
+      </div></div></div>
+  <div class="cell"><p class="caption state">Focus on Light</p>
+    <div class="field"><span class="label" id="l3">Theme</span>
+      <div class="seg" role="group" aria-labelledby="l3">
+        <button type="button" tabindex="-1" aria-pressed="false">System</button><button type="button" tabindex="0" aria-pressed="true" class="is-focus">Light</button><button type="button" tabindex="-1" aria-pressed="false">Dark</button>
+      </div></div></div>
+  <div class="cell"><p class="caption state">Two choices: how reps are counted</p>
+    <div class="field"><span class="label" id="l4">Reps count</span>
+      <div class="seg" role="group" aria-labelledby="l4">
+        <button type="button" tabindex="-1" aria-pressed="false">Per set</button><button type="button" tabindex="0" aria-pressed="true">Each side</button>
+      </div></div></div>
+  <div class="cell"><p class="caption state">Disabled</p>
+    <div class="field"><span class="label" id="l5">Reps count</span>
+      <div class="seg" role="group" aria-labelledby="l5" aria-disabled="true">
+        <button type="button" tabindex="0" aria-pressed="true" disabled>Per set</button><button type="button" tabindex="-1" aria-pressed="false" disabled>Each side</button>
+      </div></div></div>
+</div>
+<script>
+(() => {
+  // Single choice: pressing the chosen segment keeps it chosen.
+  document.addEventListener('click', (e) => {
+    const seg = e.target.closest('.seg button:not([disabled])');
+    if (seg) seg.parentElement.querySelectorAll('button').forEach((b) => { b.setAttribute('aria-pressed', String(b === seg)); b.tabIndex = b === seg ? 0 : -1; });
+  });
+  // SegmentedControl: one tab stop; arrow keys move between segments (Reka's roving focus).
+  document.querySelectorAll('.seg').forEach((g) => g.addEventListener('keydown', (e) => {
+    const all = [...g.querySelectorAll('button:not([disabled])')];
+    const i = all.indexOf(e.target);
+    const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (i < 0 || !d) return;
+    e.preventDefault();
+    const next = all[(i + d + all.length) % all.length];
+    all.forEach((b) => (b.tabIndex = b === next ? 0 : -1));
+    next.focus();
+  }));
+})();
+</script>
+</body>
+</html>

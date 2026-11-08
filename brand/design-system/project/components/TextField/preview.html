@@ -1,0 +1,68 @@
+<!-- @dsCard group="Forms" height=640 subtitle="Visible label, hint and error; 44px tall; every state" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TextField — preview</title>
+<style>
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); }
+  .grid { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+  .cell { flex: 1 1 240px; min-width: 0; max-width: 320px; }
+  .state { margin: 0 0 var(--space-2); color: var(--ink-secondary); }
+
+  .field { display: flex; flex-direction: column; gap: var(--space-1); }
+  .field label { color: var(--ink); }
+  .input { box-sizing: border-box; width: 100%; height: 44px; padding: 0 var(--space-3); border: 1px solid var(--control-border); border-radius: var(--radius-sm); background: var(--panel); color: var(--ink); font: 400 16px/24px var(--font-sans); }
+  .input.num { font-variant-numeric: tabular-nums; }
+  .input::placeholder { color: var(--ink-secondary); opacity: 1; }
+  .input:hover, .input.is-hover { border-color: var(--ink); }
+  .input:focus-visible, .input.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .input[aria-invalid="true"] { border-color: var(--error-ink); }
+  .field.is-disabled { opacity: .4; }
+  .form { display: flex; flex-direction: column; gap: var(--space-4); }
+  .hint { margin: 0; color: var(--ink-secondary); }
+  .error { display: flex; gap: var(--space-1); align-items: flex-start; margin: var(--space-1) 0 0; color: var(--error-ink); }
+  .error svg { flex: none; width: 16px; height: 16px; margin-top: 2px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .input { transition: border-color 120ms ease-out; }
+  }
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="cell"><p class="caption state">Default</p>
+    <div class="field"><label class="label" for="f1">Email</label>
+      <input class="input" id="f1" autocomplete="username" autocapitalize="none" spellcheck="false"></div></div>
+  <div class="cell"><p class="caption state">With a hint</p>
+    <div class="field"><label class="label" for="f2">Password</label>
+      <input class="input" id="f2" type="password" aria-describedby="f2-hint">
+      <p class="caption hint" id="f2-hint">At least 10 characters.</p></div></div>
+  <div class="cell"><p class="caption state">Hover</p>
+    <div class="field"><label class="label" for="f3">Name</label>
+      <input class="input is-hover" id="f3" value="Push-ups"></div></div>
+  <div class="cell"><p class="caption state">Focus, empty: the placeholder says what empty means</p>
+    <div class="field"><label class="label" for="f4">Weight in kg</label>
+      <input class="input num is-focus" id="f4" inputmode="decimal" placeholder="Bodyweight"></div></div>
+  <div class="cell"><p class="caption state">With a hint</p>
+    <div class="field"><label class="label" for="f6">New password</label>
+      <input class="input" id="f6" type="password" value="correct-horse" aria-describedby="f6-hint">
+      <p class="caption hint" id="f6-hint">At least 10 characters.</p></div></div>
+  <div class="cell"><p class="caption state">Error on one field</p>
+    <div class="field"><label class="label" for="f5">Repeat password</label>
+      <input class="input" id="f5" type="password" value="correct-horse" aria-invalid="true" aria-describedby="f5-err">
+      <p class="caption error" id="f5-err" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>The passwords don't match. Type the same password in both fields.</span></p></div></div>
+  <div class="cell"><p class="caption state">Form-level error: one message for both fields</p>
+    <div class="form">
+      <div class="field"><label class="label" for="f7">Email</label>
+        <input class="input" id="f7" value="anna" autocomplete="username" autocapitalize="none" spellcheck="false" aria-invalid="true" aria-describedby="f-login-err"></div>
+      <div class="field"><label class="label" for="f8">Password</label>
+        <input class="input" id="f8" type="password" value="correct-horse" autocomplete="current-password" aria-invalid="true" aria-describedby="f-login-err"></div>
+      <p class="caption error" id="f-login-err" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>Wrong email or password. Check them and try again.</span></p>
+    </div></div>
+  <div class="cell"><p class="caption state">Disabled</p>
+    <div class="field is-disabled"><label class="label" for="f6">Email</label>
+      <input class="input" id="f6" value="anna" disabled></div></div>
+</div>
+<script></script>
+</body>
+</html>
