@@ -333,3 +333,24 @@ export type ProblemsView = {
   } | null
   sources: Sources
 }
+
+/** One line of the audit log as `/api/audit` shapes it (architecture.md §4.9). */
+export type AuditEntry = {
+  at: string | null
+  email: string | null
+  action: string | null
+  target: { type: string | null; id: string | null }
+  result: string | null
+  reason: string | null
+  code: string | null
+  detail: Record<string, number | string> | null
+  cf_ray: string | null
+}
+
+export type AuditView = {
+  generated_at: string
+  available: boolean
+  writable: boolean
+  truncated: boolean
+  entries: AuditEntry[]
+}

@@ -10,17 +10,21 @@ It is deployed by Ansible from
 [proxmox-setup](https://github.com/johnmathews/home-server) to the agent LXC, behind Cloudflare
 Access at `nanoclaw.itsa-pizza.com`. It never changes the NanoClaw fork.
 
-**Status:** release 1 built, not yet deployed. The broker (read verbs, redaction, cache), the API
-(Access check, every view) and the web app's five views (overview, scheduled tasks, groups and
-channels, permissions, problems) exist and pass `make ci`. The deployment (proxmox-setup's
-`agent_lxc` role) and the live check follow; release 2's actions come after.
+**Status:** release 1 is live at `nanoclaw.itsa-pizza.com` (deployed 2026-11-08): the broker
+(read verbs, redaction, cache), the API (Access check, every view) and the five views (overview,
+scheduled tasks, groups and channels, permissions, problems). Release 2 is built and passes
+`make ci`, not yet deployed: pause, resume and run for a task and restart for a group, each behind
+a confirmation dialog, a CSRF guard and an append-only audit log, and an audit page. Its deployment
+needs a newer broker pin and an audit volume in proxmox-setup's `agent_lxc` role, then a live check
+with John's go-ahead.
 
 ## 1. How it fits together
 
 Two images, both built here:
 
 - **`nanoclaw-console-broker`**: the only process that talks to NanoClaw's control socket. A fixed
-  verb list, redaction and a cache. No port.
+  verb list (reads, and exactly four writes that take an id and nothing else), redaction and a
+  cache. No port.
 - **`nanoclaw-console`**: FastAPI serving the JSON API and the Vue app. It reaches NanoClaw only
   through the broker.
 

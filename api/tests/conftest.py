@@ -22,6 +22,7 @@ from tests.jwt_helpers import AUD, EMAIL, TEAM, FakeCerts, Signer
 
 NOW = datetime(2026, 11, 8, 14, 30, tzinfo=UTC)
 SIGNER = Signer("console-k1")
+ORIGIN = "https://nanoclaw.itsa-pizza.com"
 
 
 @pytest.fixture
@@ -59,6 +60,13 @@ def certs() -> FakeCerts:
     return FakeCerts(SIGNER)
 
 
+@pytest.fixture
+def audit_dir(tmp_path: Path) -> Path:
+    d = tmp_path / "audit"
+    d.mkdir()
+    return d
+
+
 def make_settings(socket: Path, **overrides: object) -> Settings:
     values: dict[str, object] = {
         "access_team_domain": TEAM,
@@ -68,6 +76,8 @@ def make_settings(socket: Path, **overrides: object) -> Settings:
         "broker_socket": socket,
         "timezone": ZoneInfo("Europe/Amsterdam"),
         "static_dir": None,
+        "console_origin": ORIGIN,
+        "audit_dir": Path("/nonexistent/audit"),
     }
     values.update(overrides)
     return Settings(**values)  # type: ignore[arg-type]
@@ -77,11 +87,13 @@ AppFactory = Callable[..., TestClient]
 
 
 @pytest.fixture
-def make_client(broker: FakeBroker, loki: FakeLoki, certs: FakeCerts) -> Iterator[AppFactory]:
+def make_client(
+    broker: FakeBroker, loki: FakeLoki, certs: FakeCerts, audit_dir: Path
+) -> Iterator[AppFactory]:
     clients: list[TestClient] = []
 
     def factory(**overrides: object) -> TestClient:
-        settings = make_settings(broker.path, **overrides)
+        settings = make_settings(broker.path, **{"audit_dir": audit_dir, **overrides})
         services = Services.build(
             settings,
             jwks_transport=certs.transport(),

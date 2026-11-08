@@ -71,7 +71,7 @@ def _http_url(text: str) -> str:
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="nanoclaw_broker",
-        description="Serve a fixed, read-only set of NanoClaw verbs to the console.",
+        description="Serve a fixed set of NanoClaw verbs to the console: reads and four writes.",
     )
     parser.add_argument(
         "--socket",

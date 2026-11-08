@@ -1,7 +1,8 @@
-"""The broker's Unix socket server (docs/architecture.md §3.3, §3.7).
+"""The broker's Unix socket server (docs/architecture.md §3.3, §3.7, §3.9).
 
 One JSON line in (`{"verb", "params"}`), one JSON line out (`{"ok": true, "data"}` or
-`{"ok": false, "error": {"code", "message"}}`), then the connection is closed.
+`{"ok": false, "error": {"code", "message"}}`), then the connection is closed. A write verb is
+run once, never cached, then drops the cached reads it may have changed.
 """
 
 import asyncio
@@ -62,6 +63,7 @@ class _Outcome:
     error: str | None = None
     ncl_code: str | None = None
     detail: str | None = None
+    write: bool = False
 
 
 class Broker:
@@ -148,6 +150,7 @@ class Broker:
             error=result.error,
             ncl_code=result.ncl_code,
             detail=result.detail,
+            write=result.write,
             duration_ms=round((time.monotonic() - started) * 1000, 2),
         )
 
@@ -159,10 +162,13 @@ class Broker:
         verb, params = resolve(raw_verb, request.get("params", {}))
         result.verb = verb.name
         result.params = params
+        result.write = isinstance(verb, Verb) and verb.write
         try:
             async with asyncio.timeout(self._config.request_deadline):
                 if isinstance(verb, LocalVerb):
                     data, result.cache = await self._fetch_local(verb, params)
+                elif verb.write:
+                    data, result.cache = await self._write(verb, params, result)
                 else:
                     data, result.cache = await self._fetch(verb, params)
         except TimeoutError:
@@ -204,6 +210,42 @@ class Broker:
             return await self._cache.run_uncached(load), "none"
         key = (verb.name, tuple(sorted(params.items())))
         return await self._cache.get(key, load, ttl=verb.ttl)
+
+    async def _write(
+        self, verb: Verb, params: dict[str, str], result: _Outcome
+    ) -> tuple[object, str]:
+        """Run a write once, then drop the reads it may have changed, whatever the outcome.
+
+        A write that failed or timed out may still have happened in NanoClaw, so its reads are
+        dropped either way. An ncl refusal a repeat explains is reported as its own code
+        (§3.9); every other one stays `ncl_error`.
+        """
+        try:
+            return await self._fetch(verb, params)
+        except NclError as exc:
+            result.ncl_code, result.detail = exc.ncl_code, exc.detail
+            raise await self._explain(verb, params, exc) from None
+        finally:
+            self._cache.invalidate(verb.invalidates)
+
+    async def _explain(self, verb: Verb, params: dict[str, str], exc: NclError) -> BrokerError:
+        if exc.kind == "task_not_found" and verb.command.startswith("tasks-"):
+            return BrokerError("not_found", "no such task")
+        if exc.kind != "no_live_task" or verb.settles_to is None:
+            return exc
+        # "no live task matched": a repeat, a task running right now, or no such task. One fresh
+        # read of the task says which, so its cached copy is dropped first.
+        self._cache.invalidate(verb.invalidates)
+        try:
+            task, _ = await self._fetch(REGISTRY["tasks-get"], params)
+        except NclError as read_exc:
+            if read_exc.kind == "task_not_found":
+                return BrokerError("not_found", "no such task")
+            return exc
+        status = task.get("status") if isinstance(task, dict) else None
+        if status == verb.settles_to:
+            return BrokerError("already_in_state", f"the task is already {status}")
+        return BrokerError("no_live_run", "the task has no waiting run to change")
 
     async def _fetch_local(self, verb: LocalVerb, params: dict[str, str]) -> tuple[object, str]:
         # slot=False: a local read may make ncl calls of its own, which take the slots.

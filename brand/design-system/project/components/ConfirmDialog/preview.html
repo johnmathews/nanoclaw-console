@@ -1,4 +1,4 @@
-<!-- @dsCard group="Overlays" height=760 subtitle="Replaces window.confirm: the facts, then the choice" -->
+<!-- @dsCard group="Overlays" height=1180 subtitle="Before the console acts on NanoClaw: the state now, what happens, the caution" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,61 +7,89 @@
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; padding: var(--space-6); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+  p, h2 { margin: 0; }
   .case { margin: 0 0 var(--space-2); color: var(--ink-secondary); }
   .case + .stage, .case + .confirm { margin-bottom: var(--space-6); }
 
-  .stage { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg); min-height: 300px; padding: var(--space-6); }
-  .behind p { margin: 0; padding: var(--space-3) 0; border-bottom: 1px solid var(--line); font-weight: 600; }
+  .stage { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg); min-height: 420px; padding: var(--space-6); }
+  .behind h1 { margin: 0; font-family: var(--font-serif); font-size: 32px; line-height: 40px; }
+  .behind p { margin-top: var(--space-2); color: var(--ink-secondary); }
   .scrim { position: absolute; inset: 0; background: var(--scrim); opacity: .4; }
-  .stage .confirm { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); }
+  .stage .confirm { position: absolute; top: 48px; left: 50%; transform: translateX(-50%); }
 
-  .confirm { width: min(600px, calc(100% - 32px)); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: 32px; }
-  /* At u = 1 (a 1280×800 screen), K55: in the app the sizes follow the screen. */
-  .confirm h2 { margin: 0; font-size: 27px; line-height: 34px; }
-  .confirm p { font-size: 19px; line-height: 28px; }
-  .confirm p { margin: var(--space-2) 0 0; }
-  .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-6); }
-  .btn { height: 60px; padding: 0 22px; border-radius: var(--radius-md); font: inherit; font-size: 19px; font-weight: 600; cursor: pointer; }
+  .confirm { width: min(512px, calc(100% - 32px)); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--space-6); }
+  .facts { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+  .msg { display: flex; gap: var(--space-2); align-items: flex-start; margin-top: var(--space-4); }
+  .msg svg { flex: none; width: 16px; height: 16px; margin-top: 5px; }
+  .caution { color: var(--caution-ink); }
+  .error { color: var(--error-ink); }
+  .audit { margin-top: var(--space-4); color: var(--ink-secondary); }
+  .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-3); margin-top: var(--space-6); }
+  .btn { height: 44px; padding: 0 var(--space-4); border-radius: var(--radius-md); font: 600 18px/26px var(--font-sans); cursor: pointer; }
   .btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--control-border); }
   .btn.secondary:hover { background: var(--tile); }
   .btn.primary { background: var(--ink); color: var(--on-ink); border: 1px solid var(--ink); }
-  .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .btn:focus-visible, .btn.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
   @media (prefers-reduced-motion: no-preference) { .btn { transition: background-color 120ms; } }
   @media (max-width: 639px) {
     body { padding: var(--space-4); }
-    .stage { padding: var(--space-4); min-height: 320px; }
+    .stage { padding: var(--space-4); min-height: 460px; }
     .confirm { padding: var(--space-4); }
     .stage .confirm { top: var(--space-6); }
   }
 </style>
 </head>
 <body>
-<p class="case label">Removing an exercise (Edit plan, remove button)</p>
+<p class="case caption">Resuming the overdue task (the task page’s Resume)</p>
 <div class="stage">
   <div class="behind" aria-hidden="true" inert>
-    <p>Push-ups</p>
-    <p>Pull-ups</p>
-    <p>Squats</p>
-    <p>Kettlebell halos</p>
+    <h1>documentation-summary</h1>
+    <p class="body">Paused · task-1778399790530-f2euaw</p>
   </div>
   <div class="scrim" aria-hidden="true"></div>
   <div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="c1-t" aria-describedby="c1-d">
-    <h2 class="title-2" id="c1-t">Remove Push-ups?</h2>
-    <p id="c1-d">It comes off this week's plan. Weeks with their own plan keep it, and its marks stay.</p>
+    <h2 class="title-2" id="c1-t">Resume documentation-summary?</h2>
+    <div class="facts" id="c1-d">
+      <p class="body">Now: paused. Its next run was due 27 May at 09:03 CEST.</p>
+      <p class="body">After that run it runs at 09:03 every day.</p>
+    </div>
+    <div class="msg caution" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><p class="body">Its run is overdue, so it runs once now, as soon as it is resumed.</p></div>
+    <p class="caption audit">The console records this in its audit log with your sign-in.</p>
     <div class="actions">
-      <button type="button" class="btn secondary">Cancel</button>
-      <button type="button" class="btn primary">Remove</button>
+      <button type="button" class="btn secondary is-focus">Cancel</button>
+      <button type="button" class="btn primary">Resume</button>
     </div>
   </div>
 </div>
 
-<p class="case label">Signing out with changes not yet synced</p>
-<div class="confirm" role="alertdialog" aria-labelledby="c3-t" aria-describedby="c3-d">
-  <h2 class="title-2" id="c3-t">Sign out now?</h2>
-  <p id="c3-d">Two changes on this device haven't reached the server yet. Signing out now loses them.</p>
+<p class="case caption">Running a task now</p>
+<div class="confirm" role="alertdialog" aria-labelledby="c2-t" aria-describedby="c2-d">
+  <h2 class="title-2" id="c2-t">Run documentation-summary now?</h2>
+  <div class="facts" id="c2-d">
+    <p class="body">Now: paused. Its next run was due 27 May at 09:03 CEST.</p>
+    <p class="body">One extra run is queued straight away. Asking again queues another.</p>
+  </div>
+  <div class="msg caution" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><p class="body">A run spends tokens; it does not change the schedule.</p></div>
+  <p class="caption audit">The console records this in its audit log with your sign-in.</p>
   <div class="actions">
     <button type="button" class="btn secondary">Cancel</button>
-    <button type="button" class="btn primary">Sign out</button>
+    <button type="button" class="btn primary" aria-busy="true">Queuing…</button>
+  </div>
+</div>
+
+<p class="case caption">Restarting a group, after a refusal (the dialog stays open)</p>
+<div class="confirm" role="alertdialog" aria-labelledby="c3-t" aria-describedby="c3-d">
+  <h2 class="title-2" id="c3-t">Restart main-group?</h2>
+  <div class="facts" id="c3-d">
+    <p class="body">Now: one of its six sessions is running.</p>
+    <p class="body">Each running container stops. One with messages waiting starts again at once; the rest on their next message.</p>
+  </div>
+  <div class="msg caution" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><p class="body">A restart interrupts a running turn: the agent stops mid-reply.</p></div>
+  <div class="msg error" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><p class="body">The console can’t write its audit log, so it didn’t act. Nothing changed.</p></div>
+  <p class="caption audit">The console records this in its audit log with your sign-in.</p>
+  <div class="actions">
+    <button type="button" class="btn secondary">Cancel</button>
+    <button type="button" class="btn primary">Restart</button>
   </div>
 </div>
 <script></script>

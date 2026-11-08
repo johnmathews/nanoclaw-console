@@ -2,6 +2,7 @@
 
 import asyncio
 import gc
+from collections.abc import Awaitable, Callable
 
 import pytest
 
@@ -248,3 +249,62 @@ async def test_slotless_loads_may_exceed_the_cap() -> None:
 
     await asyncio.gather(*(cache.get(i, loader, slot=False) for i in range(3)))
     assert peak == 3
+
+
+# --- invalidation (release 2: a write makes the reads it affects fresh) -----------------------
+
+
+async def test_invalidate_drops_every_entry_of_the_named_verbs() -> None:
+    cache = ReadCache(ttl=20, clock=Clock())
+    calls: dict[object, int] = {}
+
+    def loader(key: object) -> Callable[[], Awaitable[int]]:
+        async def load() -> int:
+            calls[key] = calls.get(key, 0) + 1
+            return calls[key]
+
+        return load
+
+    keys = [("tasks-get", (("id", "a"),)), ("tasks-get", (("id", "b"),)), ("roles-list", ())]
+    for k in keys:
+        await cache.get(k, loader(k))
+    cache.invalidate(["tasks-get", "not-cached-at-all"])
+    assert [await cache.get(k, loader(k)) for k in keys] == [(2, "miss"), (2, "miss"), (1, "hit")]
+
+
+async def test_a_load_in_flight_across_an_invalidation_is_not_stored() -> None:
+    """A read that started before the write may hold the state from before it."""
+    cache = ReadCache(ttl=20, clock=Clock())
+    release = asyncio.Event()
+    calls = 0
+
+    async def slow() -> str:
+        nonlocal calls
+        calls += 1
+        await release.wait()
+        return "before the write"
+
+    early = asyncio.create_task(cache.get(("tasks-list", ()), slow))
+    await asyncio.sleep(0)
+    cache.invalidate(["tasks-list"])
+
+    async def fresh() -> str:
+        return "after the write"
+
+    # A request after the write does not join the stale load; it starts its own.
+    assert await cache.get(("tasks-list", ()), fresh) == ("after the write", "miss")
+    release.set()
+    assert await early == ("before the write", "miss")
+    assert await cache.get(("tasks-list", ()), fresh) == ("after the write", "hit")
+    assert calls == 1
+
+
+async def test_invalidating_ignores_keys_that_are_not_verb_tuples() -> None:
+    cache = ReadCache(ttl=20, clock=Clock())
+
+    async def load() -> str:
+        return "v"
+
+    await cache.get("plain", load)
+    cache.invalidate(["plain"])
+    assert await cache.get("plain", load) == ("v", "hit")

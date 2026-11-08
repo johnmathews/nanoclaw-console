@@ -3,16 +3,18 @@
 > Purpose
 >
 > What the NanoClaw console is made of: the two images this repo builds, which of them holds
-> NanoClaw's authority, how the broker guards it (verb list, redaction, cache), and how the
-> console's backend checks the Access JWT, derives Claude health and answers the web app (§4,
-> whose JSON shapes are the web app's contract), and how the web app draws it (§5).
+> NanoClaw's authority, how the broker guards it (verb list, redaction, cache, the four writes),
+> how the console's backend checks the Access JWT, derives Claude health, answers the web app (§4,
+> whose JSON shapes are the web app's contract) and guards and audits the four actions (§4.8,
+> §4.9), and how the web app draws it all (§5).
 
 ## 1. Overview
 
 The console shows NanoClaw v2's state on the agent LXC: Claude health, groups and channels with
-their permissions, scheduled tasks, and errors and warnings. Release 1 is read-only. Release 2
+their permissions, scheduled tasks, and errors and warnings. Release 1 was read-only. Release 2
 adds four reversible actions (pause, resume and run a task; restart a group) behind a
-confirmation and an audit log ([decisions.md](decisions.md), D4).
+confirmation and an audit log ([decisions.md](decisions.md), D4); nothing else can change
+NanoClaw from the console.
 
 It never imports or edits the NanoClaw fork. Its only coupling to NanoClaw is the frame format of
 NanoClaw's control socket, `data/ncl.sock` (D1).
@@ -22,7 +24,7 @@ NanoClaw's control socket, `data/ncl.sock` (D1).
 | Image                                       | Built from          | Runs as      | Holds                                                    |
 | ------------------------------------------- | ------------------- | ------------ | -------------------------------------------------------- |
 | `ghcr.io/johnmathews/nanoclaw-console-broker` | `broker/Dockerfile` | uid 1000     | NanoClaw's `ncl.sock` and read-only `data/`, `groups/` |
-| `ghcr.io/johnmathews/nanoclaw-console`      | `Dockerfile`        | uid 10001    | Only the broker's socket directory                       |
+| `ghcr.io/johnmathews/nanoclaw-console`      | `Dockerfile`        | uid 10001    | The broker's socket directory and the audit volume       |
 
 - **The broker** (`broker/`, package `nanoclaw_broker`) is the only process that can talk to
   NanoClaw. `ncl.sock` grants full control of NanoClaw to anything that can open it, so the broker
@@ -32,7 +34,7 @@ NanoClaw's control socket, `data/ncl.sock` (D1).
 - **The console** (`api/` and `web/`, package `nanoclaw_console`) is one FastAPI process that
   serves the JSON API under `/api/` and the built Vue app from `web/dist`. It holds no NanoClaw
   access of its own, only the broker's socket. It runs on a read-only root filesystem and writes
-  nothing outside `/tmp`.
+  nothing outside `/tmp` and its audit log's directory, a named volume (§4.9).
 
 **The broker's verb list is the security boundary.** The console's own checks (the Access JWT, its
 email allowlist) are defence in depth: a compromised console can ask the broker only for what the
@@ -41,18 +43,18 @@ four D4 names.
 
 ## 3. The broker
 
-The broker (`broker/src/nanoclaw_broker/`) is the only process that opens `ncl.sock`. Release 1
-gives it read verbs only: 16 that map to an ncl command (§3.4) and 4 that read something else on
-the host (§3.8).
+The broker (`broker/src/nanoclaw_broker/`) is the only process that opens `ncl.sock`. It has 24
+verbs: 16 reads that map to an ncl command (§3.4), 4 reads of something else on the host (§3.8),
+and D4's 4 writes (§3.9). Nothing else is reachable.
 
 ### 3.1 Modules
 
 | Module          | Job                                                                                  |
 | --------------- | ------------------------------------------------------------------------------------ |
 | `ncl_client.py` | Speaks NanoClaw's frame protocol: one connection per call, one line each way         |
-| `verbs.py`      | The frozen verb registry: verb name → ncl command (or local read), id parameters, fixed args, cache TTL |
+| `verbs.py`      | The frozen verb registry: verb name → ncl command (or local read), id parameters, fixed args, cache TTL; for a write, what it invalidates |
 | `redact.py`     | Removes secrets from every reply before it is cached, logged or returned             |
-| `cache.py`      | Per-verb TTL (20 s unless stated), single-flight, at most 2 ncl calls in flight       |
+| `cache.py`      | Per-verb TTL (20 s unless stated), single-flight, at most 2 ncl calls in flight, invalidation by verb |
 | `reads.py`      | The four reads that are not an ncl command (§3.8): runs them for the server           |
 | `health.py`     | `health`: NanoClaw's loopback `/health`                                               |
 | `usage.py`      | `usage`: parses ncl's pre-rendered quota text                                         |
@@ -60,7 +62,7 @@ the host (§3.8).
 | `probe.py`      | `claude-probe`: one empty-body call to Anthropic through OneCLI                       |
 | `server.py`     | The Unix socket the console talks to: one JSON line in, one JSON line out            |
 | `events.py`     | JSON-line event log on stdout                                                        |
-| `errors.py`     | `BrokerError`, the typed error and its `code` the console sees (§3.3)                |
+| `errors.py`     | `BrokerError`, the typed error and its `code` the console sees (§3.3); `NclError` classifies a task write's refusal |
 | `__main__.py`   | Command line and SIGTERM handling                                                    |
 
 ### 3.2 NanoClaw's frame protocol
@@ -107,7 +109,8 @@ One JSON line in, one JSON line out, then the broker closes the connection:
   `unavailable` (ncl socket missing or refusing), `timeout`, `ncl_error` (ncl answered
   `ok: false`; the client gets the fixed message `ncl rejected the request (<ncl code>)` and
   nothing else of ncl's text, see §3.5), `protocol_error` (ncl's reply was malformed or too
-  large) and `internal`.
+  large) and `internal`. A write can also answer `already_in_state`, `not_found` or
+  `no_live_run` (§3.9).
 
 ### 3.4 Release-1 verbs
 
@@ -130,8 +133,7 @@ One JSON line in, one JSON line out, then the broker closes the connection:
 | `dropped-messages-list` | `dropped-messages-list {}`                   |
 | `usage`                 | `usage {}`, parsed (§3.8), cached 5 min      |
 
-There are no write verbs. Release 2 adds `tasks-pause`, `tasks-resume`, `tasks-run` and
-`groups-restart`, each with `id` only and marked uncacheable (D4); nothing else is ever added.
+The four write verbs are in §3.9; nothing else is ever added.
 
 Two limits of ncl that the console inherits:
 
@@ -203,8 +205,9 @@ Every ncl call runs on NanoClaw's one event loop, on a 2-core LXC that is alread
   `ag-1779373702795-5wbiev`, `main-group`).
 - SIGTERM or SIGINT closes the server, removes the socket and exits 0.
 - The log is JSON lines on stdout: one `request` event per request with the verb (only a known
-  verb name), the validated ids, the cache result (`hit`, `miss`, `shared`), the outcome and the
-  duration. It never contains reply data. An ncl rejection adds `ncl_code` and the redacted
+  verb name), the validated ids, the cache result (`hit`, `miss`, `shared`, or `none` for a verb
+  that is never cached, such as a write), the outcome and the duration; a write adds `write: true`
+  (§3.9). It never contains reply data. An ncl rejection adds `ncl_code` and the redacted
   `detail` (§3.5).
 
 ### 3.8 The extra reads
@@ -267,6 +270,67 @@ slots (task-file's own ncl calls do).
   shows in OneCLI's log as `url=…/v1/messages` without `?beta=true`, which is how the console
   tells it from agent traffic.
 
+### 3.9 The four writes (release 2)
+
+D4's writes, and no others. Each takes exactly `{"id"}` (the §3.3 pattern), has no fixed args, is
+never cached or shared, and runs under the same cap of 2 ncl calls in flight. The registry gives
+them `write=True`; the allowlist tests prove these four are the only reachable writes, that they
+take nothing but the id, and that `tasks-update`, `tasks-create`, `tasks-cancel`, `tasks-delete`,
+every `groups-config-*` and the rest stay `unknown_verb`, and that `--script`, `--prompt`,
+`--rebuild`, `--message`, `--group` and `--session` are `invalid_params`.
+
+| Broker verb      | ncl frame                    | id                    | Invalidates                          |
+| ---------------- | ---------------------------- | --------------------- | ------------------------------------ |
+| `tasks-pause`    | `tasks-pause {"id"}`         | a task's series id    | `tasks-list`, `tasks-get`, `health`  |
+| `tasks-resume`   | `tasks-resume {"id"}`        | a task's series id    | `tasks-list`, `tasks-get`, `health`  |
+| `tasks-run`      | `tasks-run {"id"}`           | a task's series id    | `tasks-list`, `tasks-get`, `health`  |
+| `groups-restart` | `groups-restart {"id"}`      | an agent group's id   | `sessions-list`, `health`            |
+
+What NanoClaw does with each, read from `479a9510` on the agent host (never run live by this
+repo; W16 exercises them with John's go-ahead):
+
+- **`tasks-pause`** (`src/cli/resources/tasks.ts:617-629`, `mutateTask` at `:267-279`) sets every
+  `pending` row of the series in an active session to `paused`
+  (`src/mailbox/sqlite/tasks.ts:60-66`). `process_after` is untouched. Answer:
+  `{"series_id", "touched": <rows>}`.
+- **`tasks-resume`** (`tasks.ts:631-643`) sets every `paused` row back to `pending`
+  (`sqlite/tasks.ts:68-74`), `process_after` untouched, so a task whose `process_after` has passed
+  runs once at the next sweep (F9). Answer: `{"series_id", "touched"}`.
+- Both throw `no live task matched: <id>` when they touched nothing (`tasks.ts:277`): a repeat,
+  a task whose only live row is running right now (`processing`), or no such task. ncl answers
+  `handler-error` with that text (`src/cli/dispatch.ts:239`).
+- **`tasks-run`** (`tasks.ts:377-406`, `:602-616`) inserts one more `pending` row of the series,
+  due now, with no recurrence, so it fires once and the schedule is unchanged. It is not
+  idempotent: every call queues another run. Answer: `{"series_id", "row_id", "status":
+  "pending"}`; no such task is `handler-error` `task not found: <id>` (`:404`).
+- **`groups-restart`** (`src/cli/resources/groups.ts:326-388`) from the host kills every running
+  container of the group's active sessions (`src/container-restart.ts:23-68`) and respawns those
+  with messages waiting. The broker never sends `rebuild` or `message`. Answer: `{"restarted":
+  <n>, "rebuilt": false}`, also for a group that does not exist (it restarts nothing), which is
+  why the console checks the group first (§4.8). Its ncl access is `approval`, which a host
+  caller bypasses (F1).
+
+**Refusals the broker explains.** ncl's text never reaches the client (§3.5), but for a task write
+the broker classifies it, at its start only, before discarding it (`NclError.kind`):
+
+- `task not found: …` → `not_found` ("no such task").
+- `no live task matched: …` from a pause or resume → the broker drops the task's cached reads and
+  asks `tasks-get` once: its status equal to the one the write would set (`paused`, `pending`) →
+  `already_in_state` ("the task is already paused"); `task not found` → `not_found`; any other
+  status (it is running now) → `no_live_run`; a read ncl refuses → the original `ncl_error` (an
+  `unavailable` or `timeout` on that read is answered as itself).
+- Anything else, and anything from `groups-restart`, stays `ncl_error`.
+
+**Invalidation.** After a write, whatever it answered (a write that timed out may still have
+happened), the broker drops every cached value of the verbs it invalidates, for every id, and
+stops sharing any load of them still in flight: such a load answers its own waiters but is not
+stored, because it may have read NanoClaw before the write (`ReadCache.invalidate`, with a
+per-verb generation taken when a load is scheduled). The next read is fresh, so the page the
+console refreshes after an action shows the change.
+
+The broker's `request` log line carries `write: true` for these four, with the verb and the id, so
+the broker's own log is a second record of every write it was asked for.
+
 ## 4. The console backend
 
 The console's API (`api/src/nanoclaw_console/`) answers the web app. It reads NanoClaw only through
@@ -285,6 +349,8 @@ the broker (§3.3) and Loki, and composes what it reads into five views and a ta
 | `schedule.py`      | Cron in plain words, the next fire time, "overdue on resume", series age (§4.6)        |
 | `views.py`         | The view payloads (§4.7): broker and Loki reads in parallel, degraded answers           |
 | `ttl_cache.py`     | A 30 s cache for the Loki-derived signals                                               |
+| `actions.py`       | The four action routes' guard (CSRF), broker call and answer; the audit view (§4.8)      |
+| `audit.py`         | The append-only audit log: one JSON line per attempt, fail closed (§4.9)                |
 | `app.py`           | Routes, the static web app, wiring                                                      |
 
 ### 4.2 The Access check
@@ -315,8 +381,8 @@ claim and the email allowlist (D3, F6):
 - **The refusal** is `403` with an empty body and `Cache-Control: no-store`, whatever the reason.
   The reason goes to the log only, never the token or its claims. An unexpected error inside the
   check is also a 403.
-- The verified email is put on the request (`request.state.access_email`) for release 2's audit
-  log.
+- The verified email is put on the request (`request.state.access_email`) for the audit log
+  (§4.9).
 
 The Access app in front (W12) is the first layer and the firewall rule admitting only cloudflared
 and Gatus is the second (D3, D12); this check is the third, and it is what makes a JWT for any
@@ -332,8 +398,8 @@ other Access app useless here.
   answer), `timeout`, `protocol_error` (not one JSON object, or too large), or the broker's own
   code (`unknown_verb`, `invalid_params`, `ncl_error`, …). The broker's message text is never
   passed on to a client.
-- The console never takes a verb from a request. It takes an id only for the task detail, checked
-  against the broker's id pattern first (anything else is a 404).
+- The console never takes a verb from a request. It takes an id only for the task detail and the
+  four actions (§4.8), checked against the broker's id pattern first (anything else is a 404).
 
 ### 4.4 Claude health
 
@@ -414,10 +480,13 @@ by the agent host's Alloy), newest 2000 lines (`truncated` says if there were mo
 | `GET /api/tasks/{id}`  | One task (series id): full prompt, recent run log and the task file               |
 | `GET /api/permissions` | Roles, members, policies, destinations, the mount allowlist, approvals, and what the console cannot see |
 | `GET /api/problems`    | Every problem worth a look, and the host log groups                               |
+| `GET /api/audit`       | The audit log's recent entries, newest first (§4.9)                               |
+| `POST /api/tasks/{id}/pause`, `/resume`, `/run` | The task actions (§4.8)                               |
+| `POST /api/groups/{id}/restart` | The group action (§4.8)                                                  |
 | anything else          | The built web app (`STATIC_DIR`), `index.html` for client routes; an unknown `/api/…` is a 404 |
 
-Release 2 adds `POST` routes for its four actions (D4); release 1 has none, and no route takes a
-verb or a free-form parameter.
+No route takes a verb or a free-form parameter: an action's verb is fixed by its path, and its
+only input is the id in the path.
 
 **Degraded answers.** A view makes all its reads in parallel and answers 200 with whatever
 arrived. A field whose read failed is `null` (a count, a block) or empty, and `sources` says which
@@ -645,6 +714,112 @@ non-goals of the plan, F21).
 
 The overview's `warnings` are the same items.
 
+### 4.8 The four actions
+
+`POST /api/tasks/{id}/pause`, `/resume` and `/run`, and `POST /api/groups/{id}/restart`
+(`actions.py`). Any other action name under those paths is a 404 and is not audited; a `GET` is not an action.
+
+**The guard.** Past the Access check (a missing or bad JWT is the usual bare 403, before the route,
+and is not audited because nobody is known), a request must carry, in this order of checking:
+
+1. `X-Console-Action: 1`, exactly (reason `action_header`);
+2. `Origin` exactly `CONSOLE_ORIGIN` (default `https://nanoclaw.itsa-pizza.com`): no other host,
+   scheme, port, path or `null` (`origin`);
+3. `Sec-Fetch-Site: same-origin` (`fetch_site`; a typed URL's `none` and a sibling's `same-site`
+   are refused too);
+4. `Content-Type: application/json`, parameters allowed (`content_type`; so a form post, which
+   cannot set it, is refused);
+5. a body that is exactly the JSON object `{}`, at most 1 KiB (`body`): a declared
+   `Content-Length` over that is refused unread, and a chunked body stops being read once it
+   passes it, so a request never holds more than 1 KiB;
+6. an id matching the broker's pattern (`bad_id`, answered 404).
+
+Every refusal is `403 {"result": "refused", "reason": "<reason>"}` (404 for `bad_id`), audited,
+and sends nothing to the broker. Why each: a cross-site page can submit a form (no custom header,
+no JSON type) but cannot add `X-Console-Action` or `Content-Type: application/json` without a CORS
+preflight the console never answers; browsers set `Origin` and `Sec-Fetch-Site` themselves and
+scripts cannot forge them. The Access cookie's SameSite setting (F16) is then not what stands
+between a forged POST and NanoClaw.
+
+**One at a time.** A second request for the same verb and id while one is running is `409
+{"result": "busy"}` (audited): a double click cannot queue two runs.
+
+**The audit file first.** The audit file is opened for appending before the broker is asked. If it
+cannot be (§4.9), the answer is `503 {"result": "audit_unavailable"}`, the attempt goes to stdout
+only, and nothing is sent: the console never acts unaudited.
+
+**The call.** For a restart, the console first reads `groups-list` and answers `404 not_found` for a
+group that is not in it (ncl would answer `{restarted: 0}` for any id). Then it sends the one verb
+with `{"id"}`. The answer, always `Cache-Control: no-store`:
+
+| Broker answered        | HTTP | `result`            |
+| ---------------------- | ---- | ------------------- |
+| data                   | 200  | `done`              |
+| `already_in_state`     | 200  | `already_in_state`  |
+| `not_found`            | 404  | `not_found`         |
+| `no_live_run`          | 409  | `no_live_run`       |
+| any other code         | 502  | `broker_error`, with `code` (`unavailable`, `timeout`, `ncl_error`, `unknown_verb` from a broker older than release 2, …) |
+
+```json
+{"result": "done", "code": null, "action": "run",
+ "target": {"type": "task", "id": "task-1778399790530-f2euaw"},
+ "at": "2026-11-08T14:30:00.123Z", "detail": {"row_id": "task-…-run-ab12"}}
+```
+
+`detail` holds only the named fields of the broker's answer that are a count or an id: `touched`
+(pause, resume), `row_id` (run), `restarted` (restart); `null` when not done. The audit line is
+written with the outcome before the answer is sent. If that write fails after the broker has
+answered (a full disk), the answer is `500 {"result": "audit_failed", "acted_result": "<result>"}`
+and the line is still on stdout; the page says NanoClaw acted only when `acted_result` is `done`.
+
+**Every exit from the call is audited.** The broker call runs under `asyncio.shield`, so a client
+that hangs up cancels the request, not the call. A cancelled request writes `result:
+"interrupted"` before it ends, and when the shielded call finishes, a second line with the same
+`at` records what came of it. An unexpected exception writes `result: "error"` with the
+exception's type name in `code` (never its message), then answers 500. What no line can cover is
+the process being killed (SIGKILL, OOM) between the broker acting and the line; the broker's own
+`request` log (`write: true`, §3.7) still has the verb and id.
+
+### 4.9 The audit log
+
+`<AUDIT_DIR>/audit.jsonl` (`AUDIT_DIR` defaults to `/var/lib/nanoclaw-console/audit`, a named
+volume in the deployment; the image ships that directory empty, owned by 10001 and mode 0700, so a
+new volume starts that way). One JSON line per attempt that passed the Access check:
+
+```json
+{"at": "2026-11-08T14:30:00.123Z", "email": "john@…", "action": "pause", "verb": "tasks-pause",
+ "target": {"type": "task", "id": "task-…"}, "result": "done", "reason": null, "code": null,
+ "detail": {"touched": 1}, "cf_ray": "8c1d2e3f4a5b6c7d-AMS"}
+```
+
+- `email` is the verified JWT's; `cf_ray` is Cloudflare's `Cf-Ray` header if it looks like one;
+  `target.id` is `null` when the id failed the pattern (the string is never written down). A
+  refusal adds `request`: the `Origin`, `Sec-Fetch-Site`, `Content-Type` and `X-Console-Action`
+  it carried, each cut to 200 characters, which is what tells a forged POST apart.
+- **Append-only.** The file is opened per attempt with `O_WRONLY | O_APPEND | O_CREAT |
+  O_NOFOLLOW` (mode 0600), so a symlink in its place is refused, and nothing ever truncates or
+  rewrites it. `json.dumps` escapes newlines, so a value cannot start a second line. A short write
+  is finished or raised, never left cut, and each line is `fsync`ed.
+- **Also on stdout**, every attempt, as `{"event": "audit", …}` (so `docker logs` and Loki keep a
+  copy), including the ones the file could not take. The file is written first; a broken stdout
+  is logged and never stops the file line.
+- **Fail closed.** If the directory is missing or not writable, the actions answer 503 and do
+  nothing; the views and `/healthz` are unaffected, so the container stays healthy and the
+  problem shows on the audit page.
+
+**`GET /api/audit`** reads at most the last MiB of the file (`O_NOFOLLOW`) and answers the last
+200 entries, newest first, each shaped field by field (an unknown key, or a `detail` field that is
+not a known count or id, is dropped):
+
+```json
+{"generated_at": "…", "available": true, "writable": true, "truncated": false,
+ "entries": [{"at", "email", "action", "target": {"type", "id"}, "result", "reason", "code",
+              "detail", "cf_ray"}]}
+```
+
+`available` is false when the file or its directory cannot be read; `writable` is false when the
+actions would be refused; `truncated` says older entries exist beyond what was read.
+
 ## 5. The web app
 
 `web/` is a Vue 3 single-page app on the design system (`brand/design-system/`, D9). It reads only
@@ -661,22 +836,22 @@ the console's own API (§4.7), on the page's origin, so the Access cookie rides 
 | `/groups/:id` | One group (`views/GroupPage.vue`)      | `/api/groups`, picking the group |
 | `/permissions` | Permissions (`views/PermissionsPage.vue`) | `/api/permissions` |
 | `/problems`   | Problems (`views/ProblemsPage.vue`)    | `/api/problems`    |
+| `/audit`      | Audit log (`views/AuditPage.vue`)      | `/api/audit`       |
 | anything else | Page not found                         | nothing            |
 
 - **Real paths, not hashes** (`vue-router`, HTML5 history): the API serves `index.html` for any path
   it does not own (§4.7).
 - **The shell** (`App.vue`) is a skip link, the Header card (product name and the page
   navigation) and the page. The navigation is the list in `src/lib/nav.ts` (Overview, Tasks,
-  Groups, Permissions, Problems); a route's `meta.nav` names the entry it belongs to, so a task's
-  page keeps Tasks underlined and a group's page Groups.
+  Groups, Permissions, Problems, Audit); a route's `meta.nav` names the entry it belongs to, so a
+  task's page keeps Tasks underlined and a group's page Groups.
 - **A hash is a place on a page** (`/permissions#approval-<id>`, `/groups#channel-<id>`): the
   router cannot scroll to it, because the element exists only once the API has answered, so the
   page does it after its first answer (`src/composables/useHashTarget.ts`).
 - **Every page** has one `h1` (`display`), an answer line in `body-large`, then PageStatus, then
   its content. The tab title is `<page> · NanoClaw console`.
-- **Release 2** (W15) adds pause, resume and run to the task page's header, which already lays the
-  title out with room at its right, and restart to the group page's header, which does the same.
-  Release 1 has no buttons.
+- **The actions** sit at the right of the task page's and the group page's heading, and wrap under
+  it on a phone (§5.8).
 
 ### 5.2 Refresh and freshness
 
@@ -788,6 +963,46 @@ and the run log are plain text.
   policy row, a `not_visible` item, a problem item and a log group. `src/__tests__/secrets.spec.ts`
   (every page in Vitest) and `e2e/w9.spec.ts` (every page in Chromium) assert that no page's DOM,
   attributes included, contains `PLANTED-SECRET` or `Bearer `.
+
+### 5.8 Actions and the audit page
+
+- **Which buttons.** A task with status `pending` offers Pause and Run now; `paused` offers Resume
+  and Run now; any other status offers none (`taskActions`, `src/lib/actions.ts`). A group offers
+  Restart. They are secondary buttons (Button card): the primary is the dialog's verb. Pause and
+  Resume share one button slot (`#action-toggle`), so after a pause the same button reads Resume
+  and keeps focus; Run now is `#action-run`, Restart `#action-restart`.
+- **The ConfirmDialog** (`components/ui/ConfirmDialog.vue`, on Reka UI's AlertDialog,
+  ConfirmDialog card; opened by `components/ActionBar.vue`) names the thing and its state now,
+  says what will happen, and carries the action's caution, worded as the plan asks: resuming an
+  overdue task "…it runs once now…", running "A run spends tokens; it does not change the
+  schedule.", restarting "A restart interrupts a running turn…". `role="alertdialog"`,
+  `aria-modal`, labelled by its title and described by its state and effect; focus starts on
+  Cancel and is trapped; Escape cancels; focus returns to the button that opened it. The browser's
+  `alert` and `confirm` are never used.
+- **Confirm** posts once (`postAction`, `src/lib/api.ts`): `{}` with `Content-Type:
+  application/json` and `X-Console-Action: 1`; the browser adds `Origin`, `Sec-Fetch-Site` and the
+  Access cookie. While it is out, the verb reads "Pausing…", "Queuing…" and so on with
+  `aria-busy`, and neither a second press nor Escape does anything.
+- **The answer** (`outcomeWords`). Done, already in that state, not found, no waiting run and a
+  missed audit file close the dialog; the page shows the words under its heading
+  (`#action-result`, an InlineMessage in its tone, with `data-tone`) and refreshes at once:
+  "Paused. It won’t run until you resume it.", "It was already paused, so nothing changed.",
+  "No container was running, so nothing was restarted." Everything that did not act (busy, the
+  audit log unwritable, a refusal with its reason in words, no answer from the broker, an ended
+  sign-in, no network) stays in the open dialog as an error that says what to do.
+- **The audit page** (`/audit`): the answer line ("Six attempts recorded; the last today at 15:25
+  CET."), a warning when the log cannot be read or written (the actions are refused until it can),
+  then the AuditList card: each entry's action and target (linked to its page), what came of it
+  (plain when done, an InlineMessage otherwise), and who, when and the ray id. Ids: `#audit-answer`,
+  `#audit-unreadable`, `#audit-unwritable`, `#audit-list`, `#audit-<n>` (with `data-result`),
+  `#audit-<n>-result`, `#audit-<n>-who`, `#audit-empty`.
+- **Tests.** Vitest: `src/lib/__tests__/actions.spec.ts` (every word), `src/views/__tests__/actions.spec.ts`
+  (buttons per status, the dialog's words, focus and Escape, the one POST and its headers, busy,
+  every failure in the dialog, the audit page, no `alert`/`confirm`). Playwright:
+  `e2e/w15.spec.ts` runs axe with each of the four dialogs open in both themes at 1440 px and
+  390 px, checks the focus trap, Escape and focus return, and that confirming sends exactly one
+  POST with the guard's headers. The audit page is in the a11y and secret-absence page lists, and
+  its fixture plants a token in keys the contract lacks.
 
 ## 6. Repository layout
 

@@ -26,6 +26,8 @@ def all_requests(frames: dict[str, Any]) -> list[dict[str, Any]]:
     """One request per allowlisted verb, and one per id for the verbs that take one."""
     requests: list[dict[str, Any]] = []
     for name, verb in REGISTRY.items():
+        if verb.write:
+            continue  # the writes have their own tests (test_writes.py) and never run here
         if not verb.params:
             requests.append({"verb": name, "params": {}})
             continue
@@ -137,7 +139,7 @@ async def test_every_non_allowlisted_command_is_refused_and_never_reaches_ncl(
 ) -> None:
     run = await start_broker()
     refused = [c for c in load_commands() if c not in REGISTRY]
-    assert len(refused) == 64 - 16
+    assert len(refused) == 64 - 20  # 16 reads and the four writes are allowlisted
     for command in refused:
         for params in ({}, {"id": "abc"}):
             reply = await ask(run.path, {"verb": command, "params": params})
@@ -503,7 +505,7 @@ async def test_serve_runs_until_stopped(short_dir: Path, fake_ncl: FakeNcl) -> N
 async def test_an_uncacheable_verb_is_never_stored(
     start_broker: StartBroker, fake_ncl: FakeNcl
 ) -> None:
-    """The seam release 2's write verbs use (cacheable=False); no such verb exists in release 1."""
+    """The seam the write verbs use (cacheable=False)."""
     run = await start_broker()
     verb = Verb(name="roles-list", command="roles-list", cacheable=False)
     for _ in range(2):

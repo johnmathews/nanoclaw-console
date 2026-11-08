@@ -2,11 +2,11 @@
 
 The console holds no NanoClaw access of its own (docs/architecture.md §2): it reads NanoClaw only
 through the broker's socket and Loki. Every request but `GET /healthz` passes the Access check
-first (§4.2), including the web app's static files. Release 1 has no write routes.
+first (§4.2), including the web app's static files. The only writes are the four actions
+(§4.8), each a `POST` behind the CSRF guard and the audit log in `actions.py`.
 """
 
 import os
-import re
 import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
@@ -16,11 +16,14 @@ from typing import Any
 import httpx2
 from fastapi import FastAPI
 from starlette.exceptions import HTTPException
+from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.staticfiles import StaticFiles
 from starlette.types import Scope
 
 from .access import AccessMiddleware, AccessVerifier
+from .actions import ACTIONS, ID_PATTERN, ActionRunner, audit_view
+from .audit import AuditLog
 from .broker_client import BrokerClient
 from .config import Settings
 from .loki import LokiClient
@@ -37,8 +40,6 @@ from .views import (
     tasks_view,
 )
 
-# The broker's id rule (architecture.md §3.3): checked here too, so a bad id never reaches it.
-ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]{0,79}")
 NO_STORE = {"Cache-Control": "no-store"}
 
 
@@ -68,6 +69,8 @@ class Services:
     loki: LokiClient | None
     cache: TtlCache
     clock: Callable[[], datetime]
+    audit: AuditLog
+    actions: ActionRunner
 
     @classmethod
     def build(
@@ -78,6 +81,9 @@ class Services:
         loki_transport: httpx2.AsyncBaseTransport | None = None,
         clock: Callable[[], datetime] | None = None,
     ) -> "Services":
+        broker = BrokerClient(settings.broker_socket)
+        audit = AuditLog(settings.audit_dir)
+        now = clock or (lambda: datetime.now(UTC))
         return cls(
             settings=settings,
             verifier=AccessVerifier(
@@ -86,12 +92,16 @@ class Services:
                 allowed_emails=settings.allowed_emails,
                 transport=jwks_transport,
             ),
-            broker=BrokerClient(settings.broker_socket),
+            broker=broker,
             loki=LokiClient(settings.loki_url, transport=loki_transport)
             if settings.loki_url
             else None,
             cache=TtlCache(DEFAULT_TTL, time.monotonic),
-            clock=clock or (lambda: datetime.now(UTC)),
+            clock=now,
+            audit=audit,
+            actions=ActionRunner(
+                broker=broker, audit=audit, origin=settings.console_origin, clock=now
+            ),
         )
 
     def context(self) -> Context:
@@ -148,6 +158,27 @@ def create_app(settings: Settings, *, services: Services | None = None) -> FastA
                 headers=NO_STORE,
             )
         return JSONResponse(body, headers=NO_STORE)
+
+    @app.get("/api/audit")
+    def audit() -> JSONResponse:
+        return JSONResponse(audit_view(svc.audit, svc.clock()), headers=NO_STORE)
+
+    def not_found() -> JSONResponse:
+        return JSONResponse({"error": "not_found"}, status_code=404, headers=NO_STORE)
+
+    @app.post("/api/tasks/{series_id}/{name}")
+    async def task_action(request: Request, series_id: str, name: str) -> JSONResponse:
+        action = ACTIONS.get(("task", name))
+        if action is None:
+            return not_found()
+        return await svc.actions.handle(request, action, series_id)
+
+    @app.post("/api/groups/{group_id}/{name}")
+    async def group_action(request: Request, group_id: str, name: str) -> JSONResponse:
+        action = ACTIONS.get(("group", name))
+        if action is None:
+            return not_found()
+        return await svc.actions.handle(request, action, group_id)
 
     static_dir = settings.static_dir
     if static_dir is not None and static_dir.is_dir():

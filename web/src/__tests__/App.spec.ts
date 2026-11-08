@@ -20,6 +20,7 @@ describe('the app shell', () => {
       'Groups',
       'Permissions',
       'Problems',
+      'Audit',
     ])
     expect(wrapper.find('#nav-tasks').attributes('aria-current')).toBe('page')
     expect(wrapper.find('#nav-overview').attributes('aria-current')).toBeUndefined()

@@ -11,7 +11,7 @@ broker (`broker/Dockerfile`). Make targets: [docs/development.md](docs/developme
 **The broker is the security boundary.** It is the only process that opens NanoClaw's `ncl.sock`,
 and its fixed verb list is what limits the console. The console holds no NanoClaw access of its own;
 never give it the socket, `data/`, `groups/` or `.env`. Never add a NanoClaw write verb outside the
-documented list: release 1 has none, and release 2 adds exactly `tasks-pause`, `tasks-resume`,
+documented list: since release 2 the broker has exactly four writes, `tasks-pause`, `tasks-resume`,
 `tasks-run` and `groups-restart`, each with `--id` only (decision D4). Anything else stays in `ncl`.
 
 **Never touch the NanoClaw fork** (D1). This repo reads NanoClaw from outside.

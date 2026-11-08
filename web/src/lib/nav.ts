@@ -10,4 +10,5 @@ export const NAV: NavItem[] = [
   { name: 'groups', path: '/groups', label: 'Groups' },
   { name: 'permissions', path: '/permissions', label: 'Permissions' },
   { name: 'problems', path: '/problems', label: 'Problems' },
+  { name: 'audit', path: '/audit', label: 'Audit' },
 ]
