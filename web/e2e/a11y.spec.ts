@@ -7,7 +7,7 @@
 // (`npm run tokens` passes --dark-selector .dark). The first test fails if switching it changes
 // nothing, so a "dark" audit can never quietly re-run light.
 import { expect, test } from '@playwright/test'
-import { overviewDegraded, PAUSED_TASK } from '../src/fixtures/api.ts'
+import { GROUP_IDS, overviewDegraded, PAUSED_TASK, problemsEveryKind } from '../src/fixtures/api.ts'
 import {
   DESKTOP,
   PHONE,
@@ -22,6 +22,10 @@ const PAGES = [
   { name: 'overview', path: '/', heading: 'Overview' },
   { name: 'tasks', path: '/tasks', heading: 'Scheduled tasks' },
   { name: 'a task', path: `/tasks/${PAUSED_TASK.id}`, heading: 'documentation-summary' },
+  { name: 'groups', path: '/groups', heading: 'Groups and channels' },
+  { name: 'a group', path: `/groups/${GROUP_IDS.main}`, heading: 'main-group' },
+  { name: 'permissions', path: '/permissions', heading: 'Permissions' },
+  { name: 'problems', path: '/problems', heading: 'Problems' },
 ] as const
 
 test('dark really is dark', async ({ page, context }) => {
@@ -56,6 +60,18 @@ for (const theme of THEMES) {
       'NanoClaw is not answering.',
     )
     await expect(page.locator('#page-sources')).toContainText('Some reads failed')
+    await expectNoAxeViolations(page)
+    await expectNoSidewaysScroll(page)
+  })
+
+  test(`every kind of problem passes axe, phone, ${theme}`, async ({ page }) => {
+    await page.setViewportSize(PHONE)
+    await openApp(page, {
+      theme,
+      path: '/problems',
+      answers: { '/api/problems': { body: problemsEveryKind() } },
+    })
+    await expect(page.locator('#problems > ul > li')).toHaveCount(problemsEveryKind().items.length)
     await expectNoAxeViolations(page)
     await expectNoSidewaysScroll(page)
   })

@@ -1,0 +1,70 @@
+<!-- @dsCard group="Basics" height=640 subtitle="Records between hairline rules: a title, a quiet line, then facts" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RecordList — preview</title>
+<style>
+  body { margin: 0; padding: var(--space-6) var(--space-4); background: var(--canvas); color: var(--ink); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+  p, h1, h2, h3, ul, ol, dl, dd { margin: 0; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-6); max-width: 720px; }
+  .state { color: var(--ink-secondary); margin-bottom: var(--space-2); }
+  .muted { color: var(--ink-secondary); }
+  .mono { font-family: var(--font-mono); }
+  a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .mark { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; }
+  .mark i { width: 10px; height: 10px; border-radius: var(--radius-full); flex: none; }
+  .mark .ok { background: var(--pen); } .mark .degraded { background: var(--pen-partial); }
+  .mark .failing { background: var(--pen-missed); } .mark .unknown { box-shadow: inset 0 0 0 2px var(--control-border); }
+  .caution { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--caution-ink); }
+  .error { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--error-ink); }
+  .caution svg, .error svg { flex: none; width: 16px; height: 16px; margin-top: 3px; }
+  .facts { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+  .facts > div { display: grid; gap: 2px; }
+  .facts dt { color: var(--ink-secondary); }
+  @media (min-width: 640px) { .facts { grid-template-columns: minmax(9rem, max-content) 1fr; gap: var(--space-2) var(--space-6); } .facts > div { display: contents; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--space-6); display: grid; gap: var(--space-4); }
+  @media (max-width: 639px) { .panel { padding: var(--space-4); } }
+  ul.items { list-style: none; padding: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  ul.items li { display: grid; gap: var(--space-1); padding: var(--space-3) 0; border-top: 1px solid var(--line); }
+  ul.items li:first-child { border-top: 0; }
+  @media (min-width: 640px) { ul.items li { grid-template-columns: 7rem 1fr; column-gap: var(--space-4); } }
+  .when { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); color: var(--ink-secondary); margin-top: var(--space-1); }
+  ul.rows { list-style: none; padding: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  ul.rows > li { display: grid; gap: var(--space-2); padding: var(--space-4) 0; border-top: 1px solid var(--line); }
+  ul.rows > li:first-child { border-top: 0; }
+  .t { font-weight: 600; overflow-wrap: anywhere; }
+  .wrap { overflow-wrap: anywhere; }
+  pre.sample { margin: var(--space-1) 0 0; font-family: var(--font-mono); white-space: pre-wrap; word-break: break-all; color: var(--ink-secondary); }
+  .grid2 { display: grid; gap: var(--space-6); }
+  @media (min-width: 1024px) { .grid2 { grid-template-columns: 1fr 1fr; align-items: start; } }
+  .access-ro { color: var(--ink-secondary); }
+  .seen { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); color: var(--ink-secondary); }
+  @media (min-width: 640px) { ul.rows.marked > li { grid-template-columns: 7rem 1fr; column-gap: var(--space-4); } }
+</style>
+</head>
+<body>
+<div class="stack">
+  <div><p class="caption state">A wired channel on a group’s page</p>
+  <ul class="rows">
+    <li><div><p class="body t">John (DM)</p><p class="caption muted">slack, a direct chat · <code class="mono">slack:D07ABCDEF12</code></p></div>
+    <dl class="facts caption">
+      <div><dt>Engages on</dt><dd>Every message (pattern <code class="mono">.</code>)</dd></div>
+      <div><dt>Who may engage it</dt><dd>Anyone in the channel <code class="mono muted">all</code></dd></div>
+      <div><dt>Unknown senders</dt><dd>Dropped without a reply <code class="mono muted">strict</code></dd></div>
+      <div><dt>Other messages</dt><dd>Dropped <code class="mono muted">drop</code></dd></div>
+      <div><dt>Sessions</dt><dd>One session for the channel <code class="mono muted">shared</code></dd></div>
+    </dl></li>
+    <li><p class="body t">journal <span class="caption muted" style="font-weight:400">http</span></p>
+    <dl class="facts caption"><div><dt>Host</dt><dd><code class="mono">journal.example.internal:8443</code></dd></div></dl>
+    <p class="caption muted">Sends header Authorization; its value is not shown</p></li>
+  </ul></div>
+  <div><p class="caption state">A person (owners and admins)</p>
+  <ul class="rows"><li><p class="body"><span class="t">John</span> <span class="caption muted">slack <code class="mono">slack:U07JOHN0001</code></span></p><p class="caption">Owner, everywhere</p><p class="caption muted">Granted 26 May at 11:50 CEST</p></li></ul></div>
+  <div><p class="caption state">With nothing to show</p><p class="body muted">No MCP servers.</p></div>
+</div>
+<script></script>
+</body>
+</html>

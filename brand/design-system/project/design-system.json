@@ -174,9 +174,9 @@
   ],
   "lastChange": {
     "by": "John Mathews",
-    "at": "2026-11-08T17:00:00Z",
+    "at": "2026-11-08T15:40:00Z",
     "via": "Claude Code",
-    "note": "W8: the console's first screens. New cards StatusMark, Header, FactList, TaskList, WarningList, PageStatus and MarkdownText; Panel, InlineMessage, Banner and TextLink rewritten in the console's words; the status mark is a dot (mockup 261108-status-mark, option A, pick pending)."
+    "note": "W9: the Groups, Permissions and Problems screens. New cards RecordList, GroupList, AccessMark, LogGroupList and NotVisible; Header, WarningList, StatusMark, FactList, Panel, InlineMessage and TextLink extended with their uses. No new tokens."
   },
   "layout": "files",
   "libraries": [],

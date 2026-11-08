@@ -19,7 +19,12 @@
     "TaskList",
     "WarningList",
     "PageStatus",
-    "MarkdownText"
+    "MarkdownText",
+    "RecordList",
+    "GroupList",
+    "AccessMark",
+    "LogGroupList",
+    "NotVisible"
   ],
   "extra_contrast_pairs": [
     ["caution-ink", "canvas", 4.5],

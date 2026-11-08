@@ -3,7 +3,7 @@ Facts about one thing as a description list: a label in `ink-secondary`, its val
 ## Use
 
 - A `dl` of label and value pairs, both `caption`. From 640px two columns (labels at least 9rem, `space-6` apart, `space-2` between rows); on a phone each label sits above its value, `space-3` between pairs.
-- For the cards' details (Claude, NanoClaw, Counts), a task card on a phone, and a task's runs and details.
+- For the cards' details (Claude, NanoClaw, Counts), a task card on a phone, a task's runs and details, a group's card (GroupList) and settings, and each record in a RecordList (a channel's policies, an MCP server's host).
 - A value is never blank: what the console could not read says "Couldn’t read", what does not exist says "None" or "Never", and what is unknown says "Not known" (voice.md).
 - Figures stay figures (counts and totals); times follow voice.md ("today at 15:28 CET (two minutes ago)").
 - An id or a cron expression inside a value uses `--font-mono`.

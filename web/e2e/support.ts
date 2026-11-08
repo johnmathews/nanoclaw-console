@@ -2,7 +2,15 @@
 // measurements the specs repeat. Copied in shape from tracker's e2e/support.ts.
 import AxeBuilder from '@axe-core/playwright'
 import { expect, type Page } from '@playwright/test'
-import { overview, taskDetail, taskList, TASKS } from '../src/fixtures/api.ts'
+import {
+  groupsView,
+  overview,
+  permissionsView,
+  problemsView,
+  taskDetail,
+  taskList,
+  TASKS,
+} from '../src/fixtures/api.ts'
 
 /** Longer than the slowest transition (120ms in the design system). */
 export const SETTLE_MS = 400
@@ -24,6 +32,9 @@ export function defaultAnswers(): Record<string, Answer> {
   const answers: Record<string, Answer> = {
     '/api/overview': { body: overview() },
     '/api/tasks': { body: taskList() },
+    '/api/groups': { body: groupsView() },
+    '/api/permissions': { body: permissionsView() },
+    '/api/problems': { body: problemsView() },
   }
   for (const task of TASKS) answers[`/api/tasks/${task.id}`] = { body: taskDetail(task.id) }
   return answers

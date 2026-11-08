@@ -7,7 +7,7 @@ The bar at the top of every page: the product's name, which goes to the overview
 - The current page's link has `aria-current="page"` and a 2px underline at 6px offset; a page below a section (a task's page under Tasks) keeps its section's underline, without `aria-current`. Hover draws a 1px underline. No colour change, no filled pill.
 - On a phone the links wrap under the name, in the same order, which is the tab order.
 - A skip link ("Skip to the page") comes before it in the tab order and is shown only while it has focus.
-- Release 1 has Overview and Tasks; W9 adds Groups, Permissions and Problems to the same list (`web/src/lib/nav.ts`). The bar has no actions of its own.
+- Five pages, in this order: Overview, Tasks, Groups, Permissions, Problems (`web/src/lib/nav.ts`). A task's page keeps Tasks underlined and a group's page Groups. The bar has no actions of its own. On a phone the five wrap onto two lines under the name.
 
 ## States
 

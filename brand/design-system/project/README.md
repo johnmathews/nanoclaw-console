@@ -10,8 +10,8 @@ The console reuses the Tracker design system (`johnmathews/tracker`, `brand/desi
 
 - **The tokens** are Tracker's values unchanged. Their usage notes are rewritten for the console. The three pens, which in Tracker mark a day great, partial or missed, here mark a status OK, degraded or failing (Foundations).
 - **The cards** are the generic ones: Button, IconButton, TextLink, Panel, TextField, TextArea, SearchField, Switch, SegmentedControl, Dialog, ConfirmDialog, InlineMessage and Banner. Tracker's planner, notes, Ask, email and settings cards were left behind.
-- **The console's own cards**, added with the Overview and Tasks screens (W8, 2026-11-08): StatusMark, Header, FactList, TaskList, WarningList, PageStatus and MarkdownText.
-- **Rewritten for the console** on first use (W8): Panel, InlineMessage, Banner and TextLink now use the console's words and screens.
+- **The console's own cards**, added with the Overview and Tasks screens (W8, 2026-11-08): StatusMark, Header, FactList, TaskList, WarningList, PageStatus and MarkdownText; and with the Groups, Permissions and Problems screens (W9, 2026-11-08): RecordList, GroupList, AccessMark, LogGroupList and NotVisible.
+- **Rewritten for the console** on first use (W8): Panel, InlineMessage, Banner and TextLink now use the console's words and screens. W9 extended Header (five pages), WarningList (links for groups, approvals and channels), StatusMark, FactList, Panel, InlineMessage and TextLink with the new screens' uses.
 - **Still as copied.** Button, IconButton, TextField, TextArea, SearchField, Switch, SegmentedControl, Dialog and ConfirmDialog still carry Tracker's sample copy and its decision numbers (K8, K55…, which resolve in Tracker's `docs/brand.md`). Each is rewritten in the console's words the first time a console screen uses it, before that screen is built (release 2's confirmation dialog, W15, is the next).
 
 ## The feeling

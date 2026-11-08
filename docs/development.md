@@ -16,7 +16,8 @@
 - **Node 22 and npm 11** for `web/`. npm 10.9, which ships with Node 22, crashes resolving this
   dependency tree (`Cannot read properties of null (reading 'edgesOut')`), so the make targets run
   `npx -y npm@11`. The tree and its lockfile were copied from tracker.
-- **The web stack:** Vue 3.5, Pinia, Vite 8, Tailwind CSS 4, reka-ui, TypeScript 6, Vitest 4 with
+- **The web stack:** Vue 3.5, vue-router 5, Pinia, Vite 8, Tailwind CSS 4, reka-ui, marked 18 and
+  DOMPurify 3 (task files, B28), TypeScript 6, Vitest 4 with
   jsdom and v8 coverage (95 % floors in `vitest.config.ts`), Playwright with `@axe-core/playwright`,
   oxlint and ESLint (with the Tailwind and template-accessibility rules), Prettier.
 - **Docker** to build the two images and run `make compose-smoke`.
@@ -108,6 +109,10 @@ component); `checks.json` sets the gate. Rules:
 - `web/e2e/`: Playwright. `support.ts` opens the app in a theme with `/api` mocked through
   `page.route`, runs axe at WCAG 2.2 AA plus best practice, and checks for sideways scroll. The
   suite runs at 1440 px and 390 px, in light and dark.
+- **The secret-absence test** (`web/src/__tests__/secrets.spec.ts`, and the last test in
+  `web/e2e/w9.spec.ts`): the web fixtures plant `Bearer PLANTED-SECRET-…` in keys the contract
+  does not have, and no page may carry it ([architecture.md](architecture.md) §5.7). A new page
+  goes into both lists of pages there.
 
 ## 7. Configuration
 

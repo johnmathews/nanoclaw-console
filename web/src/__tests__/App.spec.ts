@@ -14,7 +14,13 @@ describe('the app shell', () => {
     const wrapper = await mountApp('/tasks', { '/api/tasks': taskList() })
     expect(text(wrapper, '#app-name')).toBe('NanoClaw console')
     const links = wrapper.findAll('#app-nav a')
-    expect(links.map((a) => a.text())).toEqual(['Overview', 'Tasks'])
+    expect(links.map((a) => a.text())).toEqual([
+      'Overview',
+      'Tasks',
+      'Groups',
+      'Permissions',
+      'Problems',
+    ])
     expect(wrapper.find('#nav-tasks').attributes('aria-current')).toBe('page')
     expect(wrapper.find('#nav-overview').attributes('aria-current')).toBeUndefined()
   })
@@ -22,6 +28,12 @@ describe('the app shell', () => {
   it('keeps Tasks marked on a task’s own page', async () => {
     const wrapper = await mountApp('/tasks/task-x', {})
     expect(wrapper.find('#nav-tasks').attributes('data-active')).toBe('true')
+  })
+
+  it('keeps Groups marked on a group’s own page', async () => {
+    const wrapper = await mountApp('/groups/ag-x', {})
+    expect(wrapper.find('#nav-groups').attributes('data-active')).toBe('true')
+    expect(wrapper.find('#nav-groups').attributes('aria-current')).toBeUndefined()
   })
 
   it('offers a skip link to the page', async () => {

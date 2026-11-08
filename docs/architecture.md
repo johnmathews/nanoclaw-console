@@ -650,18 +650,26 @@ the console's own API (§4.7), on the page's origin, so the Access cookie rides 
 | `/`           | Overview (`views/OverviewPage.vue`)    | `/api/overview`    |
 | `/tasks`      | Scheduled tasks (`views/TasksPage.vue`) | `/api/tasks`       |
 | `/tasks/:id`  | One task (`views/TaskPage.vue`)        | `/api/tasks/{id}`  |
+| `/groups`     | Groups and channels (`views/GroupsPage.vue`) | `/api/groups` |
+| `/groups/:id` | One group (`views/GroupPage.vue`)      | `/api/groups`, picking the group |
+| `/permissions` | Permissions (`views/PermissionsPage.vue`) | `/api/permissions` |
+| `/problems`   | Problems (`views/ProblemsPage.vue`)    | `/api/problems`    |
 | anything else | Page not found                         | nothing            |
 
 - **Real paths, not hashes** (`vue-router`, HTML5 history): the API serves `index.html` for any path
   it does not own (§4.7).
 - **The shell** (`App.vue`) is a skip link, the Header card (product name and the page
-  navigation) and the page. The navigation is the list in `src/lib/nav.ts`; a route's
-  `meta.nav` names the entry it belongs to, so a task's page keeps Tasks underlined. W9 adds
-  Groups, Permissions and Problems as three entries there and three routes in `src/router.ts`.
+  navigation) and the page. The navigation is the list in `src/lib/nav.ts` (Overview, Tasks,
+  Groups, Permissions, Problems); a route's `meta.nav` names the entry it belongs to, so a task's
+  page keeps Tasks underlined and a group's page Groups.
+- **A hash is a place on a page** (`/permissions#approval-<id>`, `/groups#channel-<id>`): the
+  router cannot scroll to it, because the element exists only once the API has answered, so the
+  page does it after its first answer (`src/composables/useHashTarget.ts`).
 - **Every page** has one `h1` (`display`), an answer line in `body-large`, then PageStatus, then
   its content. The tab title is `<page> · NanoClaw console`.
 - **Release 2** (W15) adds pause, resume and run to the task page's header, which already lays the
-  title out with room at its right, and restart to W9's group page. Release 1 has no buttons.
+  title out with room at its right, and restart to the group page's header, which does the same.
+  Release 1 has no buttons.
 
 ### 5.2 Refresh and freshness
 
@@ -688,7 +696,40 @@ the console's own API (§4.7), on the page's origin, so the Access cookie rides 
 - **Claude's status** is a StatusMark (a dot and the word: OK, Degraded, Failing, Unknown; B2,
   B26), never colour alone. The quota is labelled with the API's `quota.label` verbatim (D6).
 
-### 5.4 Task files
+### 5.4 Groups, permissions and problems
+
+- **Groups** (`/groups`): the answer line counts groups and channels (a messaging group wired to
+  two groups counts once), the channels wired to no group and the groups with a read-write mount.
+  Then a card per group (GroupList): model and provider, each channel with when it engages, MCP
+  server names, mounts (AccessMark), tasks and sessions. Then the unwired channels with their
+  unknown-sender policy and when one was denied.
+- **A group** (`/groups/:id`): its settings, each wired channel's engage mode and pattern, who may
+  engage it (sender scope), unknown senders, other messages and session mode, then its MCP
+  servers, mounts and destinations (RecordList). A policy is words with NanoClaw's own value
+  beside it in monospace (`src/lib/groups.ts`), so a value the console has no words for still
+  shows. An MCP server shows its name, the host of its address or its command, and the *names*
+  of its headers and env variables with "values are not shown". A read-write mount is a caution
+  in words; read-only is plain (AccessMark). An unknown id says "There is no group …", and a
+  failed group list says so instead.
+- **Permissions** (`/permissions`): owners and admins (role and where it applies), members,
+  agent-to-agent policies, who may message whom, the mount allowlist (read-write roots flagged,
+  blocked patterns, the non-main rule), approvals (a stale one says how long it has waited and
+  that it never expires, F19), and the "Not visible to the console" panel from `not_visible`
+  (F21). **Policies are counted, never shown:** the contract passes their rows through unshaped
+  (B22), so the page says how many there are and that `ncl policies list` shows them.
+- **Problems** (`/problems`): the answer line counts by severity, the items in the API's order
+  (WarningList), then NanoClaw's host log groups (LogGroupList): level, message, count, first
+  and last seen, and the masked sample as the API gives it. A cut log and an unread Loki each say
+  so.
+- **Links from a problem** follow its `ref` (`src/lib/problems.ts`): a task to its page, a group
+  to its page, an approval to its row on the permissions page, a channel to the groups page
+  (anchored on the channel where that page draws it), a source nowhere. The overview's warnings
+  use the same list, so they link the same way.
+- **Nothing is shown generically.** Every page picks the fields it shows by name; no page loops
+  over an object's keys or prints a broker object. The tests plant a `Bearer` token in fields the
+  contract does not have (§5.7).
+
+### 5.5 Task files
 
 A task file ("what it will do") is written by an agent inside its container, so it is untrusted.
 `src/lib/markdown.ts` renders it with `marked`, then sanitises it with DOMPurify before it reaches
@@ -697,7 +738,7 @@ links), links to `http`, `https` and `mailto` only with `rel="noopener noreferre
 forms, frames, styles or scripts. Headings move down two levels, under the page's own. The prompt
 and the run log are plain text.
 
-### 5.5 Layout
+### 5.6 Layout
 
 - One column on a phone with 16 px gutters; nothing scrolls sideways at 390 px. The overview's
   four cards sit two across from 1024 px.
@@ -709,9 +750,21 @@ and the run log are plain text.
   `#claude-probe`, `#nanoclaw-card`, `#nanoclaw-not-answering`, `#quota-label`, `#quota-used`,
   `#count-*`, `#warnings`, `#page-banner`, `#page-freshness`, `#page-sources`, `#tasks-table`,
   `#tasks-cards`, `#task-overdue`, `#task-file-content`, `#task-prompt`, `#task-run-log`, and the
-  header's `#nav-<page>`.
+  header's `#nav-<page>`. W9's pages add `#groups-answer`, `#groups-list`, `#group-card-<id>`,
+  `#group-<id>-<fact>`, `#unwired-channels`, `#channel-<messaging group>`, `#group-ids`,
+  `#group-missing`, `#group-config-failed`, `#group-<setting>`, `#group-channel-<wiring>` and its
+  `-engage`, `-senders`, `-unknown`, `-ignored`, `-sessions`, `#mcp-<name>` (`-where`,
+  `-secrets`), `#mount-<n>` and `#allowed-root-<n>` (each with `data-access`), `#destination-<n>`,
+  `#permissions-answer`, `#role-<n>`, `#member-<n>`, `#policies-summary`,
+  `#perm-destination-<n>`, `#blocked-patterns`, `#non-main-read-only`, `#approval-<id>` (with
+  `data-stale`), `#not-visible-<n>`, `#problems-answer`, `#problem-<kind>-<n>`,
+  `#host-logs-summary`, `#host-logs-truncated`, `#host-logs-unread` and `#log-group-<n>` (with
+  `data-level`; `-count`, `-seen`, `-sample`). An id that is not a plain word is made one
+  (`domId`: anything but letters, digits, `-` and `_` becomes `-`).
+- Group cards sit two across from 1024px; every list of records is a single column with long ids
+  and paths breaking anywhere, so nothing scrolls sideways at 390px.
 
-### 5.6 Tests
+### 5.7 Tests
 
 - **Vitest** (`src/**/__tests__/`): the libraries, the refresh composable with fake timers, each
   card, and each page mounted with its route and `fetch` stubbed. Coverage floors are 95 %.
@@ -719,8 +772,15 @@ and the run log are plain text.
   at 1440 px and 390 px, no sideways scroll, and what each page shows, against the production
   build with `/api` mocked.
 - Both use the mock answers in `src/fixtures/api.ts`, shaped exactly as §4.7 and including the
-  paused documentation-summary task with `overdue_on_resume: true` and a task file with a planted
-  script, image and `javascript:` link.
+  paused documentation-summary task with `overdue_on_resume: true`, a task file with a planted
+  script, image and `javascript:` link, and `problemsEveryKind()`: one problem of every kind in
+  §4.7.
+- **The secret-absence test.** The fixtures plant `Bearer PLANTED-SECRET-…` in keys the contract
+  does not have, as a broker that missed one would send them: an MCP server's `headers`, `env`
+  and `args`, a group config's `env`, a channel's `webhook_url`, an approval's `payload`, a
+  policy row, a `not_visible` item, a problem item and a log group. `src/__tests__/secrets.spec.ts`
+  (every page in Vitest) and `e2e/w9.spec.ts` (every page in Chromium) assert that no page's DOM,
+  attributes included, contains `PLANTED-SECRET` or `Bearer `.
 
 ## 6. Repository layout
 
