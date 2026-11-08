@@ -38,7 +38,7 @@
 | `build`         | Both images for `linux/amd64`, tagged `nanoclaw-console:local` and `nanoclaw-console-broker:local` |
 | `build-app`     | The console image only (`nanoclaw-console:local`)                             |
 | `build-broker`  | The broker image only (`nanoclaw-console-broker:local`)                       |
-| `compose-smoke` | Builds the app image, starts it hardened as deployed (read-only root, no capabilities, uid 10001, the audit log on a new named volume) and checks `/healthz`, that every other path is a bare 403, that the audit volume is 10001:10001 0700 and writable, and that the root is not |
+| `compose-smoke` | Builds the app image, starts it hardened as deployed (read-only root, no capabilities, uid 10001, the audit log on a new named volume) and checks `/healthz`, that every other path is a bare 403, that the audit volume is 10001:10001 0700 and writable, and that the root is not writable |
 
 ## 3. Local CI first
 
