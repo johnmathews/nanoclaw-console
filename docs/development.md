@@ -108,3 +108,29 @@ component); `checks.json` sets the gate. Rules:
 - `web/e2e/`: Playwright. `support.ts` opens the app in a theme with `/api` mocked through
   `page.route`, runs axe at WCAG 2.2 AA plus best practice, and checks for sideways scroll. The
   suite runs at 1440 px and 390 px, in light and dark.
+
+## 7. Configuration
+
+The console reads its settings from the environment at start ([architecture.md](architecture.md)
+§4). The deployment (proxmox-setup's `agent_lxc` role) sets them; locally, set them by hand.
+
+| Variable             | Default                              | What                                                                     |
+| -------------------- | ------------------------------------ | ------------------------------------------------------------------------ |
+| `ACCESS_TEAM_DOMAIN` | none                                 | The Access team's host, `<team>.cloudflareaccess.com`; its keys sign the JWT |
+| `ACCESS_AUD`         | none                                 | The console's own Access application audience tag (D3)                   |
+| `ALLOWED_EMAILS`     | none                                 | Who may use the console: emails separated by commas or spaces, any case  |
+| `LOKI_URL`           | none                                 | Loki's base URL, `http://192.168.2.106:3100` on the LAN                  |
+| `BROKER_SOCKET`      | `/run/nanoclaw-console/broker.sock`  | The broker's Unix socket                                                 |
+| `NANOCLAW_TIMEZONE`  | `Europe/Amsterdam`                   | The zone NanoClaw evaluates task cron in (an IANA name)                  |
+| `STATIC_DIR`         | `/app/static`                        | The built web app; ignored if the directory does not exist               |
+
+- **The three `ACCESS_*`/`ALLOWED_EMAILS` settings fail closed.** With any of them empty, or a team
+  domain that is not a bare `*.cloudflareaccess.com` host, every request except `/healthz` gets 403
+  and the reason is logged once. So a console run locally without them refuses everything; to try
+  the API by hand, run the tests' fixtures instead, or set the three to a test team and send a JWT
+  signed with a key you serve (the tests do this, `api/tests/jwt_helpers.py`).
+- **Without `LOKI_URL`** the console still serves every view; Claude's Loki signals and the host
+  log groups are `null`, and `sources.loki` says `not_configured`.
+- A `LOKI_URL` that is not an `http://` or `https://` URL, or a `NANOCLAW_TIMEZONE` that is not a
+  known zone, stops the console at start: that is a deployment mistake, and failing loudly beats
+  showing wrong times.

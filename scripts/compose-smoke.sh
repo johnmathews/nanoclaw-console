@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Starts the app image the way the agent LXC runs it (scripts/compose-smoke.yml: read-only root
-# filesystem, no capabilities, uid 10001) and checks it answers: /healthz is exactly {"ok":true},
-# the built page is served, and Docker's own healthcheck turns healthy. Leaves nothing running.
+# filesystem, no capabilities, uid 10001, no Access settings) and checks it answers: /healthz is
+# exactly {"ok":true}, Docker's own healthcheck turns healthy, and every other path, the page
+# included, is a bare 403, because a console without Access settings fails closed (D12). Leaves
+# nothing running.
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -23,8 +25,12 @@ compose up -d --wait --wait-timeout 60 || fail "the app did not turn healthy"
 
 body=$(curl -sf "$BASE/healthz") || fail "/healthz did not answer"
 [[ $body == '{"ok":true}' ]] || fail "/healthz answered $body"
-curl -sf "$BASE/" | grep -q '<title>NanoClaw console</title>' || fail "/ is not the built page"
-status=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/nope")
-[[ $status == 404 ]] || fail "an unknown /api path answered $status, not 404"
+for path in / /api/overview /api/nope; do
+  out=$(curl -s -w '\n%{http_code}' "$BASE$path")
+  status=${out##*$'\n'}
+  body=${out%$'\n'*}
+  [[ $status == 403 ]] || fail "$path answered $status without a token, not 403"
+  [[ -z $body ]] || fail "$path refused with a body: $body"
+done
 
 echo "compose-smoke: ok ($APP_IMAGE)"
