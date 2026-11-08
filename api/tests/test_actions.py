@@ -3,13 +3,21 @@
 Every refusal here must leave the broker untouched: the tests assert no write verb was sent.
 """
 
+import asyncio
+import io
 import json
+from collections.abc import Awaitable, Callable
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from starlette.requests import Request
 
+from nanoclaw_console.actions import ACTIONS as ACTION_TABLE
+from nanoclaw_console.actions import MAX_BODY, ActionRunner, _body_refusal
+from nanoclaw_console.audit import AuditLog
 from tests.conftest import ORIGIN, SIGNER, AppFactory
 from tests.fake_broker import FakeBroker
 from tests.jwt_helpers import EMAIL
@@ -460,3 +468,181 @@ def test_a_refusal_without_an_audit_file_is_refused_and_on_stdout(
     assert response.status_code == 403
     assert '"reason": "fetch_site"' in capsys.readouterr().out
     assert writes_sent(answering) == []
+
+
+# --- The body cap bounds memory, and every exit from the broker call is audited ---------------
+
+
+def raw_request(
+    chunks: list[bytes], *, content_length: int | None = None, pulled: list[int] | None = None
+) -> Request:
+    """A Request on the action path, its body sent in `chunks`; `pulled` counts what was read."""
+    headers = [(k.lower().encode(), v.encode()) for k, v in good_headers().items()]
+    if content_length is not None:
+        headers.append((b"content-length", str(content_length).encode()))
+    queue = list(chunks)
+
+    async def receive() -> dict[str, Any]:
+        if pulled is not None:
+            pulled.append(1)
+        if not queue:
+            return {"type": "http.request", "body": b"", "more_body": False}
+        chunk = queue.pop(0)
+        return {"type": "http.request", "body": chunk, "more_body": bool(queue)}
+
+    scope = {
+        "type": "http",
+        "method": "POST",
+        "path": f"/api/tasks/{TASK}/pause",
+        "headers": headers,
+        "query_string": b"",
+        "state": {"access_email": EMAIL},
+    }
+    return Request(scope, receive)
+
+
+def test_a_chunked_body_stops_being_read_once_it_passes_the_cap() -> None:
+    pulled: list[int] = []
+    request = raw_request([b" " * 512] * 100, pulled=pulled)
+    assert asyncio.run(_body_refusal(request)) == "body"
+    assert len(pulled) <= MAX_BODY // 512 + 2  # not all 100 chunks
+
+
+def test_a_content_length_over_the_cap_is_refused_unread() -> None:
+    pulled: list[int] = []
+    request = raw_request([b"{}"], content_length=MAX_BODY + 1, pulled=pulled)
+    assert asyncio.run(_body_refusal(request)) == "body"
+    assert pulled == []
+
+
+def test_a_body_at_the_cap_in_chunks_is_still_read_whole() -> None:
+    request = raw_request([b"{", b" " * (MAX_BODY - 3), b"}"])
+    assert asyncio.run(_body_refusal(request)) is None
+
+
+class StubBroker:
+    def __init__(self, act: Callable[[], Awaitable[object]]) -> None:
+        self.act = act
+        self.calls: list[str] = []
+
+    async def call(self, verb: str, params: dict[str, str] | None = None) -> object:
+        self.calls.append(verb)
+        return await self.act()
+
+
+def runner(tmp_path: Path, broker: StubBroker) -> ActionRunner:
+    return ActionRunner(
+        broker=broker,  # type: ignore[arg-type]
+        audit=AuditLog(tmp_path, stream=io.StringIO()),
+        origin=ORIGIN,
+        clock=lambda: datetime(2026, 11, 8, tzinfo=UTC),
+    )
+
+
+def test_an_exception_out_of_the_broker_call_is_audited_by_type_only(tmp_path: Path) -> None:
+    async def boom() -> object:
+        raise RuntimeError("secret text from somewhere")
+
+    broker = StubBroker(boom)
+    action = ACTION_TABLE[("task", "pause")]
+    with pytest.raises(RuntimeError):
+        asyncio.run(runner(tmp_path, broker).handle(raw_request([b"{}"]), action, TASK))
+    lines = audit_lines(tmp_path)
+    assert [(e["result"], e["code"], e["email"]) for e in lines] == [
+        ("error", "RuntimeError", EMAIL)
+    ]
+    assert "secret text" not in (tmp_path / "audit.jsonl").read_text()
+
+
+def test_a_cancelled_request_is_audited_and_the_broker_call_still_finishes(
+    tmp_path: Path,
+) -> None:
+    async def scenario() -> list[dict[str, Any]]:
+        release = asyncio.Event()
+        done: list[bool] = []
+
+        async def slow() -> object:
+            await release.wait()
+            done.append(True)
+            return {"series_id": TASK, "touched": 1}
+
+        broker = StubBroker(slow)
+        action = ACTION_TABLE[("task", "pause")]
+        task = asyncio.ensure_future(
+            runner(tmp_path, broker).handle(raw_request([b"{}"]), action, TASK)
+        )
+        while not broker.calls:
+            await asyncio.sleep(0)
+        task.cancel()  # the client went away while the broker was acting
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        interrupted = audit_lines(tmp_path)
+        release.set()
+        for _ in range(20):
+            await asyncio.sleep(0)
+        assert done == [True]  # the shield kept the broker call alive
+        return interrupted
+
+    interrupted = asyncio.run(scenario())
+    assert [(e["result"], e["email"]) for e in interrupted] == [("interrupted", EMAIL)]
+    after = audit_lines(tmp_path)
+    assert [e["result"] for e in after] == ["interrupted", "done"]
+    assert after[1]["detail"] == {"touched": 1}
+
+
+def test_the_same_action_stays_busy_until_a_cancelled_call_finishes(tmp_path: Path) -> None:
+    async def scenario() -> tuple[int, int]:
+        release = asyncio.Event()
+
+        async def slow() -> object:
+            await release.wait()
+            return {"series_id": TASK, "touched": 1}
+
+        broker = StubBroker(slow)
+        run = runner(tmp_path, broker)
+        action = ACTION_TABLE[("task", "pause")]
+        first = asyncio.ensure_future(run.handle(raw_request([b"{}"]), action, TASK))
+        while not broker.calls:
+            await asyncio.sleep(0)
+        first.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await first
+        during = await asyncio.wait_for(run.handle(raw_request([b"{}"]), action, TASK), 2)
+        release.set()
+        for _ in range(20):
+            await asyncio.sleep(0)
+        broker.act = lambda: asyncio.sleep(0, {"series_id": TASK, "touched": 0})
+        after = await run.handle(raw_request([b"{}"]), action, TASK)
+        return during.status_code, after.status_code
+
+    assert asyncio.run(scenario()) == (409, 200)
+
+
+def test_a_cancelled_request_whose_call_then_fails_records_the_error(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        release = asyncio.Event()
+
+        async def slow_boom() -> object:
+            await release.wait()
+            raise ConnectionResetError("text that must not be written")
+
+        broker = StubBroker(slow_boom)
+        action = ACTION_TABLE[("task", "run")]
+        task = asyncio.ensure_future(
+            runner(tmp_path, broker).handle(raw_request([b"{}"]), action, TASK)
+        )
+        while not broker.calls:
+            await asyncio.sleep(0)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        release.set()
+        for _ in range(20):
+            await asyncio.sleep(0)
+
+    asyncio.run(scenario())
+    assert [(e["result"], e["code"]) for e in audit_lines(tmp_path)] == [
+        ("interrupted", None),
+        ("error", "ConnectionResetError"),
+    ]
+    assert "must not" not in (tmp_path / "audit.jsonl").read_text()

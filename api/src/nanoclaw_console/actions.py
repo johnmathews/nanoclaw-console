@@ -12,6 +12,7 @@ sent. The broker is asked only for the action's own verb with the id; the consol
 verb, a flag or any other value from the request.
 """
 
+import asyncio
 import json
 import logging
 import re
@@ -23,7 +24,7 @@ from typing import Any
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from .audit import AuditLog, AuditUnavailable
+from .audit import AuditLog, AuditUnavailable, AuditWriter
 from .broker_client import BrokerClient, BrokerError
 from .schedule import iso
 
@@ -82,6 +83,9 @@ class ActionRunner:
         self._origin = origin
         self._clock = clock
         self._busy: set[tuple[str, str]] = set()
+        # Busy keys whose request was cancelled while the shielded broker call still runs: they
+        # stay busy until that call finishes, so a retry cannot overlap it.
+        self._settling: set[tuple[str, str]] = set()
 
     async def handle(self, request: Request, action: Action, target_id: str) -> JSONResponse:
         valid_id = ID_PATTERN.fullmatch(target_id) is not None
@@ -115,11 +119,14 @@ class ActionRunner:
             return _answer(409, self._body(entry))
         self._busy.add(key)
         try:
-            return await self._act(action, target_id, entry)
+            return await self._act(action, target_id, entry, key)
         finally:
-            self._busy.discard(key)
+            if key not in self._settling:
+                self._busy.discard(key)
 
-    async def _act(self, action: Action, target_id: str, entry: dict[str, Any]) -> JSONResponse:
+    async def _act(
+        self, action: Action, target_id: str, entry: dict[str, Any], key: tuple[str, str]
+    ) -> JSONResponse:
         try:
             writer = self._audit.open()
         except AuditUnavailable:
@@ -128,12 +135,28 @@ class ActionRunner:
             logger.error("Audit log %s cannot be written; action refused", self._audit.path)
             return _answer(503, self._body(entry))
         with writer:
-            outcome = await self._call(action, target_id)
+            # Shielded: a client that hangs up cancels this handler, not the broker call, so an
+            # action the broker has started always ends in an audit line with what came of it.
+            call = asyncio.ensure_future(self._call(action, target_id))
+            try:
+                outcome = await asyncio.shield(call)
+            except asyncio.CancelledError:
+                entry.update(result="interrupted")
+                self._write_or_log(writer, entry)
+                self._settling.add(key)
+                call.add_done_callback(lambda done: self._record_late(entry, done, key))
+                raise
+            except Exception as exc:
+                # The type name only: an exception's message may carry anything.
+                entry.update(result="error", code=type(exc).__name__)
+                self._write_or_log(writer, entry)
+                raise
             entry.update(result=outcome.result, code=outcome.code, detail=outcome.detail)
             try:
                 writer.write(entry)
             except OSError:
-                # The broker has acted, and the line is on stdout; say the file missed it.
+                # The broker has answered (it may have acted), and the line is on stdout; say
+                # the file missed it, with what the broker answered.
                 logger.error("Audit log %s write failed after the action", self._audit.path)
                 return _answer(
                     500,
@@ -161,6 +184,29 @@ class ActionRunner:
                 return _Outcome(status, result)
             return _Outcome(502, "broker_error", exc.code)
         return _Outcome(200, "done", detail=_detail(action, data))
+
+    def _write_or_log(self, writer: AuditWriter, entry: Mapping[str, Any]) -> None:
+        """On the way out of a failed call: the line if the file takes it, else a log line."""
+        try:
+            writer.write(entry)
+        except OSError:
+            logger.error("Audit log %s write failed after an interrupted action", self._audit.path)
+
+    def _record_late(
+        self, entry: Mapping[str, Any], done: "asyncio.Future[_Outcome]", key: tuple[str, str]
+    ) -> None:
+        """The outcome of a broker call whose request was cancelled, as a second line."""
+        self._settling.discard(key)
+        self._busy.discard(key)
+        late = dict(entry)
+        if done.cancelled():
+            late.update(result="interrupted")
+        elif (exc := done.exception()) is not None:
+            late.update(result="error", code=type(exc).__name__)
+        else:
+            outcome = done.result()
+            late.update(result=outcome.result, code=outcome.code, detail=outcome.detail)
+        self._audit_refusal(late)
 
     def _audit_refusal(self, entry: dict[str, Any]) -> None:
         """A refusal is written down if it can be; it acted on nothing, so it never waits on it."""
@@ -203,11 +249,22 @@ def _header_refusal(request: Request, origin: str) -> str | None:
 
 
 async def _body_refusal(request: Request) -> str | None:
-    body = await request.body()  # behind the Access check, so only John's browser gets here
-    if len(body) > MAX_BODY:
-        return "body"
+    """`body` unless the body is exactly `{}`. At most MAX_BODY bytes are ever held: a declared
+    length over it is refused unread, and a chunked body stops being read once it passes it."""
+    declared = request.headers.get("content-length")
+    if declared is not None:
+        try:
+            if not 0 <= int(declared) <= MAX_BODY:
+                return "body"
+        except ValueError:
+            return "body"
+    body = bytearray()
+    async for chunk in request.stream():
+        body += chunk
+        if len(body) > MAX_BODY:
+            return "body"
     try:
-        value = json.loads(body)
+        value = json.loads(bytes(body))
     except (UnicodeDecodeError, ValueError):
         return "body"
     if value != {}:

@@ -166,6 +166,14 @@ describe('what the page says after an answer', () => {
     expect(words('run', 'audit_failed')).toMatchObject({ tone: 'caution', closes: true })
   })
 
+  it('a missed audit file says NanoClaw acted only when it did', () => {
+    expect(words('run', 'audit_failed', { acted_result: 'done' }).text).toContain('NanoClaw acted')
+    const other = words('run', 'audit_failed', { acted_result: 'not_found' })
+    expect(other).toMatchObject({ tone: 'caution', closes: true })
+    expect(other.text).not.toContain('NanoClaw acted')
+    expect(other.text).toContain('audit file missed')
+  })
+
   it('everything that did not act keeps the dialog open with an error', () => {
     for (const [result, extra, expected] of [
       ['busy', {}, 'already running'],
@@ -226,10 +234,16 @@ describe('the audit page’s words', () => {
       ['no_live_run', 'No waiting run to change'],
       ['busy', 'Refused: the same action was still running'],
       ['audit_failed', 'audit_failed'],
+      ['interrupted', 'Interrupted before NanoClaw answered; a later entry says what came of it'],
     ] as const)
       expect(auditResultWords({ ...blank, result }).text).toBe(text)
     expect(auditResultWords(blank)).toEqual({ tone: 'error', text: 'No result recorded' })
     expect(auditResultWords({ ...blank, result: 'broker_error' }).text).toContain('(unknown)')
+    expect(auditResultWords({ ...blank, result: 'interrupted' }).tone).toBe('caution')
+    expect(auditResultWords({ ...blank, result: 'error', code: 'RuntimeError' })).toEqual({
+      tone: 'error',
+      text: 'The console failed during the action (RuntimeError)',
+    })
   })
 
   it('links a target to its page, and nothing for an id it did not keep', () => {

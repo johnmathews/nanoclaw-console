@@ -6,7 +6,9 @@ attempt *before* anything is sent to the broker: if it cannot be opened, the act
 (fail closed) rather than done unaudited. Nothing here ever rewrites or truncates the file.
 """
 
+import errno
 import json
+import logging
 import os
 import sys
 import threading
@@ -15,6 +17,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from types import TracebackType
 from typing import Any, TextIO
+
+logger = logging.getLogger(__name__)
 
 AUDIT_FILE = "audit.jsonl"
 DEFAULT_MAX_READ = 1024 * 1024  # the audit page reads at most the last MiB of the file
@@ -43,11 +47,21 @@ class AuditWriter:
         self._fd = fd
 
     def write(self, entry: Mapping[str, object]) -> None:
-        """Append one line and echo it. A failed append is raised after the echo."""
+        """Append one line, sync it, then echo it. A failed append is raised after the echo."""
         line = _line(entry)
-        self._log.echo(entry)
-        with self._log.lock:
-            os.write(self._fd, line)
+        try:
+            with self._log.lock:
+                # A regular file can take less than the whole line (a full disk): finish it, or
+                # raise, so a cut line is never reported as written.
+                view = memoryview(line)
+                while view:
+                    written = os.write(self._fd, view)
+                    if written <= 0:
+                        raise OSError(errno.EIO, "the audit log took no bytes")
+                    view = view[written:]
+                os.fsync(self._fd)  # a few lines a week: cheap, and the line outlives a crash
+        finally:
+            self._log.echo(entry)
 
     def __enter__(self) -> "AuditWriter":
         return self
@@ -94,10 +108,13 @@ class AuditLog:
             return False
 
     def echo(self, entry: Mapping[str, object]) -> None:
-        """The line on stdout only: for an attempt the file could not take."""
+        """The line on stdout. Never raises: the file is the record, stdout a copy."""
         stream = self._stream if self._stream is not None else sys.stdout
-        stream.write(json.dumps({"event": "audit", **entry}, sort_keys=True) + "\n")
-        stream.flush()
+        try:
+            stream.write(json.dumps({"event": "audit", **entry}, sort_keys=True) + "\n")
+            stream.flush()
+        except Exception:  # a broken stdout must not stop an audited action
+            logger.error("Audit line could not be echoed to stdout")
 
     def recent(self, limit: int = DEFAULT_RECENT) -> Recent:
         """The last `limit` entries, newest first, from at most the last `max_read` bytes."""

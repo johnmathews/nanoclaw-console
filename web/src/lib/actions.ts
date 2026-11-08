@@ -184,7 +184,10 @@ export function outcomeWords(action: ActionName, answer: ActionAnswer): ActionOu
     case 'audit_failed':
       return {
         tone: 'caution',
-        text: 'NanoClaw acted, but the audit file missed it; the console’s own log has the line.',
+        text:
+          answer.acted_result === 'done'
+            ? 'NanoClaw acted, but the audit file missed it; the console’s own log has the line.'
+            : 'The audit file missed this attempt; the console’s own log has the line. The page shows what NanoClaw has now.',
         closes: true,
       }
     case 'busy':
@@ -278,6 +281,16 @@ export function auditResultWords(entry: AuditEntry): {
       return { tone: 'error', text: `Refused: ${reasonWords(entry.reason)}` }
     case 'broker_error':
       return { tone: 'error', text: `No answer from NanoClaw (${entry.code ?? 'unknown'})` }
+    case 'interrupted':
+      return {
+        tone: 'caution',
+        text: 'Interrupted before NanoClaw answered; a later entry says what came of it',
+      }
+    case 'error':
+      return {
+        tone: 'error',
+        text: `The console failed during the action (${entry.code ?? 'unknown'})`,
+      }
     default:
       return { tone: 'error', text: entry.result ?? 'No result recorded' }
   }

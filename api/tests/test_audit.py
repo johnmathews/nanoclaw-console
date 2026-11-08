@@ -200,3 +200,65 @@ def test_the_audit_view_needs_the_jwt(make_client: AppFactory) -> None:
     response = make_client().get("/api/audit")
     assert response.status_code == 403
     assert response.content == b""
+
+
+def test_a_short_write_is_finished_not_left_cut(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real_write = os.write
+
+    def two_bytes_at_a_time(fd: int, data: bytes | memoryview) -> int:
+        return real_write(fd, bytes(data[:2]))
+
+    log = AuditLog(tmp_path, stream=io.StringIO())
+    monkeypatch.setattr(os, "write", two_bytes_at_a_time)
+    with log.open() as writer:
+        writer.write(entry())
+    monkeypatch.undo()
+    lines = (tmp_path / AUDIT_FILE).read_text().splitlines()
+    assert [json.loads(x)["action"] for x in lines] == ["pause"]
+
+
+def test_a_write_that_takes_nothing_raises(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    log = AuditLog(tmp_path, stream=io.StringIO())
+    monkeypatch.setattr(os, "write", lambda fd, data: 0)
+    with log.open() as writer, pytest.raises(OSError):
+        writer.write(entry())
+
+
+class BrokenStream(io.StringIO):
+    def write(self, s: str) -> int:
+        raise ValueError("I/O operation on closed file")
+
+
+def test_a_broken_stdout_never_stops_the_file_line(tmp_path: Path) -> None:
+    log = AuditLog(tmp_path, stream=BrokenStream())
+    with log.open() as writer:
+        writer.write(entry())
+    log.echo(entry())  # the stdout-only path swallows it too
+    lines = (tmp_path / AUDIT_FILE).read_text().splitlines()
+    assert [json.loads(x)["action"] for x in lines] == ["pause"]
+
+
+def test_each_line_is_synced_to_disk(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    synced: list[int] = []
+    monkeypatch.setattr(os, "fsync", lambda fd: synced.append(fd))
+    log = AuditLog(tmp_path, stream=io.StringIO())
+    with log.open() as writer:
+        writer.write(entry())
+    assert len(synced) == 1
+
+
+def test_a_failed_file_write_still_reaches_stdout(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out = io.StringIO()
+    log = AuditLog(tmp_path, stream=out)
+
+    def full(fd: int, data: bytes | memoryview) -> int:
+        raise OSError(28, "No space left on device")
+
+    monkeypatch.setattr(os, "write", full)
+    with log.open() as writer, pytest.raises(OSError):
+        writer.write(entry())
+    assert json.loads(out.getvalue())["event"] == "audit"

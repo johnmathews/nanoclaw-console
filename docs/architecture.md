@@ -24,7 +24,7 @@ NanoClaw's control socket, `data/ncl.sock` (D1).
 | Image                                       | Built from          | Runs as      | Holds                                                    |
 | ------------------------------------------- | ------------------- | ------------ | -------------------------------------------------------- |
 | `ghcr.io/johnmathews/nanoclaw-console-broker` | `broker/Dockerfile` | uid 1000     | NanoClaw's `ncl.sock` and read-only `data/`, `groups/` |
-| `ghcr.io/johnmathews/nanoclaw-console`      | `Dockerfile`        | uid 10001    | Only the broker's socket directory                       |
+| `ghcr.io/johnmathews/nanoclaw-console`      | `Dockerfile`        | uid 10001    | The broker's socket directory and the audit volume       |
 
 - **The broker** (`broker/`, package `nanoclaw_broker`) is the only process that can talk to
   NanoClaw. `ncl.sock` grants full control of NanoClaw to anything that can open it, so the broker
@@ -205,8 +205,9 @@ Every ncl call runs on NanoClaw's one event loop, on a 2-core LXC that is alread
   `ag-1779373702795-5wbiev`, `main-group`).
 - SIGTERM or SIGINT closes the server, removes the socket and exits 0.
 - The log is JSON lines on stdout: one `request` event per request with the verb (only a known
-  verb name), the validated ids, the cache result (`hit`, `miss`, `shared`), the outcome and the
-  duration. It never contains reply data. An ncl rejection adds `ncl_code` and the redacted
+  verb name), the validated ids, the cache result (`hit`, `miss`, `shared`, or `none` for a verb
+  that is never cached, such as a write), the outcome and the duration; a write adds `write: true`
+  (§3.9). It never contains reply data. An ncl rejection adds `ncl_code` and the redacted
   `detail` (§3.5).
 
 ### 3.8 The extra reads
@@ -316,7 +317,8 @@ the broker classifies it, at its start only, before discarding it (`NclError.kin
 - `no live task matched: …` from a pause or resume → the broker drops the task's cached reads and
   asks `tasks-get` once: its status equal to the one the write would set (`paused`, `pending`) →
   `already_in_state` ("the task is already paused"); `task not found` → `not_found`; any other
-  status (it is running now) → `no_live_run`; a failing read → the original `ncl_error`.
+  status (it is running now) → `no_live_run`; a read ncl refuses → the original `ncl_error` (an
+  `unavailable` or `timeout` on that read is answered as itself).
 - Anything else, and anything from `groups-restart`, stays `ncl_error`.
 
 **Invalidation.** After a write, whatever it answered (a write that timed out may still have
@@ -396,8 +398,8 @@ other Access app useless here.
   answer), `timeout`, `protocol_error` (not one JSON object, or too large), or the broker's own
   code (`unknown_verb`, `invalid_params`, `ncl_error`, …). The broker's message text is never
   passed on to a client.
-- The console never takes a verb from a request. It takes an id only for the task detail, checked
-  against the broker's id pattern first (anything else is a 404).
+- The console never takes a verb from a request. It takes an id only for the task detail and the
+  four actions (§4.8), checked against the broker's id pattern first (anything else is a 404).
 
 ### 4.4 Claude health
 
@@ -715,7 +717,7 @@ The overview's `warnings` are the same items.
 ### 4.8 The four actions
 
 `POST /api/tasks/{id}/pause`, `/resume` and `/run`, and `POST /api/groups/{id}/restart`
-(`actions.py`). Any other action name under those paths is a 404; a `GET` is not an action.
+(`actions.py`). Any other action name under those paths is a 404 and is not audited; a `GET` is not an action.
 
 **The guard.** Past the Access check (a missing or bad JWT is the usual bare 403, before the route,
 and is not audited because nobody is known), a request must carry, in this order of checking:
@@ -727,7 +729,9 @@ and is not audited because nobody is known), a request must carry, in this order
    are refused too);
 4. `Content-Type: application/json`, parameters allowed (`content_type`; so a form post, which
    cannot set it, is refused);
-5. a body that is exactly the JSON object `{}`, at most 1 KiB (`body`);
+5. a body that is exactly the JSON object `{}`, at most 1 KiB (`body`): a declared
+   `Content-Length` over that is refused unread, and a chunked body stops being read once it
+   passes it, so a request never holds more than 1 KiB;
 6. an id matching the broker's pattern (`bad_id`, answered 404).
 
 Every refusal is `403 {"result": "refused", "reason": "<reason>"}` (404 for `bad_id`), audited,
@@ -765,8 +769,16 @@ with `{"id"}`. The answer, always `Cache-Control: no-store`:
 `detail` holds only the named fields of the broker's answer that are a count or an id: `touched`
 (pause, resume), `row_id` (run), `restarted` (restart); `null` when not done. The audit line is
 written with the outcome before the answer is sent. If that write fails after the broker has
-acted (a full disk), the answer is `500 {"result": "audit_failed", "acted_result": "<result>"}`
-and the line is still on stdout.
+answered (a full disk), the answer is `500 {"result": "audit_failed", "acted_result": "<result>"}`
+and the line is still on stdout; the page says NanoClaw acted only when `acted_result` is `done`.
+
+**Every exit from the call is audited.** The broker call runs under `asyncio.shield`, so a client
+that hangs up cancels the request, not the call. A cancelled request writes `result:
+"interrupted"` before it ends, and when the shielded call finishes, a second line with the same
+`at` records what came of it. An unexpected exception writes `result: "error"` with the
+exception's type name in `code` (never its message), then answers 500. What no line can cover is
+the process being killed (SIGKILL, OOM) between the broker acting and the line; the broker's own
+`request` log (`write: true`, §3.7) still has the verb and id.
 
 ### 4.9 The audit log
 
@@ -786,9 +798,11 @@ new volume starts that way). One JSON line per attempt that passed the Access ch
   it carried, each cut to 200 characters, which is what tells a forged POST apart.
 - **Append-only.** The file is opened per attempt with `O_WRONLY | O_APPEND | O_CREAT |
   O_NOFOLLOW` (mode 0600), so a symlink in its place is refused, and nothing ever truncates or
-  rewrites it. `json.dumps` escapes newlines, so a value cannot start a second line.
+  rewrites it. `json.dumps` escapes newlines, so a value cannot start a second line. A short write
+  is finished or raised, never left cut, and each line is `fsync`ed.
 - **Also on stdout**, every attempt, as `{"event": "audit", …}` (so `docker logs` and Loki keep a
-  copy), including the ones the file could not take.
+  copy), including the ones the file could not take. The file is written first; a broken stdout
+  is logged and never stops the file line.
 - **Fail closed.** If the directory is missing or not writable, the actions answer 503 and do
   nothing; the views and `/healthz` are unaffected, so the container stays healthy and the
   problem shows on the audit page.
